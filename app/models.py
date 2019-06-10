@@ -6,19 +6,31 @@ class User(db.Model):
 
     __tablename__ = 'users'
 
-    id = db.Column(db.Integer,
-                   primary_key=True
-                   )
-    username = db.Column(db.String(64),
-                         index=False,
-                         unique=True,
-                         nullable=False
-                         )
-    email = db.Column(db.String(80),
-                      index=True,
-                      unique=True,
-                      nullable=False
-                      )
+    id = db.Column(db.Integer, primary_key=True)
+
+    username = db.Column(db.String(64), index=False,
+                         unique=True, nullable=False)
+    email = db.Column(db.String(80), index=True, unique=True,
+                      nullable=False)
+    paid_articles = db.Column(db.PickleType, nullable=False)
+    # There prolly is better way than 2 booleans for this
+    # For example setting subscription end date to null
+    # Could indicate that payment type is pay-per-article
+    # But this will do for now
+    monthly_pay = db.Column(db.Boolean)
+    single_pay = db.Column(db.Boolean)
+    subscription_end = db.Column(db.DateTime)
+    # TODO: store keys of paid Articles
+    #
+    # This doesn't work, should use many-to-many relationship
+    # or just pickle list of Article id's and use that list to
+    # query for paid articles
+    # paid_articles = db.relationship('Article', backref=db.backref('users', lazy=True))
 
     def __repr__(self):
         return '<User {}>'.format(self.username)
+
+
+class Article(db.Model):
+    """Article database model to store payed articles"""
+    id = db.Column(db.Integer, primary_key=True)

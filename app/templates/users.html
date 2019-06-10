@@ -5,6 +5,7 @@
     <ul id="user.username">
       <li>Username: {{ user.username }}</li>
       <li>Email: {{ user.email }}</li>
+      <li>Paid_articles: {{ unpickle(user.paid_articles) }}</li>
     </ul>
   {% endfor %}
 {% endblock %}

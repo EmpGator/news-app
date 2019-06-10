@@ -6,6 +6,9 @@ from wtforms import StringField
 from wtforms.validators import DataRequired
 
 
+import pickle
+
+
 class NewUserForm(FlaskForm):
     name = StringField('name', validators=[DataRequired()])
     email = StringField('email', validators=[DataRequired()])
@@ -17,7 +20,9 @@ def new_entry():
     form = NewUserForm()
     if form.validate_on_submit():
         try:
-            new_user = User(username=request.form.get('name'), email=request.form.get('email'))
+            articles = []
+            articles = pickle.dumps(articles)
+            new_user = User(username=request.form.get('name'), email=request.form.get('email'), paid_articles=articles)
             db.session.add(new_user)
             db.session.commit()
             return redirect(url_for('index'))
@@ -37,3 +42,10 @@ def users():
 @app.route('/')
 def index():
     return render_template('index.html')
+
+
+@app.context_processor
+def utility_processor():
+    def unpickle(pickled_string):
+        return pickle.loads(pickled_string)
+    return dict(unpickle=unpickle)
