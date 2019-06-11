@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+<ul>
+    {% for i in id_list %}
+    <li>
+        <a href="{{url_for('article', id=i )}}">{{i}}</a>
+    </li>
+    {% endfor %}
+</ul>
+</body>
+</html>

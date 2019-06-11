@@ -26,6 +26,7 @@ def create_app():
 
 
 # TODO: easy way to create and edit accounts + selecting payment
+# TODO: add logout to index page add new user to login page
 # TODO: Move auth to blueprint
 # TODO: Token buy view
 # TODO: User token wallet
