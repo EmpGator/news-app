@@ -18,8 +18,7 @@ class User(UserMixin, db.Model):
     # For example setting subscription end date to null
     # Could indicate that payment type is pay-per-article
     # But this will do for now
-    monthly_pay = db.Column(db.Boolean)
-    single_pay = db.Column(db.Boolean)
+    monthly_pay = db.Column(db.Boolean, nullable=False)
     subscription_end = db.Column(db.DateTime)
     # TODO: store keys of paid Articles
     #
@@ -35,6 +34,7 @@ class User(UserMixin, db.Model):
 class Article(db.Model):
     """Article database model to store payed articles"""
     id = db.Column(db.Integer, primary_key=True)
+    url = db.Column(db.String(255), nullable=False)
 
 
 @login_manager.user_loader

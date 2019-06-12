@@ -13,7 +13,7 @@ import pickle
 class NewUserForm(FlaskForm):
     name = StringField('name', validators=[DataRequired()])
     email = StringField('email', validators=[DataRequired()])
-    payment_method = RadioField('Payment method', choices=[('1', 'Monthly'), ('2',
+    payment_method = RadioField('Payment method', choices=[('1', 'Monthly'), ('0',
                                 'Single')], default=1)
 
 
@@ -32,7 +32,8 @@ def new_entry():
             articles = pickle.dumps(articles)
             new_user = User(username=request.form.get('name'),
                             email=request.form.get('email'),
-                            paid_articles=articles)
+                            paid_articles=articles,
+                            monthly_pay=bool(int(request.form.get('payment_method'))))
             db.session.add(new_user)
             db.session.commit()
             return redirect(url_for('index'))
@@ -85,7 +86,22 @@ def login():
 def logout():
     """logoutroute"""
     logout_user()
-    return 'Logged out'
+    return redirect(url_for('login'))
+
+
+@app.route('/article/<id>')
+@login_required
+def article(id=0):
+    if current_user.monthly_pay:
+        return render_template('article.html', article_id=id)
+    else:
+        paid_articles = pickle.loads(current_user.paid_articles)
+        print(paid_articles)
+        if request.url in paid_articles:
+            return render_template('article.html', article_id=id)
+        else:
+            return render_template('blocked_article.html', article_id=id)
+    return 'Something went wrong'
 
 
 @app.context_processor
