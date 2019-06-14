@@ -1,4 +1,4 @@
-from flask import render_template, redirect, url_for, request, flash
+from flask import render_template, redirect, url_for, request, flash, make_response
 from flask import current_app as app
 from .models import db, User
 from flask_wtf import FlaskForm
@@ -89,7 +89,7 @@ def logout():
     return redirect(url_for('login'))
 
 
-@app.route('/article/<id>')
+@app.route('/article/<id>', methods=['POST', 'GET'])
 @login_required
 def article(id=0):
     if current_user.monthly_pay:
@@ -102,6 +102,21 @@ def article(id=0):
         else:
             return render_template('blocked_article.html', article_id=id)
     return 'Something went wrong'
+
+
+@app.route('/paidarticle', methods=['POST'])
+@login_required
+def paid_article():
+    data = request.get_json()
+    print(data)
+    print(request.url)
+    print(current_user)
+    paid_articles = pickle.loads(current_user.paid_articles)
+    paid_articles.append(data['url'])
+    current_user.paid_articles = pickle.dumps(paid_articles)
+    db.session.commit()
+    resp = make_response('Ok', 200)
+    return resp
 
 
 @app.context_processor
