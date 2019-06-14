@@ -1,4 +1,4 @@
-from . import db, login_manager
+from .db import db
 from flask_login import UserMixin
 
 
@@ -35,13 +35,3 @@ class Article(db.Model):
     """Article database model to store payed articles"""
     id = db.Column(db.Integer, primary_key=True)
     url = db.Column(db.String(255), nullable=False)
-
-
-@login_manager.user_loader
-def user_loader(id):
-    return User.query.get(int(id))
-
-
-@login_manager.request_loader
-def request_loader(request):
-    return None

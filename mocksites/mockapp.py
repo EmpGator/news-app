@@ -1,8 +1,8 @@
-from flask import Flask, session, render_template, redirect, url_for, request
+from flask import Flask, session, render_template, redirect, url_for, request, jsonify
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField
 from wtforms.validators import DataRequired
-
+import requests
 
 app = Flask(__name__)
 app.secret_key = b'dsaadsads'
@@ -23,31 +23,45 @@ def login():
         if users[user] == form.password.data:
             print('ok')
             session['user'] = user
-            return redirect(url_for('main'))
+            return redirect(url_for('index'))
         else:
             return redirect(url_for('login'))
 
     return render_template('login.html', form=form)
 
 
-@app.route('/')
-def main():
-    try:
-        if session['user']:
-            return render_template('index.html', id_list=list(range(5)))
-    except Exception as e:
-        print(e)
+@app.route('/logout')
+def logout():
+    """logoutroute"""
+    session['user'] = None
     return redirect(url_for('login'))
+
+
+@app.route('/')
+def index():
+    return render_template('index.html', id_list=list(range(5)))
+
+
+@app.route('/finnplus/')
+def finnplus():
+    payload = {'url': str(request.referrer), 'name': 'Tri', 'password': 'test'}
+    r = requests.post('http://localhost:5000/api/helloworld', data=payload)
+    return r.text
 
 
 @app.route('/article/<id>')
 def article(id=0):
     try:
         if session['user']:
-            return f'allowed access for article {id}'
+            return render_template('article.html', article_id=id)
     except Exception as e:
         print(e)
-    return f'access denied, log in'
+    return render_template('blocked_article.html', article_id=id)
+
+
+@app.route('/api')
+def api():
+    return jsonify(users)
 
 
 if __name__ == '__main__':

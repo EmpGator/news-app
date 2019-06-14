@@ -1,12 +1,11 @@
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFProtect
-from flask_login import LoginManager
+from .db import db
+from .auth import login_manager
+from .api import api_bp
 
 
-db = SQLAlchemy()
 csrf = CSRFProtect()
-login_manager = LoginManager()
 login_manager.login_view = 'login'
 
 
@@ -14,9 +13,11 @@ def create_app():
     app = Flask(__name__, instance_relative_config=False)
     app.config.from_object('config.Config')
     db.init_app(app)
-    csrf.init_app(app)
     login_manager.init_app(app)
+    csrf.init_app(app)
 
+    csrf.exempt(api_bp)
+    app.register_blueprint(api_bp)
     with app.app_context():
         from . import routes
 
@@ -25,9 +26,7 @@ def create_app():
         return app
 
 
+# TODO: Structure auth to it's own module and blueprint
 # TODO: easy way to create and edit accounts + selecting payment
-# TODO: add logout to index page add new user to login page
-# TODO: Move auth to blueprint
-# TODO: Token buy view
-# TODO: User token wallet
-# TODO: mock up Authorization of users in news sites
+# TODO: Show user tokens
+# TODO: Polish external authentication API (JWT tokens)
