@@ -8,6 +8,7 @@
       <li>Paid_articles: {{ unpickle(user.paid_articles) }}</li>
       <li>Monthly payment: {{ user.monthly_pay }}</li>
       <li>Monthly pay expiration: {{ user.subscription_end }}</li>
+      <li>Password hash: {{ user.password }}</li>
     </ul>
   {% endfor %}
 {% endblock %}

@@ -1,0 +1,11 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<a href="{{ url_for('auth.new_entry') }}">New user register</a>
+<form method="POST" action="{{url_for('auth.login')}}">
+    {{ form.csrf_token }}
+    {{ form.name.label }} {{ form.name }}
+    {{ form.password.label }} {{ form.password }}
+    <input type="submit" value="Go">
+</form>
+{% endblock %}

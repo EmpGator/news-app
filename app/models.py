@@ -13,6 +13,7 @@ class User(UserMixin, db.Model):
                          unique=True, nullable=False)
     email = db.Column(db.String(80), index=True, unique=True,
                       nullable=False)
+    password = db.Column(db.String(80), nullable=False)
     paid_articles = db.Column(db.PickleType, nullable=False)
     # There prolly is better way than 2 booleans for this
     # For example setting subscription end date to null

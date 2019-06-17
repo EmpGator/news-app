@@ -44,9 +44,15 @@ def index():
 
 @app.route('/finnplus/')
 def finnplus():
-    payload = {'url': str(request.referrer), 'name': 'Tri', 'password': 'test'}
-    r = requests.post('http://localhost:5000/api/helloworld', data=payload)
-    return r.text
+    auth = ('Test', 'asd')
+    payload = {'url': str(request.referrer)}
+    r = requests.post('http://localhost:5000/api/userdata', data=payload, auth=auth)
+    data = r.json()
+    show_content = data['user']['Monthly payment']
+    if show_content:
+        session['user'] = data['user']
+        return redirect(request.referrer)
+    return redirect(url_for('index'))
 
 
 @app.route('/article/<id>')
