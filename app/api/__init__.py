@@ -1,7 +1,7 @@
-from flask import Blueprint
+from flask import Blueprint, make_response
 from flask_restful import Api, Resource
 from flask_restful.reqparse import RequestParser
-from flask_login import login_required, current_user
+from flask_login import current_user
 import pickle
 
 req_parser = RequestParser(bundle_errors=True)
@@ -15,8 +15,9 @@ class Userdata(Resource):
     def get(self):
         return {'hello': 'world'}
 
-    @login_required
     def post(self):
+        if not current_user.is_authenticated:
+            return make_response('Bad username or password', 403)
         args = req_parser.parse_args()
         for arg in args:
             print(arg, args[arg])

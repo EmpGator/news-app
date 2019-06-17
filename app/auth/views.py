@@ -17,7 +17,7 @@ def new_entry():
     if form.validate_on_submit():
         print('form validated')
         try:
-            articles = []
+            articles = ['http://localhost:8000/article/1']
             articles = pickle.dumps(articles)
             username = request.form.get('name')
             email = request.form.get('email')

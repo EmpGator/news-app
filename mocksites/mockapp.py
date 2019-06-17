@@ -14,6 +14,28 @@ class LoginForm(FlaskForm):
     password = PasswordField('password', validators=[DataRequired()])
 
 
+def show_content(url):
+    print('show_content')
+    try:
+        auth = session['externalauth']
+        if auth is None:
+            return None
+    except Exception as e:
+        print(e)
+        return None
+    print(auth)
+    payload = {'url': url}
+    r = requests.post('http://localhost:5000/api/userdata', data=payload, auth=auth)
+    if r.status_code == 200:
+        data = r.json()
+        if data['user']['Monthly payment']:
+            return True
+        if url in data['user']['Paid articles']:
+            return True
+        return False
+    session['externalauth'] = None
+
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
@@ -30,10 +52,19 @@ def login():
     return render_template('login.html', form=form)
 
 
+@app.route('/loginfinnplus', methods=['POST'])
+def loginfinnplus():
+    user = request.form.get('name')
+    password = request.form.get('password')
+    session['externalauth'] = (user, password)
+    return redirect(request.referrer)
+
+
 @app.route('/logout')
 def logout():
     """logoutroute"""
     session['user'] = None
+    session['externalauth'] = None
     return redirect(url_for('login'))
 
 
@@ -44,13 +75,8 @@ def index():
 
 @app.route('/finnplus/')
 def finnplus():
-    auth = ('Test', 'asd')
-    payload = {'url': str(request.referrer)}
-    r = requests.post('http://localhost:5000/api/userdata', data=payload, auth=auth)
-    data = r.json()
-    show_content = data['user']['Monthly payment']
-    if show_content:
-        session['user'] = data['user']
+    show = show_content(str(request.referrer))
+    if show:
         return redirect(request.referrer)
     return redirect(url_for('index'))
 
@@ -62,7 +88,13 @@ def article(id=0):
             return render_template('article.html', article_id=id)
     except Exception as e:
         print(e)
-    return render_template('blocked_article.html', article_id=id)
+    show = show_content(str(request.url))
+    if show:
+        return render_template('article.html', article_id=id)
+    if show is not None:
+        return render_template('pay_article.html', article_id=id)
+    form = LoginForm()
+    return render_template('blocked_article.html', article_id=id, form=form)
 
 
 @app.route('/api')

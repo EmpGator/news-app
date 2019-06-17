@@ -9,5 +9,11 @@
     <br>
     <h1>Article {{article_id}}</h1>
     <p><a href="{{ url_for('login') }}">Login to view</a></p>
-    <p><a href="{{ url_for('finnplus') }}">or login with finn+</a></p>
+    <p>or login with finn+</p>
+    <form method="POST" action="{{url_for('loginfinnplus')}}">
+    {{ form.csrf_token }}
+    {{ form.name.label }} {{ form.name(size=20) }}
+    {{ form.password.label }} {{ form.password(size=20) }}
+    <input type="submit" value="Go">
+</form>
 </body>
