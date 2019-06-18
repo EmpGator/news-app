@@ -1,26 +1,21 @@
 {% extends "layout.html" %}
 
 {% block content %}
+
+
+
+<p>{{ current_user.username }}</p>
+<p>{{ current_user.email }}</p>
+{% if subs %}
+<p>{{ current_user.subscription_end }}</p>
+{% endif %}
+
+{% if button %}
 <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
 <script src="{{ url_for('static', filename='main.js') }}"></script>
 <script src="{{ url_for('static', filename='badgerToken-1.0.1.js') }}"></script>
-<script type="text/javascript">
-var csrf_token = "{{ csrf_token() }}";
 
-$.ajaxSetup({
-    beforeSend: function(xhr, settings) {
-        if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
-            xhr.setRequestHeader("X-CSRFToken", csrf_token);
-        }
-    }
-});
-
-</script>
-
-
-<p>Pay for month</p>
-<p>{{button}}</p>
-{% if button %}
+<p>Pay 30 days subscription</p>
 <p>
     <button
         class="badger-button"
