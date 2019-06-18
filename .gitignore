@@ -1,5 +1,5 @@
 .env
-.notes
+*.notes
 .flake8
 venv
 __pycache__
