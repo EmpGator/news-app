@@ -1,0 +1,38 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
+<script src="{{ url_for('static', filename='main.js') }}"></script>
+<script src="{{ url_for('static', filename='badgerToken-1.0.1.js') }}"></script>
+<script type="text/javascript">
+var csrf_token = "{{ csrf_token() }}";
+
+$.ajaxSetup({
+    beforeSend: function(xhr, settings) {
+        if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+            xhr.setRequestHeader("X-CSRFToken", csrf_token);
+        }
+    }
+});
+
+</script>
+
+
+<p>Pay for month</p>
+<p>{{button}}</p>
+{% if button %}
+<p>
+    <button
+        class="badger-button"
+        data-to="simpleledger:qq0nu0xa5rxj72wx043ulhm3qs28y95davd6djawyh"
+        data-success-callback="monthlyPayCallback"
+        data-token-amount="10"
+        data-token-id="65a84381f20769f791258851f213b0e3543a6b567ff2c6f9a9c587af7b4ffc6e"
+        data-token-protocol="slp"
+    >
+        Pay 10 tokens
+    </button>
+</p>
+{% endif %}
+
+{% endblock %}

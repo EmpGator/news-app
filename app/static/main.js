@@ -2,13 +2,14 @@
 
 /**
  * @param  {[type]} txid Transaction id
+ * @param  {[type]} url endpoint to point at
  * Lähettää onnistuneen oston tiedot
  */
-function articlePaid(txid) {
+function articlePaid(txid, url) {
     var params = {'url': window.location.href, 'txid': txid};
     var ajaxRequest = $.ajax({
         async: true,
-        url: '/paidarticle',
+        url: url,
         type: 'POST',
         dataType: 'text',
         contentType: 'application/json; charset=utf-8',
@@ -45,9 +46,19 @@ function paidSuccess(msg) {
  * Callback to execute on success
  * @param  {[type]} txid Transaction id
  */
-function badgerCallback(txid) {
+function singlePayCallback(txid) {
     console.log('Success. Transaction ID:', txid);
-    articlePaid(txid);
+    articlePaid(txid, '/api/articlepaid');
+};
+
+
+/**
+ * Callback to execute on success
+ * @param  {[type]} txid Transaction id
+ */
+function monthlyPayCallback(txid) {
+    console.log('Success. Transaction ID:', txid);
+    articlePaid(txid, '/api/monthpaid');
 };
 
 

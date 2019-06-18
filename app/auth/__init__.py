@@ -1,11 +1,11 @@
 from flask_login import LoginManager
 from app.models import User
-from .views import app
+from .views import bp
 from passlib.hash import pbkdf2_sha256
 import base64
 
 login_manager = LoginManager()
-auth_bp = app
+auth_bp = bp
 
 
 @login_manager.user_loader

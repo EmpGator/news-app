@@ -7,22 +7,22 @@ from passlib.hash import pbkdf2_sha256
 import pickle
 
 
-app = Blueprint('auth', __name__)
+bp = Blueprint('auth', __name__)
 
 
-@app.route('/new', methods=['GET', 'POST'])
+@bp.route('/new', methods=['GET', 'POST'])
 def new_entry():
     """Endpoint to create a user."""
     form = NewUserForm()
     if form.validate_on_submit():
         print('form validated')
         try:
-            articles = ['http://localhost:8000/article/1']
+            articles = []
             articles = pickle.dumps(articles)
-            username = request.form.get('name')
-            email = request.form.get('email')
-            password_hash = pbkdf2_sha256.hash(request.form.get('password'))
-            monthly_pay = bool(request.form.get('payment_method'))
+            username = form.name.data
+            email = form.email.data
+            password_hash = pbkdf2_sha256.hash(form.password.data)
+            monthly_pay = form.payment_method.data
             new_user = User(username=username, email=email,
                             paid_articles=articles, password=password_hash,
                             monthly_pay=monthly_pay)
@@ -40,7 +40,7 @@ def new_entry():
 
 
 # placeholder
-@app.route('/login', methods=['GET', 'POST'])
+@bp.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
         return redirect(url_for('index'))
@@ -55,7 +55,7 @@ def login():
     return render_template('auth/login.html', form=form)
 
 
-@app.route('/logout')
+@bp.route('/logout')
 @login_required
 def logout():
     """logoutroute"""
