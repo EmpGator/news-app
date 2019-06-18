@@ -15,24 +15,14 @@ class LoginForm(FlaskForm):
 
 
 def show_content(url):
-    try:
-        auth = session['externalauth']
-        if auth is None:
-            return None
-    except Exception as e:
-        print(e)
+    auth = session.get('externalauth', None)
+    if auth is None:
         return None
-    print(auth)
     payload = {'url': url}
     r = requests.post('http://localhost:5000/api/userdata', data=payload, auth=auth)
     if r.status_code == 200:
         data = r.json()
-        if data['user']['Monthly payment']:
-            return True
-        if url in data['user']['Paid articles']:
-            return True
-        return False
-    session['externalauth'] = None
+        return data['access']
 
 
 @app.route('/login', methods=['GET', 'POST'])

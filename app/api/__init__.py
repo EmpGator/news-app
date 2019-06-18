@@ -20,9 +20,6 @@ api = Api(api_bp)
 
 
 class Userdata(Resource):
-    def get(self):
-        return {'hello': 'world'}
-
     # TODO: send better formated info pack:
     # It should not contain all user data, but rather info
     # if given article has been paid or not
@@ -30,10 +27,13 @@ class Userdata(Resource):
         if not current_user.is_authenticated:
             return make_response('Bad username or password', 403)
         args = u_data_req_parser.parse_args()
-        user = current_user
-        user_data = {'name': user.username, 'email': user.email, 'Paid articles':
-                     pickle.loads(user.paid_articles), 'Monthly payment': user.monthly_pay}
-        return {'yk': 'ok', 'user': user_data}
+        paid_articles = pickle.loads(current_user.paid_articles)
+        if args['url'] in paid_articles:
+            return {'access': True}
+        elif current_user.subscription_end is not None and \
+                current_user.subscription_end > date.today():
+            return {'access': True}
+        return {'access': False}
 
 
 class PaidArticle(Resource):
@@ -41,13 +41,14 @@ class PaidArticle(Resource):
         if not current_user.is_authenticated:
             return make_response('Bad username or password', 403)
         args = pay_req_parser.parse_args()
-        print(args['txid'])
-        paid_articles = pickle.loads(current_user.paid_articles)
-        paid_articles.append(args['url'])
-        current_user.paid_articles = pickle.dumps(paid_articles)
-        db.session.commit()
-        resp = make_response('Ok', 200)
-        return resp
+        if args['txid']:
+            paid_articles = pickle.loads(current_user.paid_articles)
+            paid_articles.append(args['url'])
+            current_user.paid_articles = pickle.dumps(paid_articles)
+            db.session.commit()
+            resp = make_response('Ok', 200)
+            return resp
+        return make_response('Invalid txid', 200)
 
 
 class PaidMonth(Resource):
@@ -63,6 +64,8 @@ class PaidMonth(Resource):
             else:
                 current_user.subscription_end = current_user.subscription_end + timedelta(days=30)
             db.session.commit()
+            return make_response('Ok', 200)
+        return make_response('Invalid txid', 200)
 
 
 api.add_resource(Userdata, '/api/userdata')
