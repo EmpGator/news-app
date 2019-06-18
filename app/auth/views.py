@@ -22,9 +22,10 @@ def new_entry():
             username = request.form.get('name')
             email = request.form.get('email')
             password_hash = pbkdf2_sha256.hash(request.form.get('password'))
+            monthly_pay = bool(request.form.get('payment_method'))
             new_user = User(username=username, email=email,
                             paid_articles=articles, password=password_hash,
-                            monthly_pay=bool(int(request.form.get('payment_method'))))
+                            monthly_pay=monthly_pay)
             db.session.add(new_user)
             db.session.commit()
             return redirect(url_for('auth.login'))
@@ -32,7 +33,8 @@ def new_entry():
             print(e)
             return render_template('auth/new_user.html', form=form)
     else:
-        print(form.errors.items())
+        for item in form.errors.items():
+            flash(item)
 
     return render_template('auth/new_user.html', form=form)
 
@@ -41,10 +43,9 @@ def new_entry():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
-        print('user is authenticated')
         return redirect(url_for('index'))
-    form = LoginForm()
 
+    form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.name.data).first()
         if user is not None and pbkdf2_sha256.verify(form.password.data, user.password):

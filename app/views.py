@@ -45,9 +45,6 @@ def article(id=0):
 @login_required
 def paid_article():
     data = request.get_json()
-    print(data)
-    print(request.url)
-    print(current_user)
     paid_articles = pickle.loads(current_user.paid_articles)
     paid_articles.append(data['url'])
     current_user.paid_articles = pickle.dumps(paid_articles)

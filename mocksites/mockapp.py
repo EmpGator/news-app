@@ -15,7 +15,6 @@ class LoginForm(FlaskForm):
 
 
 def show_content(url):
-    print('show_content')
     try:
         auth = session['externalauth']
         if auth is None:
@@ -43,7 +42,6 @@ def login():
     if form.validate_on_submit():
         user = form.name.data
         if users[user] == form.password.data:
-            print('ok')
             session['user'] = user
             return redirect(url_for('index'))
         else:
@@ -54,6 +52,7 @@ def login():
 
 @app.route('/loginfinnplus', methods=['POST'])
 def loginfinnplus():
+    """ handles login with finnplus account"""
     user = request.form.get('name')
     password = request.form.get('password')
     session['externalauth'] = (user, password)
@@ -65,7 +64,7 @@ def logout():
     """logoutroute"""
     session['user'] = None
     session['externalauth'] = None
-    return redirect(url_for('login'))
+    return redirect(url_for('index'))
 
 
 @app.route('/')
@@ -73,10 +72,16 @@ def index():
     return render_template('index.html', id_list=list(range(5)))
 
 
-@app.route('/finnplus/')
+@app.route('/finnplus', methods=['POST'])
 def finnplus():
-    show = show_content(str(request.referrer))
-    if show:
+    """ This informs finnplus that article has been paid """
+    print('Posting to paidarticle')
+    data = request.get_json()
+    r = requests.post('http://localhost:5000/api/articlepaid',
+                      auth=session['externalauth'], data=data)
+    print(r.status_code)
+    print(r.text)
+    if request.referrer is not None:
         return redirect(request.referrer)
     return redirect(url_for('index'))
 
@@ -88,12 +93,16 @@ def article(id=0):
             return render_template('article.html', article_id=id)
     except Exception as e:
         print(e)
+
+    # External auth stuff
     show = show_content(str(request.url))
     if show:
         return render_template('article.html', article_id=id)
     if show is not None:
         return render_template('pay_article.html', article_id=id)
     form = LoginForm()
+
+    # Not authorized access
     return render_template('blocked_article.html', article_id=id, form=form)
 
 

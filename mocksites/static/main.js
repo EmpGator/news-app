@@ -8,7 +8,7 @@ function articlePaid(txid) {
     var params = {'url': window.location.href, 'txid': txid};
     var ajaxRequest = $.ajax({
         async: true,
-        url: '/paidarticle',
+        url: '/finnplus',
         type: 'POST',
         dataType: 'text',
         contentType: 'application/json; charset=utf-8',
@@ -31,7 +31,7 @@ function ajaxError(xhr, status, error) {
 }
 
 /**
- * Callback for success
+ * Callback for succesful ajax call
  * @param  {[type]} msg [description]
  */
 function paidSuccess(msg) {

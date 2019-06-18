@@ -7,9 +7,9 @@ class NewUserForm(FlaskForm):
     name = StringField('name', validators=[DataRequired()])
     email = StringField('email', validators=[DataRequired()])
     password = PasswordField('password', validators=[DataRequired()])
-    payment_method = RadioField('Payment method', choices=[('1', 'Monthly'),
-                                ('0', 'Single')], default=1,
-                                validators=[DataRequired()])
+    payment_method = RadioField('Payment method', choices=[(1, 'Monthly'),
+                                (0, 'Single')], default=1,
+                                validators=[DataRequired()], coerce=int)
 
 
 class LoginForm(FlaskForm):
