@@ -1,0 +1,25 @@
+{
+  "files": {
+    "main.css": "/static/css/main.8568f726.chunk.css",
+    "main.js": "/static/js/main.b77a1599.chunk.js",
+    "main.js.map": "/static/js/main.b77a1599.chunk.js.map",
+    "runtime~main.js": "/static/js/runtime~main.a8a9905a.js",
+    "runtime~main.js.map": "/static/js/runtime~main.a8a9905a.js.map",
+    "static/js/2.80eb5e34.chunk.js": "/static/js/2.80eb5e34.chunk.js",
+    "static/js/2.80eb5e34.chunk.js.map": "/static/js/2.80eb5e34.chunk.js.map",
+    "index.html": "/index.html",
+    "precache-manifest.acce4fc953ef17dd860e69d9f4794130.js": "/precache-manifest.acce4fc953ef17dd860e69d9f4794130.js",
+    "service-worker.js": "/service-worker.js",
+    "static/css/main.8568f726.chunk.css.map": "/static/css/main.8568f726.chunk.css.map",
+    "static/media/Helsinginsanomat.7df10021.svg": "/static/media/Helsinginsanomat.7df10021.svg",
+    "static/media/Turunsanomat.2b59c2f8.svg": "/static/media/Turunsanomat.2b59c2f8.svg",
+    "static/media/image_five.jpg": "/static/media/image_five.9f2c9d0e.jpg",
+    "static/media/image_four.jpg": "/static/media/image_four.beb4069c.jpg",
+    "static/media/image_one.jpg": "/static/media/image_one.e291649c.jpg",
+    "static/media/image_three.jpg": "/static/media/image_three.bcb6cf9f.jpg",
+    "static/media/image_two.jpg": "/static/media/image_two.b0c64446.jpg",
+    "static/media/kauppalehti.ec98efbe.svg": "/static/media/kauppalehti.ec98efbe.svg",
+    "static/media/keskisuomalainen.0b4f2b1c.svg": "/static/media/keskisuomalainen.0b4f2b1c.svg",
+    "static/media/savonsanomat.d8cb55d7.svg": "/static/media/savonsanomat.d8cb55d7.svg"
+  }
+}
