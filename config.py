@@ -12,4 +12,8 @@ class Config:
 
     # Database
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    try:
+        os.stat('instance')
+    except:
+        os.mkdir('instance')
     SQLALCHEMY_DATABASE_URI = 'sqlite:///../instance/test.db'
