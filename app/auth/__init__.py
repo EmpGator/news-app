@@ -19,10 +19,10 @@ def request_loader(request):
     print(request.headers)
     print(key)
     try:
-        username, password = base64.b64decode(key.split(' ')[1]).decode('utf-8').split(':')
-        user = User.query.filter_by(username=username).first()
+        email, password = base64.b64decode(key.split(' ')[1]).decode('utf-8').split(':')
+        user = User.query.filter_by(email=email).first()
         if user is not None and pbkdf2_sha256.verify(password, user.password):
-            print(username)
+            print(email)
             print(password)
             return user
     except Exception as e:

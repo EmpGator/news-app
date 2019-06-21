@@ -9,6 +9,8 @@
     <link rel="manifest" href="/manifest.json" />
     <title>FINN +</title>
     <link href="/static/css/main.785828dd.chunk.css" rel="stylesheet">
+    <script src="/static/jquery.min.js"></script>
+    <script src="/static/main.js"></script>
     <script type="text/javascript">
         var csrf_token = "{{ csrf_token() }}";
     </script>
@@ -27,6 +29,10 @@
 
 {% block content %}
 {% endblock %}
+<script>
+    var csrf_field = document.getElementsByName('csrf_token')[0]
+    if (csrf_field != null) csrf_field.value = csrf_token;
+</script>
 </body>
 
 </html>

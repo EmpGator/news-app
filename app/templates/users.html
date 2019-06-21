@@ -3,10 +3,9 @@
 {% block content %}
   {% for user in users %}
     <ul id="user.username">
-      <li>Username: {{ user.username }}</li>
+      <li>Name: {{ user.name }}</li>
       <li>Email: {{ user.email }}</li>
       <li>Paid_articles: {{ unpickle(user.paid_articles) }}</li>
-      <li>Monthly payment: {{ user.monthly_pay }}</li>
       <li>Monthly pay expiration: {{ user.subscription_end }}</li>
     </ul>
   {% endfor %}

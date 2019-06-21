@@ -4,10 +4,10 @@
 
 
 
-<p>{{ current_user.username }}</p>
-<p>{{ current_user.email }}</p>
+<p>Name: {{ current_user.name }}</p>
+<p>Email: {{ current_user.email }}</p>
 {% if subs %}
-<p>{{ current_user.subscription_end }}</p>
+<p>Subscription ends: {{ current_user.subscription_end }}</p>
 {% endif %}
 
 {% if button %}

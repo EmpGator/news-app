@@ -14,7 +14,7 @@ def new_entry():
     """Endpoint to create a user."""
     if request.method == 'POST':
         print(request.form)
-        name = request.form.get('firstName') + request.form.get('lastName')
+        name = request.form.get('firstName') + ' ' + request.form.get('lastName')
         email = request.form.get('email')
         password_hash = pbkdf2_sha256.hash(request.form.get('password'))
         articles = []
@@ -32,20 +32,19 @@ def new_entry():
 @bp.route('/signin', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for('index'))
+        return redirect(url_for('dashboard'))
 
     if request.method == 'POST':
         print(request.form)
         email = request.form.get('email')
         users = User.query.all()
-        print(users)
         for i in users:
-            print(i.email)
+            print(i)
         user = User.query.filter_by(email=email).first()
         print(user)
         if user is not None and pbkdf2_sha256.verify(request.form.get('password'), user.password):
             login_user(user)
-            return redirect(url_for('index'))
+            return redirect(url_for('dashboard'))
 
     return render_template('index.html')
 
@@ -55,4 +54,4 @@ def login():
 def logout():
     """logoutroute"""
     logout_user()
-    return redirect(url_for('auth.login'))
+    return redirect(url_for('index'))

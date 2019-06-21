@@ -1,14 +1,13 @@
-from flask import render_template
+from flask import render_template, redirect, url_for
 from flask import current_app as app
 from .models import User
-from flask_login import login_required
+from flask_login import login_required, current_user
 
 
 import pickle
 
 
 @app.route('/users')
-@login_required
 def users():
     """Lists all users"""
     users = User.query.all()
@@ -16,8 +15,16 @@ def users():
 
 
 @app.route('/')
-@login_required
 def index():
+    """Place holder for main page view """
+    if current_user.is_authenticated:
+        return redirect(url_for('dashboard'))
+    return render_template('index.html')
+
+
+@app.route('/dashboard')
+@login_required
+def dashboard():
     """Place holder for main page view """
     return render_template('index.html')
 
