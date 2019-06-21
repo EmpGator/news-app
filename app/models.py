@@ -8,13 +8,12 @@ class User(UserMixin, db.Model):
     __tablename__ = 'users'
 
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(64), index=False,
-                         unique=True, nullable=False)
+    name = db.Column(db.String(64), index=False,
+                     unique=True, nullable=False)
     email = db.Column(db.String(80), index=True, unique=True,
                       nullable=False)
     password = db.Column(db.String(80), nullable=False)
     paid_articles = db.Column(db.PickleType, nullable=False)
-    monthly_pay = db.Column(db.Boolean, nullable=False)
     subscription_end = db.Column(db.Date)
 
     def __repr__(self):
