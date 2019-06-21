@@ -21,8 +21,3 @@ then you can run with
 ```
     python wsgi.py
 ```
-it is recommended to add flask_app = "wsgi.py", flask_env = "developement" and run with 
-```
-    flask run
-```
-
