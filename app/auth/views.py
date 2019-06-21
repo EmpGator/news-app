@@ -10,7 +10,7 @@ import pickle
 bp = Blueprint('auth', __name__)
 
 
-@bp.route('/new', methods=['GET', 'POST'])
+@bp.route('/signup', methods=['GET', 'POST'])
 def new_entry():
     """Endpoint to create a user."""
     form = NewUserForm()
@@ -31,16 +31,16 @@ def new_entry():
             return redirect(url_for('auth.login'))
         except Exception as e:
             print(e)
-            return render_template('auth/new_user.html', form=form)
+            return render_template('index.html', form=form)
     else:
         for item in form.errors.items():
             flash(item)
 
-    return render_template('auth/new_user.html', form=form)
+    return render_template('index.html', form=form)
 
 
 # placeholder
-@bp.route('/login', methods=['GET', 'POST'])
+@bp.route('/signin', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
         return redirect(url_for('index'))
@@ -52,7 +52,7 @@ def login():
             login_user(user)
             return redirect(url_for('index'))
         flash('Invalid username or password')
-    return render_template('auth/login.html', form=form)
+    return render_template('index.html', form=form)
 
 
 @bp.route('/logout')
