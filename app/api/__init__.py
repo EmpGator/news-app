@@ -30,9 +30,12 @@ class Userdata(Resource):
         paid_articles = pickle.loads(current_user.paid_articles)
         if args['url'] in paid_articles:
             return {'access': True}
-        elif current_user.subscription_end is not None and \
-                current_user.subscription_end > date.today():
-            return {'access': True}
+        elif current_user.subscription_end is not None:
+            if current_user.subscription_end >= date.today():
+                return {'access': True}
+            else:
+                current_user.subscription_end = None
+                db.session.commit()
         return {'access': False}
 
 
@@ -60,6 +63,8 @@ class PaidMonth(Resource):
         print(args['txid'])
         if args['txid']:
             if current_user.subscription_end is None:
+                current_user.subscription_end = date.today() + timedelta(days=30)
+            if current_user.subscription_end <= date.today():
                 current_user.subscription_end = date.today() + timedelta(days=30)
             else:
                 current_user.subscription_end = current_user.subscription_end + timedelta(days=30)
