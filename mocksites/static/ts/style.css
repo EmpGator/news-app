@@ -1,0 +1,23 @@
+html {
+    font-family: Arial,Sans-Serif;
+    font-size: 14px;
+    line-height: 1.3;
+    color: #3b3b3b;
+}
+
+body {
+    font-feature-settings: "liga","kern";
+}
+
+article, aside, details, figcaption, figure, footer, header, hgroup, main, menu, nav, section, summary {
+    display: block;
+    width: 671px;
+    margin-left: 20px;
+    align-self: center;
+}
+
+.teksti-paywall {
+    background-image: linear-gradient(#000, #c9c9c9, #fff);
+    color: transparent;
+    background-clip: text;
+}

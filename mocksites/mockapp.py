@@ -101,5 +101,24 @@ def api():
     return jsonify(users)
 
 
+@app.route('/ts')
+def ts():
+    try:
+        if session['user']:
+            return render_template('ts/article.html')
+    except Exception as e:
+        print(e)
+    show = show_content(str(request.url))
+    if show:
+        return render_template('ts/article.html')
+    if show is not None:
+        return render_template('ts/pay_article.html')
+    form = LoginForm()
+
+    # Not authorized access
+    login = LoginForm()
+    return render_template('ts/blocked_article.html', form=form)
+
+
 if __name__ == '__main__':
     app.run(port=8000)
