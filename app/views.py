@@ -3,7 +3,7 @@ from flask import current_app as app
 from .models import User
 from flask_login import login_required, current_user
 
-
+import json
 import pickle
 
 
@@ -26,7 +26,12 @@ def index():
 @login_required
 def dashboard():
     """Place holder for main page view """
-    return render_template('index.html')
+    name = current_user.first_name + ' ' + current_user.last_name
+    bought = pickle.loads(current_user.paid_articles)
+    end = current_user.subscription_end
+    data = {'name': name, 'bought': bought, 'end_date': str(end)}
+    data = json.dumps(data)
+    return render_template('index.html', data=data)
 
 
 @app.context_processor

@@ -5,6 +5,9 @@ from passlib.hash import pbkdf2_sha256
 from app.db import db
 from .forms import Edit
 
+import pickle
+import json
+
 bp = Blueprint('user', __name__)
 
 
@@ -41,3 +44,17 @@ def pay():
         subs = True
 
     return render_template('user/pay_month.html', button=payment_button, subs=subs)
+
+
+@bp.route('/profile')
+@login_required
+def profile():
+    name = current_user.first_name + ' ' + current_user.last_name
+    email = current_user.email
+    bought = pickle.loads(current_user.paid_articles)
+    end = current_user.subscription_end
+    paid = current_user.prepaid_articles
+    data = {'name': name, 'email': email, 'bought': bought, 'end_date': str(end),
+            'prepaid': paid}
+    data = json.dumps(data)
+    return render_template('index.html', data=data)
