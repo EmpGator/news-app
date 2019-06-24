@@ -16,14 +16,10 @@ def user_loader(id):
 @login_manager.request_loader
 def request_loader(request):
     key = request.headers.get('Authorization')
-    print(request.headers)
-    print(key)
     try:
         email, password = base64.b64decode(key.split(' ')[1]).decode('utf-8').split(':')
         user = User.query.filter_by(email=email).first()
         if user is not None and pbkdf2_sha256.verify(password, user.password):
-            print(email)
-            print(password)
             return user
     except Exception as e:
         print(e)

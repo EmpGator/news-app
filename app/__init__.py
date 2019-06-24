@@ -30,8 +30,5 @@ def create_app():
 
 
 # TODO: use txid to confirm that payment was correct
-# TODO: Monthly payment expiration stuff
-# TODO: monthly payment pay
-# TODO: api auth JWT tokeneilla
-# TODO: easy way to create and edit accounts + selecting payment
+# TODO: edit accounts
 # TODO: Show user tokens

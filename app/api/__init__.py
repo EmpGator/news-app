@@ -16,7 +16,9 @@ pay_req_parser.add_argument("txid", required=True)
 api_bp = Blueprint('api', __name__)
 api = Api(api_bp)
 
-# TODO: split this into two different arg parsers?
+
+SUBS_TIME = 30
+BUNDLE_SIZE = 10
 
 
 class Userdata(Resource):
@@ -36,6 +38,10 @@ class Userdata(Resource):
             else:
                 current_user.subscription_end = None
                 db.session.commit()
+        if current_user.prepaid_articles > 0:
+            current_user.prepaid_articles -= 1
+            db.session.commit()
+            return {'access': True}
         return {'access': False}
 
 
@@ -60,19 +66,31 @@ class PaidMonth(Resource):
         if not current_user.is_authenticated:
             return make_response('Bad username or password', 403)
         args = pay_req_parser.parse_args()
-        print(args['txid'])
         if args['txid']:
             if current_user.subscription_end is None:
                 current_user.subscription_end = date.today() + timedelta(days=30)
             if current_user.subscription_end <= date.today():
                 current_user.subscription_end = date.today() + timedelta(days=30)
             else:
-                current_user.subscription_end = current_user.subscription_end + timedelta(days=30)
+                current_user.subscription_end += timedelta(days=SUBS_TIME)
             db.session.commit()
             return make_response('Ok', 200)
         return make_response('Invalid txid', 200)
 
 
+class PaidPackage(Resource):
+    def post(self):
+        print('PaidPackage')
+        if not current_user.is_authenticated:
+            return make_response('Bad username or password', 403)
+        args = pay_req_parser.parse_args()
+        if args['txid']:
+            current_user.prepaid_articles += BUNDLE_SIZE
+            return make_response('Ok', 200)
+        return make_response('Invalid txid', 200)
+
+
 api.add_resource(Userdata, '/api/userdata')
+api.add_resource(PaidPackage, '/api/packagepaid')
 api.add_resource(PaidArticle, '/api/articlepaid')
 api.add_resource(PaidMonth, '/api/monthpaid')

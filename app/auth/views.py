@@ -14,12 +14,13 @@ def new_entry():
     """Endpoint to create a user."""
     if request.method == 'POST':
         print(request.form)
-        name = request.form.get('firstName') + ' ' + request.form.get('lastName')
+        first_name = request.form.get('firstName')
+        last_name = request.form.get('lastName')
         email = request.form.get('email')
         password_hash = pbkdf2_sha256.hash(request.form.get('password'))
         articles = []
         articles = pickle.dumps(articles)
-        new_user = User(name=name, email=email,
+        new_user = User(first_name=first_name, last_name=last_name, email=email,
                         paid_articles=articles, password=password_hash)
         db.session.add(new_user)
         db.session.commit()
@@ -45,6 +46,8 @@ def login():
         if user is not None and pbkdf2_sha256.verify(request.form.get('password'), user.password):
             login_user(user)
             return redirect(url_for('dashboard'))
+        else:
+            print('username or pass incorrect')
 
     return render_template('index.html')
 
