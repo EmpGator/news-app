@@ -19,3 +19,10 @@
         </div>
     </div>
 </div>
+<p>or login with finn+</p>
+<form method="POST" action="{{url_for('loginfinnplus')}}">
+{{ form.csrf_token }}
+{{ form.name.label }} {{ form.name(size=20) }}
+{{ form.password.label }} {{ form.password(size=20) }}
+<input type="submit" value="Go">
+</form>

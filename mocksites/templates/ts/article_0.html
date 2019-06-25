@@ -53,15 +53,23 @@
 
 
                                  <div class="tsv3-c-common-article__textitem tsv3-c-common-article__textitem--teksti">
-<p class="tekstipaywall">Poliisin juhannusviikonloppu oli työntäyteinen Turun seudulla. Poliisin mukaan tutkittavaksi tuli useita törkeitä ja tavanomaisia rattijuopumuksia sekä yksi vesiliikennejuopumus.</p>
-{% include "ts/paywall.html" %}
-    <p>or login with finn+</p>
-    <form method="POST" action="{{url_for('loginfinnplus')}}">
-    {{ form.csrf_token }}
-    {{ form.name.label }} {{ form.name(size=20) }}
-    {{ form.password.label }} {{ form.password(size=20) }}
-    <input type="submit" value="Go">
-    </form>
+<p
+{% if paywall.show %}
+    class="teksti"
+{% else %}
+    class="tekstipaywall"
+{% endif %}
+>Poliisin juhannusviikonloppu oli työntäyteinen Turun seudulla. Poliisin mukaan tutkittavaksi tuli useita törkeitä ja tavanomaisia rattijuopumuksia sekä yksi vesiliikennejuopumus.</p>
+{% if paywall.show %}
+<p class="teksti">Turun alueella kirjattiin lisäksi useita rikosilmoituksia pahoinpitelyistä, joissa joko osa tai kaikki osalliset olivat päihteiden vaikutuksen alaisena.</p><p class="teksti">Poliisia työllistivät myös erilaiset vahingonteot, ja kuljettajien raskas kaasujalka.</p><div class="tsv3-c-common-article__contentad" style="display: none;"><</div><p class="teksti">Kaarinan Piikkiössä sytytettiin tyhjillään olevan omakotitalon ulkoseinä palamaan. Poliisi on kirjannut asiasta rikosilmoituksen tuhotyöstä ja asiassa on käynnissä esitutkinta.</p><p class="teksti"> </p><p class="teksti">Lue myös:</p><p class="teksti"><a href="https://www.ts.fi/uutiset/paikalliset/4619063/Autiotalon+ulkorakenteet+paloivat+Piikkiossa" target="_blank" rel="noopener">Autiotalon ulkorakenteet paloivat Piikkiössä</a></p>
+{% elif paywall.pay %}
+{% include "ts/pay.html" %}
+{% else %}
+{% include "ts/block.html" %}
+{% endif %}
+</div>
+
+
 
 
                  </div>

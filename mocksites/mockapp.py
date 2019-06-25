@@ -14,15 +14,43 @@ class LoginForm(FlaskForm):
     password = PasswordField('password', validators=[DataRequired()])
 
 
+class Paywall:
+    def __init__(self):
+        self.show = False
+        self.pay = False
+        self.block = True
+
+    def set_show(self):
+        self.show = True
+        self.pay = False
+        self.block = False
+        return self
+
+    def set_pay(self):
+        self.show = False
+        self.pay = True
+        self.block = False
+        return self
+
+    def set_block(self):
+        self.show = False
+        self.pay = False
+        self.block = True
+        return self
+
+
 def show_content(url):
     auth = session.get('externalauth', None)
+    paywall = Paywall()
     if auth is None:
-        return None
+        return paywall.set_block()
     payload = {'url': url}
     r = requests.post('http://localhost:5000/api/userdata', data=payload, auth=auth)
     if r.status_code == 200:
         data = r.json()
-        return data['access']
+        if data['access']:
+            return paywall.set_show()
+        return paywall.set_pay()
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -76,48 +104,22 @@ def finnplus():
     return redirect(url_for('index'))
 
 
-@app.route('/article/<id>')
-def article(id=0):
+@app.route('/<site>')
+@app.route('/<site>/')
+def front(site='mock'):
+    return render_template(f'{site}/index.html')
+
+
+@app.route('/<site>/article/<id>')
+def news(site='mock', id=0):
     try:
         if session['user']:
-            return render_template('article.html', article_id=id)
-    except Exception as e:
-        print(e)
-
-    # External auth stuff
-    show = show_content(str(request.url))
-    if show:
-        return render_template('article.html', article_id=id)
-    if show is not None:
-        return render_template('pay_article.html', article_id=id)
-    form = LoginForm()
-
-    # Not authorized access
-    return render_template('blocked_article.html', article_id=id, form=form)
-
-
-@app.route('/api')
-def api():
-    return jsonify(users)
-
-
-@app.route('/ts')
-def ts():
-    try:
-        if session['user']:
-            return render_template('ts/article.html')
+            return render_template(f'{site}/article_{id}.html', paywall=Paywall.set_show())
     except Exception as e:
         print(e)
     show = show_content(str(request.url))
-    if show:
-        return render_template('ts/article.html')
-    if show is not None:
-        return render_template('ts/pay_article.html')
     form = LoginForm()
-
-    # Not authorized access
-    login = LoginForm()
-    return render_template('ts/blocked_article.html', form=form)
+    return render_template(f'{site}/article_{id}.html', paywall=show, form=form)
 
 
 if __name__ == '__main__':

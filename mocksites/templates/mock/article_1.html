@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+    <a href="{{ url_for('index') }}">Main page</a>
+    <a href="{{ url_for('logout') }}">Logout</a>
+    <br>
+    <h1>Article 1</h1>
+    {% if paywall.show %}
+    <p>Content of this article</p>
+    <p>Unique part of this article: 1 plah plah</p>
+    {% elif paywall.pay %}
+    {% include "mock/pay.html" %}
+    {% else %}
+    {% include "mock/block.html" %}
+    {% endif %}
+</body>

@@ -5,12 +5,11 @@
 </head>
 <body>
     <a href="{{ url_for('login') }}">Login</a>
+    <a href="{{ url_for('logout') }}">Logout</a>
 <ul>
-    {% for i in id_list %}
-    <li>
-        <a href="{{url_for('article', id=i )}}">{{i}}</a>
-    </li>
-    {% endfor %}
+    <li><a href="/mock">Mocksite</a></li>
+    <li><a href="/ts">Turun Sanomat</a></li>
+    <li><a href="/hs">Hesari</a></li>
 </ul>
 </body>
 </html>
