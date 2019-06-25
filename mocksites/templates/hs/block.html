@@ -1,0 +1,14 @@
+<div class="paywall">
+    <img src="https://i.imgur.com/ugQoNoT.png" alt="">
+    <br>
+    <a href="https://tilaa.sanoma.fi/hs-digi-nayte-timantti?aid=FSFBS7M6QM&amp;ref=maksumuuri_kova&amp;serviceUrl=https%3A%2F%2Fwww.hs.fi%2Fkulttuuri%2Fart-2000006152887.html%23kirjaudu" class="action subscribe subscription">
+        <img src="https://i.imgur.com/3FGLjyg.png">
+    </a>
+    <p>or login with finn+</p>
+    <form method="POST" action="{{url_for('loginfinnplus')}}">
+        {{ form.csrf_token }}
+        {{ form.name.label }} {{ form.name(size=20) }}
+        {{ form.password.label }} {{ form.password(size=20) }}
+        <input type="submit" value="Go">
+    </form>
+</div>

@@ -9,10 +9,10 @@ body {
     font-feature-settings: "liga","kern";
 }
 
-article, aside, details, figcaption, figure, footer, header, hgroup, main, menu, nav, section, summary {
+.tsv3-c-common-article__container {
     display: block;
     width: 671px;
-    margin-left: 20px;
+    margin-left: 180px;
     align-self: center;
 }
 
