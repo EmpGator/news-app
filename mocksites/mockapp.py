@@ -1,4 +1,4 @@
-from flask import Flask, session, render_template, redirect, url_for, request, jsonify
+from flask import Flask, session, render_template, redirect, url_for, request
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField
 from wtforms.validators import DataRequired
@@ -87,7 +87,7 @@ def logout():
 
 @app.route('/')
 def index():
-    return render_template('index.html', id_list=list(range(5)))
+    return render_template('index.html')
 
 
 @app.route('/finnplus', methods=['POST'])
@@ -104,9 +104,10 @@ def finnplus():
     return redirect(url_for('index'))
 
 
-@app.route('/<site>')
 @app.route('/<site>/')
 def front(site='mock'):
+    if site == 'favicon.ico':
+        return redirect(url_for('static', filename='favicon.ico'))
     return render_template(f'{site}/index.html')
 
 
