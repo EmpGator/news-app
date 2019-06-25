@@ -1,8 +1,9 @@
 # news-app
-clone  
+clone 
+```
     git clone https://github.com/EmpGator/news-app.git
-    cd news app
-
+    cd news-app
+```
 then create virtual env with 
 ```
     python -m venv .\venv
