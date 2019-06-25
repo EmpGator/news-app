@@ -1,4 +1,4 @@
-from flask import Blueprint, make_response
+from flask import Blueprint, make_response, jsonify
 from flask_restful import Api, Resource
 from flask_restful.reqparse import RequestParser
 from flask_login import current_user
@@ -73,10 +73,10 @@ class Userdata(Resource):
         args = u_data_req_parser.parse_args()
         paid_articles = pickle.loads(current_user.paid_articles)
         if args['url'] in paid_articles:
-            return {'access': True}
+            return jsonify({'access': True})
         elif current_user.subscription_end is not None:
             if current_user.subscription_end >= date.today():
-                return {'access': True}
+                return jsonify({'access': True})
             else:
                 current_user.subscription_end = None
                 db.session.commit()
@@ -85,8 +85,8 @@ class Userdata(Resource):
             paid_articles.append(args['url'])
             current_user.paid_articles = pickle.dumps(paid_articles)
             db.session.commit()
-            return {'access': True}
-        return {'access': False}
+            return jsonify({'access': True})
+        return jsonify({'access': False})
 
 
 class PaidArticle(Resource):
