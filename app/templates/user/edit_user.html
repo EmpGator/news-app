@@ -3,7 +3,6 @@
 {% block content %}
 <form method="POST" action="{{url_for('user.edit')}}">
     {{ form.csrf_token }}
-    {{ form.name.label }} {{ form.name }}<br>
     {{ form.email.label }} {{ form.email }}<br>
     {{ form.password.label }} {{ form.password }}<br>
     <input type="submit" value="Go">

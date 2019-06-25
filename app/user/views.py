@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for
+from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import current_user, login_required
 from datetime import date
 from passlib.hash import pbkdf2_sha256
@@ -16,13 +16,15 @@ bp = Blueprint('user', __name__)
 def edit():
     form = Edit()
     if form.validate_on_submit():
-
-        if form.email.data:
-            current_user.email = form.email.data
-        if form.password.data:
-            current_user.password = pbkdf2_sha256.hash(form.password.data)
-        db.session.commit()
-        return redirect(url_for('profile'))
+        try:
+            if form.email.data:
+                current_user.email = form.email.data
+            if form.password.data:
+                current_user.password = pbkdf2_sha256.hash(form.password.data)
+            db.session.commit()
+        except:
+            flash("Something went wrong, maybe email was already taken")
+        return redirect(url_for('user.profile'))
     form.email.data = current_user.email
     return render_template('user/edit_user.html', form=form)
 

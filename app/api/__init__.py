@@ -58,7 +58,7 @@ def validate_txid(txid, price):
         else:
             print(resp.status_code)
             print(resp.text)
-            time.sleep(1)
+            time.sleep(5)
     print('return false')
     return False
 

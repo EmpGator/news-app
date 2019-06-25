@@ -25,8 +25,12 @@ def new_entry():
         articles = pickle.dumps(articles)
         new_user = User(first_name=first_name, last_name=last_name, email=email,
                         paid_articles=articles, password=password_hash)
-        db.session.add(new_user)
-        db.session.commit()
+        try:
+            db.session.add(new_user)
+            db.session.commit()
+        except:
+            flash('email is taken')
+            return redirect(url_for('auth.new_entry'))
         return redirect(url_for('auth.login'))
 
     return render_template('index.html')
