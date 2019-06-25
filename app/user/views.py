@@ -16,16 +16,13 @@ bp = Blueprint('user', __name__)
 def edit():
     form = Edit()
     if form.validate_on_submit():
-        if form.name.data:
-            current_user.username = form.name.data
+
         if form.email.data:
             current_user.email = form.email.data
         if form.password.data:
             current_user.password = pbkdf2_sha256.hash(form.password.data)
         db.session.commit()
-        return redirect(url_for('index'))
-
-    form.name.data = current_user.username
+        return redirect(url_for('profile'))
     form.email.data = current_user.email
     return render_template('user/edit_user.html', form=form)
 
