@@ -33,6 +33,12 @@ SINGLE_PRICE = 100
 
 
 def validate_txid(txid, price):
+    """
+    Uses bitcoin api to validate slp transaction,
+        checks if correct amount was sent to correct address
+    TODO: Check that TXID is new
+    TODO: Validate that token is correct type
+    """
     print('validate_txid')
     url = 'https://rest.bitcoin.com/v2/slp/txDetails/' + txid
     resp = requests.get(url)
@@ -44,10 +50,8 @@ def validate_txid(txid, price):
                 slp = i['scriptPubKey'].get('slpAddrs', [])
                 if SLP_ADDR in slp:
                     output_n = i['n']
-                    print('OutputN', output_n)
                     break
             tokens_recieved = data['tokenInfo']['sendOutputs'][output_n]
-            print(tokens_recieved)
             if int(tokens_recieved) >= price:
                 print('return true')
                 return True
@@ -60,9 +64,9 @@ def validate_txid(txid, price):
 
 
 class Userdata(Resource):
-    # TODO: send better formated info pack:
-    # It should not contain all user data, but rather info
-    # if given article has been paid or not
+    """
+    Docstring
+    """
     def post(self):
         if not current_user.is_authenticated:
             return make_response('Bad username or password', 403)
@@ -78,12 +82,18 @@ class Userdata(Resource):
                 db.session.commit()
         if current_user.prepaid_articles > 0:
             current_user.prepaid_articles -= 1
+            paid_articles.append(args['url'])
+            current_user.paid_articles = pickle.dumps(paid_articles)
             db.session.commit()
             return {'access': True}
         return {'access': False}
 
 
 class PaidArticle(Resource):
+    """
+    Docstring
+    TODO: since validating may take while maybe it should be handled differently
+    """
     def post(self):
         if not current_user.is_authenticated:
             return make_response('Bad username or password', 403)
@@ -99,6 +109,9 @@ class PaidArticle(Resource):
 
 
 class PaidMonth(Resource):
+    """
+    Docstring
+    """
     def post(self):
         print('PaidMonth')
         if not current_user.is_authenticated:
@@ -117,6 +130,9 @@ class PaidMonth(Resource):
 
 
 class PaidPackage(Resource):
+    """
+    Docstring
+    """
     def post(self):
         print('PaidPackage')
         if not current_user.is_authenticated:

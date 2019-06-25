@@ -25,7 +25,10 @@ def index():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    """Place holder for main page view """
+    """
+    Placeholder for logged in main page view
+    TODO: fetch articles and add them to dashboard
+    """
     name = current_user.first_name + ' ' + current_user.last_name
     bought = pickle.loads(current_user.paid_articles)
     end = current_user.subscription_end

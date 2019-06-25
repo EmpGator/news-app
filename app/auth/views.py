@@ -11,7 +11,10 @@ bp = Blueprint('auth', __name__)
 
 @bp.route('/signup', methods=['GET', 'POST'])
 def new_entry():
-    """Endpoint to create a user."""
+    """
+    Endpoint to create a user.
+    TODO: some sort of validation for fields
+    """
     if request.method == 'POST':
         print(request.form)
         first_name = request.form.get('firstName')
@@ -32,6 +35,10 @@ def new_entry():
 # placeholder
 @bp.route('/signin', methods=['GET', 'POST'])
 def login():
+    """
+    Login formstuff
+    TODO: some sort of validation for fields
+    """
     if current_user.is_authenticated:
         return redirect(url_for('dashboard'))
 

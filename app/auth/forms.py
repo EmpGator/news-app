@@ -2,6 +2,8 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, RadioField, PasswordField
 from wtforms.validators import DataRequired
 
+# These are currently useless
+
 
 class NewUserForm(FlaskForm):
     name = StringField('name', validators=[DataRequired()])

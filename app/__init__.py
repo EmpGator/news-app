@@ -29,6 +29,5 @@ def create_app():
         return app
 
 
-# TODO: use txid to confirm that payment was correct
 # TODO: edit accounts
 # TODO: Show user tokens
