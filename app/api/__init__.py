@@ -29,6 +29,7 @@ SINGLE_PRICE = 100
 
 
 # TODO split this file logigal parts
+# TODO store client info
 # Clean validate_txid
 
 
@@ -98,7 +99,7 @@ class PaidArticle(Resource):
         if not current_user.is_authenticated:
             return make_response('Bad username or password', 403)
         args = pay_req_parser.parse_args()
-        if args['txid'] and validate_txid(args['txid'], SINGLE_PRICE):
+        if args['txid']:
             paid_articles = pickle.loads(current_user.paid_articles)
             paid_articles.append(args['url'])
             current_user.paid_articles = pickle.dumps(paid_articles)
