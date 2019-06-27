@@ -1,17 +1,19 @@
 from flask import render_template, redirect, url_for
 from flask import current_app as app
-from .models import User
+from .models import User, Publisher, Article
+from .db import db
 from flask_login import login_required, current_user
 
 import json
-import pickle
 
 
 @app.route('/users')
 def users():
     """Lists all users"""
     users = User.query.all()
-    return render_template('users.html', users=users, title="Show Users")
+    pubs = Publisher.query.all()
+    arts = Article.query.all()
+    return render_template('users.html', users=users, pubs=pubs, arts=arts, title="Show Users")
 
 
 @app.route('/')
@@ -30,15 +32,9 @@ def dashboard():
     TODO: fetch articles and add them to dashboard
     """
     name = current_user.first_name + ' ' + current_user.last_name
-    bought = pickle.loads(current_user.paid_articles)
+    bought = [i.url for i in current_user.articles]
     end = current_user.subscription_end
     data = {'name': name, 'bought': bought, 'end_date': str(end)}
     data = json.dumps(data)
     return render_template('index.html', data=data)
 
-
-@app.context_processor
-def utility_processor():
-    def unpickle(pickled_string):
-        return pickle.loads(pickled_string)
-    return dict(unpickle=unpickle)

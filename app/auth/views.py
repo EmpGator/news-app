@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash
 from flask_login import current_user, login_user, logout_user, login_required
-from app.models import User
+from app.models import User, Article
 from app.db import db
 from passlib.hash import pbkdf2_sha256
 import pickle
@@ -13,19 +13,15 @@ bp = Blueprint('auth', __name__)
 def new_entry():
     """
     Endpoint to create a user.
-    TODO: some sort of validation for fields
     """
     if request.method == 'POST':
-        print(request.form)
-        first_name = request.form.get('firstName')
-        last_name = request.form.get('lastName')
+        fn = request.form.get('firstName')
+        ln = request.form.get('lastName')
         email = request.form.get('email')
-        password_hash = pbkdf2_sha256.hash(request.form.get('password'))
-        articles = []
-        articles = pickle.dumps(articles)
-        new_user = User(first_name=first_name, last_name=last_name, email=email,
-                        paid_articles=articles, password=password_hash)
+        pw_hash = pbkdf2_sha256.hash(request.form.get('password'))
         try:
+            # noinspection PyArgumentList
+            new_user = User(first_name=fn, last_name=ln, email=email, password=pw_hash, role='user')
             db.session.add(new_user)
             db.session.commit()
         except:
@@ -41,7 +37,6 @@ def new_entry():
 def login():
     """
     Login formstuff
-    TODO: some sort of validation for fields
     """
     if current_user.is_authenticated:
         return redirect(url_for('dashboard'))
@@ -66,6 +61,6 @@ def login():
 @bp.route('/logout')
 @login_required
 def logout():
-    """logoutroute"""
+    """logout route"""
     logout_user()
     return redirect(url_for('index'))

@@ -4,6 +4,7 @@ from .db import db
 from .auth import login_manager, auth_bp
 from .api import api_bp
 from .user import user_bp
+from .models import init_publishers
 
 csrf = CSRFProtect()
 login_manager.login_view = 'auth.login'
@@ -25,9 +26,9 @@ def create_app():
         from . import views
 
         db.create_all()
+        init_publishers()
 
         return app
 
 
-# TODO: edit accounts
 # TODO: Show user tokens

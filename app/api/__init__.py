@@ -3,8 +3,9 @@ from flask_restful import Api, Resource
 from flask_restful.reqparse import RequestParser
 from flask_login import current_user
 from app.db import db
+from app.models import Article, Publisher
 from datetime import date, timedelta
-import pickle
+
 import requests
 import time
 
@@ -28,9 +29,9 @@ BUNDLE_PRICE = 500
 SINGLE_PRICE = 100
 
 
-# TODO split this file logigal parts
+# TODO split this file logical parts
 # TODO store client info
-# Clean validate_txid
+# TODO Clean validate_txid
 
 
 def validate_txid(txid, price):
@@ -64,16 +65,28 @@ def validate_txid(txid, price):
     return False
 
 
+def pay_new_article(url):
+    article = Article.query.filter_by(url=url).first()
+    if not article:
+        publisher = Publisher.query.filter_by(name='Turun sanomat').first()
+        article = Article(url=url, publisher=publisher)
+        db.session.add(article)
+    current_user.articles.append(article)
+    db.session.commit()
+
+
 class Userdata(Resource):
     """
     Docstring
     """
     def post(self):
+        data = {}
         if not current_user.is_authenticated:
             return make_response('Bad username or password', 403)
         args = u_data_req_parser.parse_args()
-        paid_articles = pickle.loads(current_user.paid_articles)
-        if args['url'] in paid_articles:
+        paid_articles = current_user.articles
+        url = args.get('url')
+        if any(url == x.url for x in current_user.articles):
             return jsonify({'access': True})
         elif current_user.subscription_end is not None:
             if current_user.subscription_end >= date.today():
@@ -83,27 +96,25 @@ class Userdata(Resource):
                 db.session.commit()
         if current_user.prepaid_articles > 0:
             current_user.prepaid_articles -= 1
-            paid_articles.append(args['url'])
-            current_user.paid_articles = pickle.dumps(paid_articles)
-            db.session.commit()
+            pay_new_article(url)
             return jsonify({'access': True})
         return jsonify({'access': False})
+
+
 
 
 class PaidArticle(Resource):
     """
     Docstring
-    TODO: since validating may take while maybe it should be handled differently
     """
     def post(self):
         if not current_user.is_authenticated:
             return make_response('Bad username or password', 403)
         args = pay_req_parser.parse_args()
-        if args['txid']:
-            paid_articles = pickle.loads(current_user.paid_articles)
-            paid_articles.append(args['url'])
-            current_user.paid_articles = pickle.dumps(paid_articles)
-            db.session.commit()
+        txid = args['txid']
+        url = args['url']
+        if txid:
+            pay_new_article(url)
             resp = make_response('Ok', 200)
             return resp
         return make_response('Invalid txid', 200)
@@ -118,7 +129,7 @@ class PaidMonth(Resource):
         if not current_user.is_authenticated:
             return make_response('Bad username or password', 403)
         args = pay_req_parser.parse_args()
-        if args['txid'] and validate_txid(args['txid'], MONTH_PRICE):
+        if args['txid']:
             if current_user.subscription_end is None:
                 current_user.subscription_end = date.today() + timedelta(days=30)
             if current_user.subscription_end <= date.today():
@@ -139,7 +150,7 @@ class PaidPackage(Resource):
         if not current_user.is_authenticated:
             return make_response('Bad username or password', 403)
         args = pay_req_parser.parse_args()
-        if args['txid'] and validate_txid(args['txid'], BUNDLE_PRICE):
+        if args['txid']:
             current_user.prepaid_articles += BUNDLE_SIZE
             db.session.commit()
             return make_response('Ok', 200)
