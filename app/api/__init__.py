@@ -33,6 +33,8 @@ SINGLE_PRICE = 100
 # TODO split this file logical parts
 # TODO store client info
 # TODO Clean validate_txid
+# TODO fix db connection drop issue
+# TODO store analytics in sessionvariable
 
 
 def validate_txid(txid, price):
@@ -92,7 +94,6 @@ class Userdata(Resource):
             if current_user.subscription_end >= date.today():
                 article.hits += 1
                 article.publisher.monthly_pay += 1
-                analytics.hits += 1
                 analytics.monthly_pay += 1
                 db.session.commit()
                 return jsonify({'access': True})
