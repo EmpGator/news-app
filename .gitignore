@@ -1,6 +1,7 @@
 .env
 *.notes
 .flake8
+.idea
 venv
 __pycache__
 instance
