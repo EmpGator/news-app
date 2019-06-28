@@ -2,13 +2,45 @@
 <html>
 <head>
     <title></title>
+    <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
 </head>
 <body>
-<form method="POST" action="{{url_for('loginfinnplus')}}">
-    {{ form.csrf_token }}
-    {{ form.name.label }} {{ form.name(size=20) }}
-    {{ form.password.label }} {{ form.password(size=20) }}
-    <input type="submit" value="Go">
-</form>
+
+<iframe id="iframeId" src="http://localhost:5000/test" ></iframe>
+<script>
+    function addAnEventListener(obj,evt,func){
+        if ('addEventListener' in obj){
+            obj.addEventListener(evt,func, false);
+        } else if ('attachEvent' in obj){//IE
+            obj.attachEvent('on'+evt,func);
+        }
+    }
+
+    function iFrameListener(event){
+        if (event.origin == "http://127.0.0.1:5000" || event.origin == "http://localhost:5000" ) {
+            secondPageValue = event.data;
+            setJWT(event.data);
+            window.location.replace(newurl);
+            document.getElementById('iframeId').style.display = 'none';
+        }
+    }
+
+    function setJWT(jwt) {
+        var data = JSON.parse(jwt);
+        data.url = document.referrer;
+        var ajaxRequest = $.ajax({
+            async: true,
+            url: "/test",
+            type: 'POST',
+            dataType: 'text',
+            contentType: 'application/json; charset=utf-8',
+            data: JSON.stringify(data),
+        });
+    }
+
+    var secondPageValue='';
+    var newurl = '{{ new_url }}';
+    addAnEventListener(window,'message',iFrameListener);
+</script>
 </body>
 </html>

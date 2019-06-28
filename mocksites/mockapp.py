@@ -87,6 +87,23 @@ def finnplus():
         return redirect(request.referrer)
     return redirect(url_for('index'))
 
+# TODO: rename this
+# TODO: 1st time routing to articles trough this, store token locally for afterwards
+@app.route('/test', methods=['POST'])
+def test():
+    token = request.json.get('accessToken')
+    new_url = request.json.get('url')
+    session['user'] = (token, '')
+    print(request.referrer)
+    print(new_url)
+    return redirect(request.referrer)
+
+@app.route('/login')
+def login():
+    new_url = request.referrer
+    return render_template('login.html', new_url=str(new_url))
+
+
 
 @app.route('/<site>/')
 def front(site='mock'):
@@ -101,14 +118,6 @@ def news(site='mock', id=0):
     show = show_content(str(request.url))
     form = LoginForm()
     return render_template(f'{site}/article_{id}.html', paywall=show, form=form)
-
-# TODO: rename this
-# TODO: 1st time routing to articles trough this, store token locally for afterwards
-@app.route('/test', methods=['POST'])
-def test():
-    token = request.json['accessToken']
-    session['user'] = (token, '')
-    return make_response('ok', 200)
 
 if __name__ == '__main__':
     app.run(port=8000)

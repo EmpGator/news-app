@@ -2,49 +2,14 @@
 <html>
 <head>
     <title></title>
-    <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
 </head>
 <body>
-    <a href="{{ url_for('loginfinnplus') }}">Login</a>
+    <a href="{{ url_for('login') }}">Login</a>
     <a href="{{ url_for('logout') }}">Logout</a>
 <ul>
     <li><a href="{{ url_for('front', site='mock') }}">Mocksite</a></li>
     <li><a href="{{ url_for('front', site='ts') }}">Turun Sanomat</a></li>
     <li><a href="{{ url_for('front', site='hs') }}">Hesari</a></li>
 </ul>
-    <p id="divid"></p>
- <iframe id="iframeId" src="http://localhost:5000/test" ></iframe>
-<script>
-    function addAnEventListener(obj,evt,func){
-        if ('addEventListener' in obj){
-            obj.addEventListener(evt,func, false);
-        } else if ('attachEvent' in obj){//IE
-            obj.attachEvent('on'+evt,func);
-        }
-    }
-
-    function iFrameListener(event){
-        if (event.origin == "http://127.0.0.1:5000" || event.origin == "http://localhost:5000" ) {
-            secondPageValue = event.data;
-            setJWT(event.data);
-            document.getElementById('iframeId').style.display = 'none';
-        }
-    }
-
-    function setJWT(jwt) {
-        var ajaxRequest = $.ajax({
-            async: true,
-            url: "/test",
-            type: 'POST',
-            dataType: 'text',
-            contentType: 'application/json; charset=utf-8',
-            data: jwt,
-        });
-    }
-
-    var secondPageValue='';
-
-    addAnEventListener(window,'message',iFrameListener);
-</script>
 </body>
 </html>
