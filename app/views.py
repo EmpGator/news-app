@@ -1,4 +1,4 @@
-from flask import render_template, redirect, url_for
+from flask import render_template, redirect, url_for, request
 from flask import current_app as app
 from .models import User, Publisher, Article
 from .db import db
@@ -19,6 +19,7 @@ def users():
 @app.route('/')
 def index():
     """Place holder for main page view """
+    print(request.cookies)
     if current_user.is_authenticated:
         return redirect(url_for('dashboard'))
     return render_template('index.html')
@@ -31,10 +32,21 @@ def dashboard():
     Placeholder for logged in main page view
     TODO: fetch articles and add them to dashboard
     """
+    print(request.cookies)
     name = current_user.first_name + ' ' + current_user.last_name
     bought = [i.url for i in current_user.articles]
     end = current_user.subscription_end
     data = {'name': name, 'bought': bought, 'end_date': str(end)}
     data = json.dumps(data)
     return render_template('index.html', data=data)
+
+# TODO: Rename, document this
+@app.route('/test')
+def test():
+    if not current_user.is_authenticated:
+        data = {'accessToken': ''}
+    else:
+        data = {'accessToken': current_user.email}
+    data = json.dumps(data)
+    return render_template('test.html', data=data)
 

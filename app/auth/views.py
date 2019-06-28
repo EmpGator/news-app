@@ -37,6 +37,7 @@ def new_entry():
 def login():
     """
     Login formstuff
+    TODO: Create jwt authoriztion token, store it for /test route
     """
     if current_user.is_authenticated:
         return redirect(url_for('dashboard'))

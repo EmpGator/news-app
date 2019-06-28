@@ -1,4 +1,4 @@
-from flask import Flask, session, render_template, redirect, url_for, request
+from flask import Flask, session, render_template, redirect, url_for, request, jsonify, make_response
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField
 from wtforms.validators import DataRequired
@@ -6,7 +6,6 @@ import requests
 
 app = Flask(__name__)
 app.secret_key = b'dsaadsads'
-users = {'a': 'xyz', 'b': 'hjk'}
 
 
 class LoginForm(FlaskForm):
@@ -40,7 +39,7 @@ class Paywall:
 
 
 def show_content(url):
-    auth = session.get('externalauth', None)
+    auth = session.get('user', None)
     paywall = Paywall()
     if auth is None:
         return paywall.set_block()
@@ -53,27 +52,13 @@ def show_content(url):
         return paywall.set_pay()
 
 
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    form = LoginForm()
-
-    if form.validate_on_submit():
-        user = form.name.data
-        if users[user] == form.password.data:
-            session['user'] = user
-            return redirect(url_for('index'))
-        else:
-            return redirect(url_for('login'))
-
-    return render_template('login.html', form=form)
-
 
 @app.route('/loginfinnplus', methods=['POST'])
 def loginfinnplus():
     """ handles login with finnplus account"""
     user = request.form.get('name')
     password = request.form.get('password')
-    session['externalauth'] = (user, password)
+    session['user'] = (user, password)
     return redirect(request.referrer)
 
 
@@ -81,7 +66,6 @@ def loginfinnplus():
 def logout():
     """logoutroute"""
     session['user'] = None
-    session['externalauth'] = None
     return redirect(url_for('index'))
 
 
@@ -96,7 +80,7 @@ def finnplus():
     print('Posting to paidarticle')
     data = request.get_json()
     r = requests.post('http://localhost:5000/api/articlepaid',
-                      auth=session['externalauth'], data=data)
+                      auth=session['user'], data=data)
     print(r.status_code)
     print(r.text)
     if request.referrer is not None:
@@ -108,20 +92,23 @@ def finnplus():
 def front(site='mock'):
     if site == 'favicon.ico':
         return redirect(url_for('static', filename='favicon.ico'))
+    print(session.get('user'))
     return render_template(f'{site}/index.html')
 
 
 @app.route('/<site>/article/<id>')
 def news(site='mock', id=0):
-    try:
-        if session['user']:
-            return render_template(f'{site}/article_{id}.html', paywall=Paywall.set_show())
-    except Exception as e:
-        print(e)
     show = show_content(str(request.url))
     form = LoginForm()
     return render_template(f'{site}/article_{id}.html', paywall=show, form=form)
 
+# TODO: rename this
+# TODO: 1st time routing to articles trough this, store token locally for afterwards
+@app.route('/test', methods=['POST'])
+def test():
+    token = request.json['accessToken']
+    session['user'] = (token, '')
+    return make_response('ok', 200)
 
 if __name__ == '__main__':
     app.run(port=8000)

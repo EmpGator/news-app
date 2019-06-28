@@ -4,7 +4,7 @@
     <title></title>
 </head>
 <body>
-<form method="POST" action="{{url_for('login')}}">
+<form method="POST" action="{{url_for('loginfinnplus')}}">
     {{ form.csrf_token }}
     {{ form.name.label }} {{ form.name(size=20) }}
     {{ form.password.label }} {{ form.password(size=20) }}

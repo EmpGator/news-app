@@ -1,4 +1,4 @@
-from flask import Blueprint, make_response, jsonify
+from flask import Blueprint, make_response, jsonify, request
 from flask_restful import Api, Resource
 from flask_restful.reqparse import RequestParser
 from flask_login import current_user
@@ -19,7 +19,6 @@ pay_req_parser.add_argument("txid", required=True)
 api_bp = Blueprint('api', __name__)
 api = Api(api_bp)
 
-
 SUBS_TIME = 30
 BUNDLE_SIZE = 15
 
@@ -27,7 +26,6 @@ SLP_ADDR = 'simpleledger:qq0nu0xa5rxj72wx043ulhm3qs28y95davd6djawyh'
 MONTH_PRICE = 1000
 BUNDLE_PRICE = 500
 SINGLE_PRICE = 100
-
 
 
 # TODO split this file logical parts
@@ -67,6 +65,7 @@ def validate_txid(txid, price):
     print('return false')
     return False
 
+
 def get_article(url):
     article = Article.query.filter_by(url=url).first()
     if not article:
@@ -83,7 +82,8 @@ class Userdata(Resource):
     """
     def post(self):
         if not current_user.is_authenticated:
-            return make_response('Bad username or password', 403)
+            r = make_response('Bad username or password', 403)
+            return r
         args = u_data_req_parser.parse_args()
         url = args.get('url')
         article = get_article(url)
@@ -113,12 +113,11 @@ class Userdata(Resource):
         return jsonify({'access': False})
 
 
-
-
 class PaidArticle(Resource):
     """
     Docstring
     """
+
     def post(self):
         if not current_user.is_authenticated:
             return make_response('Bad username or password', 403)
@@ -144,6 +143,7 @@ class PaidMonth(Resource):
     """
     Docstring
     """
+
     def post(self):
         print('PaidMonth')
         if not current_user.is_authenticated:
@@ -151,7 +151,7 @@ class PaidMonth(Resource):
         args = pay_req_parser.parse_args()
         if args['txid']:
             analytics = Publisher.query.filter_by(name='All').first()
-            analytics.revenue += (MONTH_PRICE/100)
+            analytics.revenue += (MONTH_PRICE / 100)
             if current_user.subscription_end is None:
                 current_user.subscription_end = date.today() + timedelta(days=SUBS_TIME)
             if current_user.subscription_end <= date.today():
@@ -167,6 +167,7 @@ class PaidPackage(Resource):
     """
     Docstring
     """
+
     def post(self):
         print('PaidPackage')
         if not current_user.is_authenticated:
@@ -174,7 +175,7 @@ class PaidPackage(Resource):
         args = pay_req_parser.parse_args()
         if args['txid']:
             analytics = Publisher.query.filter_by(name='All').first()
-            analytics.revenue += (BUNDLE_PRICE/100)
+            analytics.revenue += (BUNDLE_PRICE / 100)
             current_user.prepaid_articles += BUNDLE_SIZE
             db.session.commit()
             return make_response('Ok', 200)
