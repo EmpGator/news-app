@@ -1,4 +1,5 @@
 import os
+from datetime import timedelta
 
 
 class Config:
@@ -14,6 +15,7 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     try:
         os.stat('instance')
-    except:
+    except FileNotFoundError:
         os.mkdir('instance')
     SQLALCHEMY_DATABASE_URI = 'sqlite:///../instance/test.db'
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(days=365)

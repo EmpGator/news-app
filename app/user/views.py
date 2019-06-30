@@ -21,7 +21,8 @@ def edit():
             if form.password.data:
                 current_user.password = pbkdf2_sha256.hash(form.password.data)
             db.session.commit()
-        except:
+        except Exception as e:
+            print(e)
             flash("Something went wrong, maybe email was already taken")
         return redirect(url_for('user.profile'))
     form.email.data = current_user.email

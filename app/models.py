@@ -3,13 +3,10 @@ from flask_login import UserMixin
 from datetime import date
 from passlib.hash import pbkdf2_sha256
 
-# TODO Article table
-# TODO Analytics table
-
 association_table = db.Table('association', db.metadata,
-    db.Column('left_id', db.Integer, db.ForeignKey('users.id')),
-    db.Column('right_id', db.Integer, db.ForeignKey('articles.id'))
-)
+                             db.Column('left_id', db.Integer, db.ForeignKey('users.id')),
+                             db.Column('right_id', db.Integer, db.ForeignKey('articles.id'))
+                             )
 
 
 class User(UserMixin, db.Model):
@@ -45,10 +42,12 @@ class User(UserMixin, db.Model):
 class Article(db.Model):
     """
     Model to store articles
+    TODO add image uri
     """
     __tablename__ = 'articles'
 
     id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(255))
     url = db.Column(db.String(2000), unique=True, nullable=False)
     hits = db.Column(db.Integer, nullable=False, default=0)
     publisher_id = db.Column(db.Integer, db.ForeignKey('publishers.id'))
@@ -77,13 +76,12 @@ class Publisher(db.Model):
         return f'Publisher: {self.name}'
 
 
-
 def init_publishers():
     names = ['Helsingin sanomat', 'Turun sanomat', 'Savon sanomat', 'Kauppalehti',
              'Keskisuomalainen']
     publishers = Publisher.query.all()
     print(publishers)
-    if publishers != []:
+    if publishers:
         print(publishers)
         return
 

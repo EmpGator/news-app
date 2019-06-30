@@ -7,6 +7,8 @@ import requests
 app = Flask(__name__)
 app.secret_key = b'dsaadsads'
 
+# TODO: Create more long articles
+
 
 class LoginForm(FlaskForm):
     name = StringField('name', validators=[DataRequired()])
@@ -41,21 +43,26 @@ class Paywall:
 def show_content(url):
     auth = session.get('user', None)
     paywall = Paywall()
-    if auth is None:
-        return paywall.set_block()
     payload = {'url': url}
-    r = requests.post('http://localhost:5000/api/userdata', data=payload, auth=auth)
+    if not auth:
+        print('not auth')
+        jwt = session.get('accessToken', '')
+        headers = {'Authorization': f'Bearer {jwt}'}
+        r = requests.post('http://localhost:5000/api/userdata', data=payload, headers=headers)
+    else:
+        print('auth', auth)
+        r = requests.post('http://localhost:5000/api/userdata', data=payload, auth=auth)
     if r.status_code == 200:
         data = r.json()
         if data['access']:
             return paywall.set_show()
         return paywall.set_pay()
-
+    return paywall
 
 
 @app.route('/loginfinnplus', methods=['POST'])
 def loginfinnplus():
-    """ handles login with finnplus account"""
+    """ handles login with finn plus account"""
     user = request.form.get('name')
     password = request.form.get('password')
     session['user'] = (user, password)
@@ -64,13 +71,15 @@ def loginfinnplus():
 
 @app.route('/logout')
 def logout():
-    """logoutroute"""
+    """logout route"""
     session['user'] = None
+    session['accessToken'] = None
     return redirect(url_for('index'))
 
 
 @app.route('/')
 def index():
+    print(session.get('accessToken'))
     return render_template('index.html')
 
 
@@ -87,23 +96,6 @@ def finnplus():
         return redirect(request.referrer)
     return redirect(url_for('index'))
 
-# TODO: rename this
-# TODO: 1st time routing to articles trough this, store token locally for afterwards
-@app.route('/test', methods=['POST'])
-def test():
-    token = request.json.get('accessToken')
-    new_url = request.json.get('url')
-    session['user'] = (token, '')
-    print(request.referrer)
-    print(new_url)
-    return redirect(request.referrer)
-
-@app.route('/login')
-def login():
-    new_url = request.referrer
-    return render_template('login.html', new_url=str(new_url))
-
-
 
 @app.route('/<site>/')
 def front(site='mock'):
@@ -115,9 +107,17 @@ def front(site='mock'):
 
 @app.route('/<site>/article/<id>')
 def news(site='mock', id=0):
+    print('show content')
     show = show_content(str(request.url))
     form = LoginForm()
     return render_template(f'{site}/article_{id}.html', paywall=show, form=form)
+
+@app.route('/setcookie/<jwt>')
+def setcookie(jwt=None):
+    url_to = request.args.get('url_to')
+    print(jwt)
+    session['accessToken'] = jwt
+    return redirect(url_to)
 
 if __name__ == '__main__':
     app.run(port=8000)

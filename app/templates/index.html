@@ -2,10 +2,9 @@
 
 {% block content %}
 <script type="text/javascript">
+    var obj = null;
     {% if data %}
-        var obj = {{ data | safe }};
-    {% else %}
-        var obj = null;
+        obj = {{ data | safe }};
     {% endif %}
 </script>
 <noscript>You need to enable JavaScript to run this app.</noscript>
@@ -25,6 +24,6 @@
     r.push = e, r = r.slice(); for (var o = 0; o < r.length; o++) e(r[o]); var s = n;
     a() }([])
 </script>
-<script src="/static/js/2.2f418f51.chunk.js"></script>
-<script src="/static/js/main.904cca8b.chunk.js"></script>
+<script src="/static/js/2.1b1ea700.chunk.js"></script>
+<script src="/static/js/main.76a0fa80.chunk.js"></script>
 {% endblock %}
