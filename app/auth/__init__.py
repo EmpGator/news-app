@@ -13,7 +13,6 @@ def user_loader(id):
     return User.query.get(int(id))
 
 
-# TODO: Check for jwt authorization token
 @login_manager.request_loader
 def request_loader(request):
     key = request.headers.get('Authorization')

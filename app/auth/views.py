@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash
+from flask_jwt_extended import create_access_token
 from flask_login import current_user, login_user, logout_user, login_required
 from app.models import User, Article
 from app.db import db
@@ -24,7 +25,8 @@ def new_entry():
             new_user = User(first_name=fn, last_name=ln, email=email, password=pw_hash, role='user')
             db.session.add(new_user)
             db.session.commit()
-        except:
+        except Exception as e:
+            print(e)
             flash('email is taken')
             return redirect(url_for('auth.new_entry'))
         return redirect(url_for('auth.login'))
@@ -36,8 +38,7 @@ def new_entry():
 @bp.route('/signin', methods=['GET', 'POST'])
 def login():
     """
-    Login formstuff
-    TODO: Create jwt authoriztion token, store it for /test route
+    Login form stuff
     """
     if current_user.is_authenticated:
         return redirect(url_for('dashboard'))
@@ -45,14 +46,12 @@ def login():
     if request.method == 'POST':
         print(request.form)
         email = request.form.get('email')
-        users = User.query.all()
-        for i in users:
-            print(i)
         user = User.query.filter_by(email=email).first()
-        print(user)
         if user is not None and pbkdf2_sha256.verify(request.form.get('password'), user.password):
+            access_token = create_access_token(identity=user.id)
+            # TODO Encrypt access_token
             login_user(user)
-            return redirect(url_for('dashboard'))
+            return render_template('set_cookies.html', token=access_token, url_to=url_for('dashboard'))
         else:
             print('username or pass incorrect')
 

@@ -1,9 +1,10 @@
 from flask import Blueprint, make_response, jsonify, request
+from flask_jwt_extended import jwt_required, get_jwt_identity, jwt_optional
 from flask_restful import Api, Resource
 from flask_restful.reqparse import RequestParser
 from flask_login import current_user
 from app.db import db
-from app.models import Article, Publisher
+from app.models import Article, Publisher, User
 from datetime import date, timedelta
 
 import requests
@@ -29,11 +30,8 @@ SINGLE_PRICE = 100
 
 
 # TODO split this file logical parts
-# TODO store client info
-# TODO Clean validate_txid
-# TODO fix db connection drop issue
 # TODO store analytics in sessionvariable
-
+# TODO authorization to decorator
 
 def validate_txid(txid, price):
     """
@@ -46,6 +44,8 @@ def validate_txid(txid, price):
     url = 'https://rest.bitcoin.com/v2/slp/txDetails/' + txid
     resp = requests.get(url)
     retries = 5
+    output_n = None
+    tokens_recieved = 0
     for i in range(retries):
         if resp.status_code == 200:
             data = resp.json()
@@ -54,8 +54,9 @@ def validate_txid(txid, price):
                 if SLP_ADDR in slp:
                     output_n = i['n']
                     break
-            tokens_recieved = data['tokenInfo']['sendOutputs'][output_n]
-            if int(tokens_recieved) >= price:
+            if output_n:
+                tokens_recieved = int(data['tokenInfo']['sendOutputs'][output_n])
+            if tokens_recieved >= price:
                 print('return true')
                 return True
         else:
@@ -80,10 +81,10 @@ class Userdata(Resource):
     """
     Docstring
     """
+    @jwt_required
     def post(self):
-        if not current_user.is_authenticated:
-            r = make_response('Bad username or password', 403)
-            return r
+        uid = get_jwt_identity()
+        current_user = User.query.get(int(uid))
         args = u_data_req_parser.parse_args()
         url = args.get('url')
         article = get_article(url)
@@ -117,10 +118,15 @@ class PaidArticle(Resource):
     """
     Docstring
     """
-
+    @jwt_optional
     def post(self):
-        if not current_user.is_authenticated:
-            return make_response('Bad username or password', 403)
+        local_user = current_user
+        if not local_user.is_authenticated:
+            uid = get_jwt_identity()
+            if uid:
+                local_user = User.query.get(int(uid))
+            else:
+                return make_response('Bad username or password', 403)
         args = pay_req_parser.parse_args()
         txid = args['txid']
         url = args['url']
@@ -132,7 +138,7 @@ class PaidArticle(Resource):
             article.publisher.revenue += 1
             analytics.revenue += 1
             analytics.single_pay += 1
-            current_user.articles.append(article)
+            local_user.articles.append(article)
             db.session.commit()
             resp = make_response('Ok', 200)
             return resp
@@ -143,21 +149,26 @@ class PaidMonth(Resource):
     """
     Docstring
     """
-
+    @jwt_optional
     def post(self):
         print('PaidMonth')
-        if not current_user.is_authenticated:
-            return make_response('Bad username or password', 403)
+        local_user = current_user
+        if not local_user.is_authenticated:
+            uid = get_jwt_identity()
+            if uid:
+                local_user = User.query.get(int(uid))
+            else:
+                return make_response('Bad username or password', 403)
         args = pay_req_parser.parse_args()
         if args['txid']:
             analytics = Publisher.query.filter_by(name='All').first()
             analytics.revenue += (MONTH_PRICE / 100)
-            if current_user.subscription_end is None:
-                current_user.subscription_end = date.today() + timedelta(days=SUBS_TIME)
-            if current_user.subscription_end <= date.today():
-                current_user.subscription_end = date.today() + timedelta(days=SUBS_TIME)
+            if local_user.subscription_end is None:
+                local_user.subscription_end = date.today() + timedelta(days=SUBS_TIME)
+            if local_user.subscription_end <= date.today():
+                local_user.subscription_end = date.today() + timedelta(days=SUBS_TIME)
             else:
-                current_user.subscription_end += timedelta(days=SUBS_TIME)
+                local_user.subscription_end += timedelta(days=SUBS_TIME)
             db.session.commit()
             return make_response('Ok', 200)
         return make_response('Invalid txid', 200)
@@ -167,22 +178,38 @@ class PaidPackage(Resource):
     """
     Docstring
     """
-
+    @jwt_optional
     def post(self):
         print('PaidPackage')
-        if not current_user.is_authenticated:
-            return make_response('Bad username or password', 403)
+        local_user = current_user
+        if not local_user.is_authenticated:
+            uid = get_jwt_identity()
+            if uid:
+                local_user = User.query.get(int(uid))
+            else:
+                return make_response('Bad username or password', 403)
         args = pay_req_parser.parse_args()
         if args['txid']:
             analytics = Publisher.query.filter_by(name='All').first()
             analytics.revenue += (BUNDLE_PRICE / 100)
-            current_user.prepaid_articles += BUNDLE_SIZE
+            local_user.prepaid_articles += BUNDLE_SIZE
             db.session.commit()
             return make_response('Ok', 200)
         return make_response('Invalid txid', 200)
+
+
+class JWTTest(Resource):
+    """
+    test for jwt authorization
+    """
+    @jwt_required
+    def post(self):
+        uid = get_jwt_identity()
+        return jsonify({'uid': uid})
 
 
 api.add_resource(Userdata, '/api/userdata')
 api.add_resource(PaidPackage, '/api/packagepaid')
 api.add_resource(PaidArticle, '/api/articlepaid')
 api.add_resource(PaidMonth, '/api/monthpaid')
+api.add_resource(JWTTest, '/api/jwt-test')
