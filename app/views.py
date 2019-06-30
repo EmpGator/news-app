@@ -32,7 +32,8 @@ def dashboard():
     Placeholder for logged in main page view
     TODO: fetch articles and add them to dashboard
     """
-    print(request.cookies)
+    if current_user.role == 'publisher':
+        return redirect(url_for('publisher.analytics'))
     name = current_user.first_name + ' ' + current_user.last_name
     bought = [i.url for i in current_user.articles]
     end = current_user.subscription_end
@@ -40,13 +41,4 @@ def dashboard():
     data = json.dumps(data)
     return render_template('index.html', data=data)
 
-# TODO: Rename, document this
-@app.route('/test')
-def test():
-    if not current_user.is_authenticated:
-        data = {'accessToken': ''}
-    else:
-        data = {'accessToken': current_user.email}
-    data = json.dumps(data)
-    return render_template('test.html', data=data)
 
