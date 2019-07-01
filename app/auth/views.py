@@ -63,4 +63,4 @@ def login():
 def logout():
     """logout route"""
     logout_user()
-    return redirect(url_for('index'))
+    return render_template('logout_all.html', url_to=url_for('index'))

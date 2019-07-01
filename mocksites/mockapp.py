@@ -74,7 +74,7 @@ def logout():
     """logout route"""
     session['user'] = None
     session['accessToken'] = None
-    return redirect(url_for('index'))
+    return render_template('logout_finnplus.html', url_to=url_for('index'))
 
 
 @app.route('/')
@@ -88,8 +88,16 @@ def finnplus():
     """ This informs finnplus that article has been paid """
     print('Posting to paidarticle')
     data = request.get_json()
-    r = requests.post('http://localhost:5000/api/articlepaid',
-                      auth=session['user'], data=data)
+    auth = session.get('user', None)
+
+    if auth:
+        r = requests.post('http://localhost:5000/api/articlepaid',
+                          auth=auth, data=data)
+    else:
+        jwt = session.get('accessToken', '')
+        headers = {'Authorization': f'Bearer {jwt}'}
+        r = requests.post('http://localhost:5000/api/articlepaid',
+                          headers=headers, data=data)
     print(r.status_code)
     print(r.text)
     if request.referrer is not None:
@@ -118,6 +126,7 @@ def setcookie(jwt=None):
     print(jwt)
     session['accessToken'] = jwt
     return redirect(url_to)
+
 
 if __name__ == '__main__':
     app.run(port=8000)
