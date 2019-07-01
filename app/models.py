@@ -78,7 +78,7 @@ class Publisher(db.Model):
 
 def init_publishers():
     names = ['Helsingin sanomat', 'Turun sanomat', 'Savon sanomat', 'Kauppalehti',
-             'Keskisuomalainen']
+             'Keskisuomalainen', 'mock']
     publishers = Publisher.query.all()
     print(publishers)
     if publishers:

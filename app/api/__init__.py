@@ -29,8 +29,6 @@ BUNDLE_PRICE = 500
 SINGLE_PRICE = 100
 
 
-# TODO split this file logical parts
-# TODO store analytics in sessionvariable
 # TODO authorization to decorator
 
 def validate_txid(txid, price):
@@ -70,8 +68,18 @@ def validate_txid(txid, price):
 def get_article(url):
     article = Article.query.filter_by(url=url).first()
     if not article:
-        publisher = Publisher.query.filter_by(name='Turun sanomat').first()
-        article = Article(url=url, publisher=publisher)
+        split_url = url.split('/')
+        pub_name = 'mock'
+        art_name = 'placeholder'
+        if len(split_url) >= 3:
+            if split_url[3] == 'ts':
+                pub_name = 'Turun sanomat'
+            elif split_url[3] == 'hs':
+                pub_name = 'Helsingin sanomat'
+            art_name = split_url[2:].join(' ')
+
+        publisher = Publisher.query.filter_by(name=pub_name).first()
+        article = Article(url=url, publisher=publisher, name=art_name)
         db.session.add(article)
         db.session.commit()
     return article
