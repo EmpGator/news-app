@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:iltalehti="https://www.iltalehti.fi/rss" xmlns:media="http://search.yahoo.com/mrss/" version="2.0">
+  <channel>
+    <atom:link href="https://www.iltalehti.fi/rss" rel="self" type="application/rss+xml"/>
+    <title>Iltalehti.fi tuoreimmat uutiset - Uutiset</title>
+    <link>https://www.iltalehti.fi/</link>
+    <description>Iltalehden 20 tuoreinta uutista - Uutiset</description>
+    <language>fi</language>
+    <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
+    <lastBuildDate>Mon, 01 Jul 2019 18:12:59 +0300</lastBuildDate>
+    <item>
+      <title>Poliisilla työntäyteinen juhannus Turun seudulla</title>
+      <link>http://127.0.0.1:8000/ts/article/0</link>
+      <guid isPermaLink="false">0</guid>
+      <enclosure url="https://www.ts.fi/static/content/pic_5_4619575_k3425658_1200.jpg" length="40000" type="image/jpeg"/>
+      <media:content url="https://www.ts.fi/static/content/pic_5_4619575_k3425658_1200.jpg" type="image/jpeg" height="920" width="1240">
+        <media:credit>Lennart Holmberg</media:credit>
+        <media:description type="plain">Poliisilla työntäyteinen juhannus Turun seudulla. </media:description>
+      </media:content>
+      <category>paakirjoitus</category>
+      <pubDate>Mon, 23 Jun 2019 17:54:18 +0300</pubDate>
+      <description>Poliisin juhannusviikonloppu oli työntäyteinen Turun seudulla. Poliisin mukaan tutkittavaksi tuli useita törkeitä ja tavanomaisia rattijuopumuksia sekä yksi vesiliikennejuopumus.</description>
+    </item>
+    <item>
+      <title>Kahvi aktivoi elimistön "hyvän" ruskean rasvan</title>
+      <link>http://127.0.0.1:8000/ts/article/1</link>
+      <guid isPermaLink="false">1</guid>
+      <enclosure url="https://www.ts.fi/static/content/pic_5_4621518_k4351371_651.jpg" length="40000" type="image/jpeg"/>
+      <media:content url="https://www.ts.fi/static/content/pic_5_4621518_k4351371_651.jpg" type="image/jpeg" height="920" width="1240">
+        <media:credit>Ilkka Timonen</media:credit>
+        <media:description type="plain">Elimistössä on vain vähän ruskeaa rasvaa, jota käytetään lämmöntuotantoon.</media:description>
+      </media:content>
+      <category>paakirjoitus</category>
+      <pubDate>Mon, 23 Jun 2019 17:54:18 +0300</pubDate>
+      <description>Elimistössä on vain vähän ruskeaa rasvaa, jota käytetään lämmöntuotantoon.</description>
+    </item>
+    <item>
+      <title>Tanskalainen SP Group osti laitilalaisen Coreplastin</title>
+      <link>http://127.0.0.1:8000/ts/article/2</link>
+      <guid isPermaLink="false">2</guid>
+      <enclosure url="https://www.ts.fi/static/content/pic_5_4621532_k329682_651.jpg" length="40000" type="image/jpeg"/>
+      <media:content url="https://www.ts.fi/static/content/pic_5_4621532_k329682_651.jpg" type="image/jpeg" height="920" width="1240">
+        <media:credit>Timo Jakonen</media:credit>
+        <media:description type="plain">Tanskalainen SP Group osti laitilalaisen Coreplastin. </media:description>
+      </media:content>
+      <category>paakirjoitus</category>
+      <pubDate>Mon, 23 Jun 2019 17:54:18 +0300</pubDate>
+      <description>Tanskalainen SP Group osti laitilalaisen Coreplastin.</description>
+    </item>
+    <item>
+      <title>Korkeasaaren eläintarhaan muutti margai – pikkukissa kiipeää kuin orava</title>
+      <link>http://127.0.0.1:8000/ts/article/4</link>
+      <guid isPermaLink="false">4</guid>
+      <enclosure url="https://www.ts.fi/static/content/pic_5_4621635_k4351554_651.jpg" length="40000" type="image/jpeg"/>
+      <media:content url="https://www.ts.fi/static/content/pic_5_4621635_k4351554_651.jpg" type="image/jpeg" height="920" width="1240">
+        <media:credit>Heidi Kouhia</media:credit>
+        <media:description type="plain">Korkeasaaren eläintarhaan muutti margai – pikkukissa kiipeää kuin orava. </media:description>
+      </media:content>
+      <category>paakirjoitus</category>
+      <pubDate>Mon, 23 Jun 2019 17:54:18 +0300</pubDate>
+      <description>Korkeasaaren eläintarhaan muutti margai – pikkukissa kiipeää kuin orava.</description>
+    </item>
+  </channel>
+</rss>

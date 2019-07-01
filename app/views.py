@@ -1,10 +1,19 @@
 from flask import render_template, redirect, url_for, request
 from flask import current_app as app
 from .models import User, Publisher, Article
-from .db import db
 from flask_login import login_required, current_user
-
+import feedparser
 import json
+
+
+def fetch_articles():
+    src = 'app\\static\\news_app.xml'
+    feed = feedparser.parse(src)
+    for entry in feed.entries:
+        print(entry.title)
+        print(entry.media_content[0]['url'])
+    data = json.dumps({})
+    return data
 
 
 @app.route('/users')
@@ -34,6 +43,7 @@ def dashboard():
     """
     if current_user.role == 'publisher':
         return redirect(url_for('publisher.analytics'))
+    fetch_articles()
     name = current_user.first_name + ' ' + current_user.last_name
     bought = [i.url for i in current_user.articles]
     end = current_user.subscription_end
@@ -42,3 +52,12 @@ def dashboard():
     return render_template('index.html', data=data)
 
 
+@app.route('/ts')
+@login_required
+def ts():
+    return render_template('index.html')
+
+
+@app.route('/hs')
+def hs():
+    return render_template('index.html')
