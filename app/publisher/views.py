@@ -1,6 +1,6 @@
 import json
 
-from flask import Blueprint, render_template, jsonify
+from flask import Blueprint, render_template, jsonify, url_for, redirect
 from flask_login import current_user, login_required
 from app.models import Publisher
 
@@ -15,6 +15,8 @@ def analytics():
     try:
         data = []
         role = current_user.role
+        if role != 'publisher':
+            return redirect(url_for('dashboard'))
         total = Publisher.query.filter_by(name='All').first()
         total_monthly_rev = total.revenue - total.single_pay - total.package_pay
 

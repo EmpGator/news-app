@@ -1,6 +1,5 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, redirect, url_for, flash
 from flask_login import current_user, login_required
-from datetime import date
 from passlib.hash import pbkdf2_sha256
 from app.db import db
 from .forms import Edit
