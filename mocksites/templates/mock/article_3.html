@@ -1,12 +1,6 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title></title>
-</head>
-<body>
-    <a href="{{ url_for('index') }}">Main page</a>
-    <a href="{{ url_for('logout') }}">Logout</a>
-    <br>
+{%  extends "mock/base.html" %}
+{%  block content %}
+
     <h1>Article 3</h1>
     {% if paywall.show %}
     <p>Content of this article</p>
@@ -16,4 +10,4 @@
     {% else %}
     {% include "mock/block.html" %}
     {% endif %}
-</body>
+{% endblock %}
