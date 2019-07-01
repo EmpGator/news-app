@@ -37,7 +37,7 @@ def analytics():
                                                                     key=attrgetter('hits'))[:4] if i.hits]
         # % of revenue this publisher generated
         pub_rev = publisher.single_pay + publisher.package_pay + publisher_monthly_pay_rev
-        revenue = pub_rev / total.revenue if total.revenue > 0 else 0
+        revenue = round(pub_rev / total.revenue, 1) if total.revenue > 0 else 0
 
         # Combine all data to one json
         data = {'name': publisher.name, 'revenue': revenue, 'payment_percent': payment_percent,

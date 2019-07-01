@@ -9,10 +9,14 @@ import json
 def fetch_articles():
     src = 'app\\static\\news_app.xml'
     feed = feedparser.parse(src)
+    data = {'MrData': [], 'TrData': [], 'LtData': []}
+    author = 'Turun Sanomat'
     for entry in feed.entries:
-        print(entry.title)
-        print(entry.media_content[0]['url'])
-    data = json.dumps({})
+        obj = {'img': entry.media_content[0]['url'], 'title': entry.title, 'author': author, 'link': entry.link}
+        data['MrData'].append(obj)
+        data['TrData'].append(obj)
+        data['LtData'].append(obj)
+    data = json.dumps(data)
     return data
 
 
@@ -28,10 +32,10 @@ def users():
 @app.route('/')
 def index():
     """Place holder for main page view """
-    print(request.cookies)
     if current_user.is_authenticated:
         return redirect(url_for('dashboard'))
-    return render_template('index.html')
+    data = fetch_articles()
+    return render_template('index.html', data=data)
 
 
 @app.route('/dashboard')
@@ -43,12 +47,8 @@ def dashboard():
     """
     if current_user.role == 'publisher':
         return redirect(url_for('publisher.analytics'))
-    fetch_articles()
-    name = current_user.first_name + ' ' + current_user.last_name
-    bought = [i.url for i in current_user.articles]
-    end = current_user.subscription_end
-    data = {'name': name, 'bought': bought, 'end_date': str(end)}
-    data = json.dumps(data)
+    data = fetch_articles()
+    print(data)
     return render_template('index.html', data=data)
 
 
