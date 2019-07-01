@@ -8,7 +8,6 @@ from operator import attrgetter
 bp = Blueprint('publisher', __name__)
 
 
-# TODO Clean this up
 @bp.route('/analytics')
 @login_required
 def analytics():

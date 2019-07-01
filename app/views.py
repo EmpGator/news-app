@@ -43,7 +43,6 @@ def index():
 def dashboard():
     """
     Placeholder for logged in main page view
-    TODO: fetch articles and add them to dashboard
     """
     if current_user.role == 'publisher':
         return redirect(url_for('publisher.analytics'))

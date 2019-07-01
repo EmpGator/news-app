@@ -42,12 +42,12 @@ class User(UserMixin, db.Model):
 class Article(db.Model):
     """
     Model to store articles
-    TODO add image uri
     """
     __tablename__ = 'articles'
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255))
+    image = db.Column(db.String(2000))
     url = db.Column(db.String(2000), unique=True, nullable=False)
     hits = db.Column(db.Integer, nullable=False, default=0)
     publisher_id = db.Column(db.Integer, db.ForeignKey('publishers.id'))
