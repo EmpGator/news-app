@@ -32,7 +32,7 @@ def analytics():
 
         # Most read articles
 
-        articles = [{'name': i.name, 'hits': i.hits} for i in sorted(publisher.articles, reverse=True,
+        articles = [{'name': i.url, 'hits': i.hits} for i in sorted(publisher.articles, reverse=True,
                                                                     key=attrgetter('hits'))[:4] if i.hits]
         # % of revenue this publisher generated
         pub_rev = publisher.single_pay + publisher.package_pay + publisher_monthly_pay_rev
