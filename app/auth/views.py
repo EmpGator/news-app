@@ -49,6 +49,7 @@ def login():
         user = User.query.filter_by(email=email).first()
         if user is not None and pbkdf2_sha256.verify(request.form.get('password'), user.password):
             access_token = create_access_token(identity=user.id)
+            print(access_token)
             # TODO Encrypt access_token
             login_user(user)
             return render_template('set_cookies.html', token=access_token, url_to=url_for('dashboard'))

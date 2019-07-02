@@ -1,19 +1,14 @@
-body{
-  background:#EF9A9A;
-}
-
-a.btn{
-  margin-top: 30%;
+a.btn {
+    margin-top: -20px;
+    margin-bottom: 30%;
+    margin-left: 10px;
+    margin-right: 10px;
 }
 .modal{
  max-height:100%;
  overflow:hidden;
 }
 
-input[type="submit"]{
-  width: 100%;
-  margin-top: 50px;
-}
 .modal-close{
   position: absolute;
   top:10px;

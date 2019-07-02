@@ -8,6 +8,8 @@ app = Flask(__name__)
 app.secret_key = b'dsaadsads'
 
 # TODO: Create more long articles
+# TODO: Add all providers
+# TODO: Finn+ Login for mockup site
 
 
 class LoginForm(FlaskForm):
@@ -47,6 +49,7 @@ def show_content(url):
     if not auth:
         print('not auth')
         jwt = session.get('accessToken', '')
+        print(jwt)
         headers = {'Authorization': f'Bearer {jwt}'}
         r = requests.post('http://localhost:5000/api/userdata', data=payload, headers=headers)
     else:

@@ -46,7 +46,7 @@
             </div>
             <div class="tsv3-c-common-article__textitem tsv3-c-common-article__textitem--teksti">
                 <p class="kirjoittaja">Ilkka Timonen</p>
-                <p {% if paywall.show %} class="teksti" {% else %} class="tekstipaywall" {% endif %}>Tuore tutkimus kertoo kahvilla olevan yhteys niin sanotun "hyvän rasvan" eli ruskean rasvan toimintaan.</p>
+                <p {% if paywall.show %} class="teksti" {% else %} class="paytext" {% endif %}>Tuore tutkimus kertoo kahvilla olevan yhteys niin sanotun "hyvän rasvan" eli ruskean rasvan toimintaan.</p>
                 {% if paywall.show %}
                 <p class="teksti">Tutkimusta johtamassa ollut Nottinghamin yliopiston professori <span class="henkilo">Michael Symonds</span> kertoo tutkijoiden havainneen, että kahvi voi stimuloida ruskeaa rasvaa.</p>
                 <p class="teksti">– Ruskea rasva on ainutlaatuinen elin, jota käytetään lämmöntuotantoon. Sitä on aika vähän ruumiissa, Symonds kertoi <a href="https://eu.usatoday.com/story/news/2019/06/24/coffee-could-help-burn-fat-new-study-says/1545452001/" target="_blank" rel="noopener nofollow" class="kursiivi">USA Today</a><a href="https://eu.usatoday.com/story/news/2019/06/24/coffee-could-help-burn-fat-new-study-says/1545452001/" target="_blank" rel="noopener nofollow"> -lehden verkkosivuilla</a>.</p>
@@ -60,9 +60,9 @@
                 <p class="teksti">Kahvin juominen lisäsi ruskean rasvan aktiivisuutta ihmisissä. </p>
                 <p class="teksti">Symonds kertoi, että kahvi auttaa ylipainon ja diabeteksen vastaisessa taistelussa, koska kahvin juominen parantaa myös elimistön glukoositasoja.</p>
                 {% elif paywall.pay %}
-                {% include "ts/pay.html" %}
+                {% include "pay.html" %}
                 {% else %}
-                {% include "ts/block.html" %}
+                {% include "block.html" %}
                 {% endif %}
             </div>
         </div>

@@ -35,8 +35,6 @@ def validate_txid(txid, price):
     """
     Uses bitcoin api to validate slp transaction,
         checks if correct amount was sent to correct address
-    TODO: Check that TXID is new
-    TODO: Validate that token is correct type
     """
     print('validate_txid')
     url = 'https://rest.bitcoin.com/v2/slp/txDetails/' + txid
@@ -76,7 +74,7 @@ def get_article(url):
                 pub_name = 'Turun sanomat'
             elif split_url[3] == 'hs':
                 pub_name = 'Helsingin sanomat'
-            art_name = split_url[2:].join(' ')
+            art_name = ' '.join(split_url[2:])
 
         publisher = Publisher.query.filter_by(name=pub_name).first()
         article = Article(url=url, publisher=publisher, name=art_name)

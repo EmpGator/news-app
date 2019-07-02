@@ -1,13 +1,14 @@
-<head>
+{% extends "base.html" %}
+
+{% block head %}
     <link href="/static/ts/style.css" rel="stylesheet">
-    <link href="/static/ts/paywall.css" rel="stylesheet">
     <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
     <script src="{{ url_for('static', filename='main.js') }}"></script>
     <script src="{{ url_for('static', filename='badgerToken-1.0.1.js') }}"></script>
-</head>
-<body>
+{% endblock %}
+{% block body %}
     <a href="/ts" ><img src="/static/ts/top.png" alt=""></a>
     {% block content %}
     {% endblock %}
     <img src="/static/ts/bottom.png" alt="">
-</body>
+{%  endblock %}

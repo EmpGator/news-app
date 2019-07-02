@@ -43,7 +43,7 @@
                 </div>
             </div>
             <div class="tsv3-c-common-article__textitem tsv3-c-common-article__textitem--teksti">
-                <p {% if paywall.show %} class="teksti" {% else %} class="tekstipaywall" {% endif %}>Muovialan sopimusvalmistaja Coreplast Laitila Oy siirtyy tanskalaisomistukseen. SP Group A/S osti tiistaina muun muassa heijastimistaan tunnetun yrityksen koko osakekannan.</p>
+                <p {% if paywall.show %} class="teksti" {% else %} class="paytext" {% endif %}>Muovialan sopimusvalmistaja Coreplast Laitila Oy siirtyy tanskalaisomistukseen. SP Group A/S osti tiistaina muun muassa heijastimistaan tunnetun yrityksen koko osakekannan.</p>
                 {% if paywall.show %}
                 <p class="teksti">Myyjinä ovat Aboa Venture Management Oy:n hallinnoimat pääomarahastot sekä henkilöomistajat Kauko Kämäräinen ja Keijo Parviainen.</p>
                 <p class="teksti">Coreplastin toimiva johto ja muu henkilöstö jatkavat tehtävissään. Coreplast jatkaa entisellä nimellään ja nykyisissä tiloissaan, yritys kertoo tiedotteessa.</p>
@@ -53,9 +53,9 @@
                     <p class="teksti">– Coreplastin hankinta nopeuttaa SP Groupin kasvua. Otamme haltuumme hyvin toimivan ja hyvin asemoituneen yhtiön. Olemme vakuuttuneita siitä, että molempien yhtiöiden pitkästä kokemuksesta ruiskuvalettujen tuotteiden kehityksessä, valmistuksessa ja myynnissä saamme etua kilpailuasemamme vahvistamiseen globaalisti, SP Groupin toimitusjohtaja Frank Gad kommentoi tiedotteessa.</p>
                     <p class="teksti">SP Group A/S toimii neljällä mantereella ja yhdessätoista maassa. Yhtiö on perustettu vuonna 1972 ja sen palveluksessa on globaalisti lähes 2 000 työntekijää. Yhtiön tuotteita myydään 83 maahan.</p>
                     {% elif paywall.pay %}
-                    {% include "ts/pay.html" %}
+                    {% include "pay.html" %}
                     {% else %}
-                    {% include "ts/block.html" %}
+                    {% include "block.html" %}
                     {% endif %}
                 </div>
             </div>

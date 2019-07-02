@@ -43,7 +43,7 @@
                 </div>
             </div>
             <div class="tsv3-c-common-article__textitem tsv3-c-common-article__textitem--teksti">
-                <p {% if paywall.show %} class="teksti" {% else %} class="tekstipaywall" {% endif %}>Korkeasaareen on saapunut uusi pieni kissapeto, margai. </p>
+                <p {% if paywall.show %} class="teksti" {% else %} class="paytext" {% endif %}>Korkeasaareen on saapunut uusi pieni kissapeto, margai. </p>
                 {% if paywall.show %}
                 <p class="teksti">Kolmekiloisen, kauniin täplikästurkkisen ja suurisilmäisen kissan koti on Korkeasaaren trooppisessa Amazonia-talossa. Laji on kotoisin Etelä- ja Keski-Amerikan tiheistä metsistä. Margai on läheistä sukua oselotille ja se on tunnettu myös nimillä puuoselotti ja pitkähäntäkissa.</p>
                 <p class="teksti"> </p>
@@ -57,9 +57,9 @@
                 <p class="teksti"><span class="lahto">Monien muiden </span>kissapetojen tavoin margaitakin on metsästetty kauniin turkkinsa vuoksi useita kymmeniä tuhansia yksilöitä. Nykyään laji on suojeltu ja sen kauppa on kielletty kansainvälisin sopimuksin.</p>
                 <p class="teksti">Lajin elinalueet ovat pirstoutuneet. Sen entisiä elinalueita käytetään nykyisin ihmisten ja karjan ruuantuotantoon, mikä on nykyisin margain suurin uhka. Suojelusta huolimatta margaiden määrä luonnossa on edelleen laskussa ja kansainvälinen luonnonsuojeluliitto IUCN luokittelee sen silmälläpidettäväksi. Margai kuuluu eurooppalaisten eläintarhojen suojeluohjelmaan.</p>
                 {% elif paywall.pay %}
-                {% include "ts/pay.html" %}
+                {% include "pay.html" %}
                 {% else %}
-                {% include "ts/block.html" %}
+                {% include "block.html" %}
                 {% endif %}
             </div>
         </div>

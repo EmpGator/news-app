@@ -35,7 +35,7 @@
 <div class="tsv3-c-common-article__container__middle tsv3-c-common-article__container__middle--cols">
     <div class="tsv3-c-common-article__container__middle__left">
         <div class="tsv3-c-common-article__textitem tsv3-c-common-article__textitem--teksti">
-            <p {% if paywall.show %} class="teksti" {% else %} class="tekstipaywall" {% endif %}>Poliisin juhannusviikonloppu oli työntäyteinen Turun seudulla. Poliisin mukaan tutkittavaksi tuli useita törkeitä ja tavanomaisia rattijuopumuksia sekä yksi vesiliikennejuopumus.</p>
+            <p {% if paywall.show %} class="teksti" {% else %} class="paytext" {% endif %}>Poliisin juhannusviikonloppu oli työntäyteinen Turun seudulla. Poliisin mukaan tutkittavaksi tuli useita törkeitä ja tavanomaisia rattijuopumuksia sekä yksi vesiliikennejuopumus.</p>
             {% if paywall.show %}
             <p class="teksti">Turun alueella kirjattiin lisäksi useita rikosilmoituksia pahoinpitelyistä, joissa joko osa tai kaikki osalliset olivat päihteiden vaikutuksen alaisena.</p>
             <p class="teksti">Poliisia työllistivät myös erilaiset vahingonteot, ja kuljettajien raskas kaasujalka.</p>
@@ -45,9 +45,9 @@
                     <p class="teksti">Lue myös:</p>
                     <p class="teksti"><a href="https://www.ts.fi/uutiset/paikalliset/4619063/Autiotalon+ulkorakenteet+paloivat+Piikkiossa" target="_blank" rel="noopener">Autiotalon ulkorakenteet paloivat Piikkiössä</a></p>
                     {% elif paywall.pay %}
-                    {% include "ts/pay.html" %}
+                    {% include "pay.html" %}
                     {% else %}
-                    {% include "ts/block.html" %}
+                    {% include "block.html" %}
                     {% endif %}
             </div>
         </div>
