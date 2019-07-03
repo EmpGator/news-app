@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block head %}
+    <link href="{{ url_for('static', filename='ks/style.css') }}" rel="stylesheet">
+{% endblock %}
+{% block body %}
+    <h1>Keskisuomalainen</h1>
+    <ul>
+        <li><a href="/ks/article/0">Article 0</a></li>
+    </ul>
+{%  endblock %}
