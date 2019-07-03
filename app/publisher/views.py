@@ -34,6 +34,9 @@ def analytics():
 
         articles = [{'name': i.url, 'hits': i.hits} for i in sorted(publisher.articles, reverse=True,
                                                                     key=attrgetter('hits'))[:4] if i.hits]
+        while len(articles) < 4:
+            articles.append({'name': None, 'hits': 0})
+
         # % of revenue this publisher generated
         pub_rev = publisher.single_pay + publisher.package_pay + publisher_monthly_pay_rev
         revenue = round(pub_rev / total.revenue, 1) if total.revenue > 0 else 0

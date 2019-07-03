@@ -7,6 +7,9 @@ import json
 
 
 def fetch_articles():
+    # TODO: add articles to news_app.xml
+    # TODO: filter 6 articles for each data object
+
     src = 'app\\static\\news_app.xml'
     feed = feedparser.parse(src)
     data = {'MrData': [], 'TrData': [], 'LtData': []}
@@ -51,6 +54,7 @@ def dashboard():
     return render_template('index.html', data=data)
 
 
+# TODO: add links to all providers
 @app.route('/ts')
 @login_required
 def ts():

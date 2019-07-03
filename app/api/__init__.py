@@ -74,6 +74,13 @@ def get_article(url):
                 pub_name = 'Turun sanomat'
             elif split_url[3] == 'hs':
                 pub_name = 'Helsingin sanomat'
+            elif split_url[3] == 'ks':
+                pub_name = 'Keskisuomalainen'
+            elif split_url[3] == 'ss':
+                pub_name = 'Savon sanomat'
+            elif split_url[3] == 'kl':
+                pub_name = 'Kauppalehti'
+
             art_name = ' '.join(split_url[2:])
 
         publisher = Publisher.query.filter_by(name=pub_name).first()

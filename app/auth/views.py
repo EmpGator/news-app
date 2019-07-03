@@ -34,7 +34,6 @@ def new_entry():
     return render_template('index.html')
 
 
-# placeholder
 @bp.route('/signin', methods=['GET', 'POST'])
 def login():
     """

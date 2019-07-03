@@ -12,9 +12,9 @@ csrf = CSRFProtect()
 login_manager.login_view = 'auth.login'
 jwt = JWTManager()
 
-# TODO: make login popup communicate trough postmessage
 # TODO: payment method selection
 # TODO: token system
+
 
 def create_app():
     app = Flask(__name__, instance_relative_config=False)

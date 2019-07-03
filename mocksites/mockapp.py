@@ -7,10 +7,6 @@ import requests
 app = Flask(__name__)
 app.secret_key = b'dsaadsads'
 
-# TODO: Create more long articles
-# TODO: Add all providers
-# TODO: Finn+ Login for mockup site
-
 
 class LoginForm(FlaskForm):
     name = StringField('name', validators=[DataRequired()])
