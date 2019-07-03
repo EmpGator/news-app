@@ -1,0 +1,19 @@
+{% extends "ks/base.html" %}
+
+{% block content %}
+<article>
+    <h1></h1>
+    <p {% if not paywall.show %} class="paytext" {% endif %}>
+
+    </p>
+    {% if paywall.show %}
+
+
+    {% elif paywall.pay %}
+    {% include "pay.html" %}
+    {% else %}
+    {% include "block.html" %}
+    {% endif %}
+
+</article>
+{% endblock %}
