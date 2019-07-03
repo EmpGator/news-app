@@ -54,9 +54,10 @@ def dashboard():
 @app.route('/ts')
 @login_required
 def ts():
-    return render_template('index.html')
+    return redirect('http://127.0.0.1:8000/ts/')
 
 
 @app.route('/hs')
 def hs():
-    return render_template('index.html')
+    return redirect('http://127.0.0.1:8000/hs/')
+

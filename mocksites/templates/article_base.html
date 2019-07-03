@@ -3,7 +3,7 @@
 {% block content %}
 <article>
     <h1></h1>
-    <p {% if paywall.show %} class="teksti" {% else %} class="paytext" {% endif %}>
+    <p {% if not paywall.show %} class="paytext" {% endif %}>
 
     </p>
     {% if paywall.show %}

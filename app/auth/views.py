@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, request, flash
+from flask import Blueprint, render_template, redirect, url_for, request, flash, make_response, session
 from flask_jwt_extended import create_access_token
 from flask_login import current_user, login_user, logout_user, login_required
 from app.models import User, Article
