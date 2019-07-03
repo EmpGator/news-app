@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block head %}
+    <link href="{{ url_for('static', filename='ss/style.css') }}" rel="stylesheet">
+{% endblock %}
+{% block body %}
+    <h1>Savon sanomat</h1>
+    <ul>
+        <li><a href="/ss/article/0">Article 0</a></li>
+    </ul>
+{%  endblock %}
