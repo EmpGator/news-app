@@ -9,3 +9,10 @@ article {
     width: 700px;
     margin-left: 300px;
 }
+
+
+article img {
+    max-width: 600px;
+    height: auto;
+    width: auto;
+}
