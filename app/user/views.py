@@ -37,6 +37,6 @@ def profile():
     end = str(current_user.subscription_end) if current_user.subscription_end else None
     paid = current_user.prepaid_articles
     data = {'name': name, 'email': email, 'bought': bought, 'end_date': end,
-            'prepaid': paid}
+            'prepaid': paid, 'tokens': current_user.tokens}
     data = json.dumps(data)
     return render_template('index.html', data=data)

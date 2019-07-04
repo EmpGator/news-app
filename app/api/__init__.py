@@ -1,4 +1,4 @@
-from flask import Blueprint, make_response, jsonify, request
+from flask import Blueprint, make_response, jsonify, request, redirect, url_for
 from flask_jwt_extended import jwt_required, get_jwt_identity, jwt_optional
 from flask_restful import Api, Resource
 from flask_restful.reqparse import RequestParser
@@ -16,6 +16,9 @@ u_data_req_parser.add_argument("url", required=True)
 pay_req_parser = RequestParser(bundle_errors=True)
 pay_req_parser.add_argument("url", required=True)
 pay_req_parser.add_argument("txid", required=True)
+
+token_req_parser = RequestParser(bundle_errors=True)
+token_req_parser.add_argument('amount', required=True)
 
 api_bp = Blueprint('api', __name__)
 api = Api(api_bp)
@@ -114,7 +117,7 @@ class Userdata(Resource):
             else:
                 current_user.subscription_end = None
                 db.session.commit()
-        if current_user.prepaid_articles > 0:
+        elif current_user.prepaid_articles > 0:
             current_user.prepaid_articles -= 1
             article.hits += 1
             article.publisher.package_pay += 1
@@ -143,7 +146,7 @@ class PaidArticle(Resource):
         args = pay_req_parser.parse_args()
         txid = args['txid']
         url = args['url']
-        if txid:
+        if local_user.tokens > 0:
             analytics = Publisher.query.filter_by(name='All').first()
             article = get_article(url)
             article.hits += 1
@@ -152,6 +155,7 @@ class PaidArticle(Resource):
             analytics.revenue += 1
             analytics.single_pay += 1
             local_user.articles.append(article)
+            local_user.tokens -= 1
             db.session.commit()
             resp = make_response('Ok', 200)
             return resp
@@ -211,18 +215,29 @@ class PaidPackage(Resource):
         return make_response('Invalid txid', 200)
 
 
-class JWTTest(Resource):
+class PayTokens(Resource):
     """
     test for jwt authorization
     """
-    @jwt_required
     def post(self):
-        uid = get_jwt_identity()
-        return jsonify({'uid': uid})
+        if not current_user.is_authenticated:
+            return make_response('Bad login', 403)
+
+
+        amount = request.form.get('amount')
+        try:
+            amount = int(amount)
+        except Exception as e:
+            print(e)
+            amount = 3
+        print(amount)
+        current_user.tokens += amount
+        db.session.commit()
+        return redirect(url_for('index'))
 
 
 api.add_resource(Userdata, '/api/userdata')
 api.add_resource(PaidPackage, '/api/packagepaid')
 api.add_resource(PaidArticle, '/api/articlepaid')
 api.add_resource(PaidMonth, '/api/monthpaid')
-api.add_resource(JWTTest, '/api/jwt-test')
+api.add_resource(PayTokens, '/api/paytokens')
