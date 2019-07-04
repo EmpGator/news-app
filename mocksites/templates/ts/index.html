@@ -4,13 +4,20 @@
     <title></title>
 </head>
 <body>
-    <a href="{{ url_for('loginfinnplus') }}">Login</a>
-    <a id="logout" href="{{ url_for('logout') }}">Logout</a>
-<ul>
-    <li><a href="/ts/article/0">Article 0</a></li>
-    <li><a href="/ts/article/1">Article 1</a></li>
-    <li><a href="/ts/article/2">Article 2</a></li>
-    <li><a href="/ts/article/3">Article 3</a></li>
-</ul>
+		<img src="{{ url_for('static', filename='ts/main.jpg') }}" alt="" usemap="#map" />
+
+		<map name="map" id="map">
+		    <area target="_self" alt="article 0" title="article 0" href="http://127.0.0.1:8000/ts/article/0" coords="33,409,361,117" shape="rect">
+		    <area target="_self" alt="article 1" title="article 1" href="http://127.0.0.1:8000/ts/article/1" coords="36,497,357,430" shape="rect">
+		    <area target="_self" alt="article 2" title="article 2" href="http://127.0.0.1:8000/ts/article/2" coords="37,509,138,606" shape="rect">
+		    <area target="_self" alt="article 3" title="article 3" href="http://127.0.0.1:8000/ts/article/3" coords="147,511,247,615" shape="rect">
+		    <area target="_self" alt="article 5" title="article 5" href="http://127.0.0.1:8000/ts/article/5" coords="256,510,357,614" shape="rect">
+		    <area target="_self" alt="article 4" title="article 4" href="http://127.0.0.1:8000/ts/article/4" coords="373,142,521,171" shape="rect">
+		    <area target="_self" alt="article 6" title="article 6" href="http://127.0.0.1:8000/ts/article/6" coords="374,177,519,212" shape="rect">
+		    <area target="_self" alt="article 7" title="article 7" href="http://127.0.0.1:8000/ts/article/7" coords="373,220,520,250" shape="rect">
+		    <area target="_self" alt="article 8" title="article 8" href="http://127.0.0.1:8000/ts/article/8" coords="373,254,519,276" shape="rect">
+		    <area target="_self" alt="article 9" title="article 9" href="http://127.0.0.1:8000/ts/article/9" coords="372,281,518,311" shape="rect">
+		</map>
+
 </body>
 </html>

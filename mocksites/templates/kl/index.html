@@ -1,11 +1,35 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+	<img src="{{ url_for('static', filename='kl/top.png') }}">
+	<img src="{{ url_for('static', filename='kl/main.jpg') }}" alt="" usemap="#map" />
 
-{% block head %}
-    <link href="{{ url_for('static', filename='kl/style.css') }}" rel="stylesheet">
-{% endblock %}
-{% block body %}
-    <h1>kauppalehti</h1>
-    <ul>
-        <li><a href="/kl/article/0">Article 0</a></li>
-    </ul>
-{%  endblock %}
+
+<map name="map" id="map">
+    <area target="_self" alt="article 1" title="article 1" href="http://127.0.0.1:8000/kl/article/1" coords="350,12,640,453" shape="rect">
+    <area target="_self" alt="article 4" title="article 4" href="http://127.0.0.1:8000/kl/article/4" coords="339,182,197,18" shape="rect">
+    <area target="_self" alt="article 5" title="article 5" href="http://127.0.0.1:8000/kl/article/5" coords="197,196,340,343" shape="rect">
+    <area target="_self" alt="article 7" title="article 7" href="http://127.0.0.1:8000/kl/article/7" coords="196,355,342,490" shape="rect">
+    <area target="_self" alt="article 8" title="article 8" href="http://127.0.0.1:8000/kl/article/8" coords="352,462,641,752" shape="rect">
+    <area target="_self" alt="article 0" title="article 0" href="http://127.0.0.1:8000/kl/article/0" coords="654,135,794,180" shape="rect">
+    <area target="_self" alt="article 1" title="article 1" href="http://127.0.0.1:8000/kl/article/1" coords="652,182,797,209" shape="rect">
+    <area target="_self" alt="article 2" title="article 2" href="http://127.0.0.1:8000/kl/article/2" coords="653,211,797,251" shape="rect">
+    <area target="_self" alt="article 3" title="article 3" href="http://127.0.0.1:8000/kl/article/3" coords="795,293,653,256" shape="rect">
+    <area target="_self" alt="article 4" title="article 4" href="http://127.0.0.1:8000/kl/article/4" coords="652,296,796,345" shape="rect">
+    <area target="_self" alt="article 5" title="article 5" href="http://127.0.0.1:8000/kl/article/5" coords="651,350,795,372" shape="rect">
+    <area target="_self" alt="article 6" title="article 6" href="http://127.0.0.1:8000/kl/article/6" coords="652,375,793,402" shape="rect">
+    <area target="_self" alt="article 7" title="article 7" href="http://127.0.0.1:8000/kl/article/7" coords="651,405,793,432" shape="rect">
+    <area target="_self" alt="article 8" title="article 8" href="http://127.0.0.1:8000/kl/article/8" coords="653,436,796,460" shape="rect">
+    <area target="_self" alt="article 9" title="article 9" href="http://127.0.0.1:8000/kl/article/9" coords="653,464,792,485" shape="rect">
+    <area target="_self" alt="artcle 10" title="artcle 10" href="http://127.0.0.1:8000/kl/article/3" coords="653,491,798,537" shape="rect">
+    <area target="_self" alt="article 11" title="article 11" href="http://127.0.0.1:8000/kl/article/4" coords="652,543,800,580" shape="rect">
+    <area target="_self" alt="article 12" title="article 12" href="http://127.0.0.1:8000/kl/article/5" coords="653,584,793,609" shape="rect">
+    <area target="_self" alt="article 13" title="article 13" href="http://127.0.0.1:8000/kl/article/6" coords="650,615,798,654" shape="rect">
+    <area target="_self" alt="article 14" title="article 14" href="http://127.0.0.1:8000/kl/article/7" coords="651,658,794,695" shape="rect">
+</map>
+<img src="{{ url_for('static', filename='kl/bottom.png') }}">
+</body>
+</html>
