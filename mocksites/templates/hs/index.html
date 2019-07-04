@@ -1,9 +1,10 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title></title>
-</head>
-<body>
+{% extends "base.html" %}
+
+{% block head %}
+    <title>Helsingin sanomat</title>
+{% endblock %}
+
+{% block body %}
 <img src="{{ url_for('static', filename='hs/main.png') }}" alt="" usemap="#map" />
 <map name="map" id="map">
     <area alt="" title="" href="/hs/article/0" shape="rect" coords="11,277,628,759" />
@@ -21,6 +22,5 @@
     <area alt="" title="" href="/hs/article/8" shape="rect" coords="666,855,942,928" />
     <area alt="" title="" href="/hs/article/9" shape="rect" coords="665,932,941,1007" />
 </map>
-<img src="{{ url_for('static', filename='hs/bottom2.png') }}">
-</body>
-</html>
+<img src="{{ url_for('static', filename='hs/bottom2.png') }}" alt="">
+{% endblock %}
