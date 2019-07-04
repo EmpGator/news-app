@@ -1,0 +1,15 @@
+{% for item in items %}
+<item>
+  <title>{{ item.title }}</title>
+  <link>{{ item.url }}</link>
+  <guid isPermaLink="false">{{ item.guid }}</guid>
+  <enclosure url="{{ item.image }}" length="40000" type="image/jpeg"/>
+  <media:content url="{{ item.image }}" type="image/jpeg" height="920" width="1240">
+    <media:credit></media:credit>
+    <media:description type="plain"></media:description>
+  </media:content>
+  <category></category>
+  <pubDate></pubDate>
+  <description></description>
+</item>
+{% endfor %}
