@@ -7,18 +7,28 @@ import json
 
 
 def fetch_articles():
-    # TODO: add articles to news_app.xml
-    # TODO: filter 6 articles for each data object
-
     src = 'app\\static\\news_app.xml'
     feed = feedparser.parse(src)
     data = {'MrData': [], 'TrData': [], 'LtData': []}
-    author = 'Turun Sanomat'
-    for entry in feed.entries:
-        obj = {'img': entry.media_content[0]['url'], 'title': entry.title, 'author': author, 'link': entry.link}
-        data['MrData'].append(obj)
-        data['TrData'].append(obj)
-        data['LtData'].append(obj)
+    author = 'mock'
+    for i, entry in enumerate(feed.entries):
+        if 'hs' in entry.link:
+            author = 'Helsingin sanomat'
+        elif 'ts' in entry.link:
+            author = 'Turun sanomat'
+        elif 'ks' in entry.link:
+            author = 'Keskisuomalainen'
+        elif 'kl' in entry.link:
+            author = 'Kauppalehti'
+        elif 'ss' in entry.link:
+            author = 'Savon sanomat'
+        obj = {'img': entry.media_content[0]['url'], 'title': entry.title, 'author': author, 'link': entry.link.replace('localhost', '127.0.0.1')}
+        if i < 6:
+            data['MrData'].append(obj)
+        elif i < 12:
+            data['TrData'].append(obj)
+        else:
+            data['LtData'].append(obj)
     data = json.dumps(data)
     return data
 
@@ -78,3 +88,30 @@ def ks():
 @app.route('/ss')
 def ss():
     return redirect('http://127.0.0.1:8000/ss/')
+
+
+@app.route('/test')
+def test():
+    from bs4 import BeautifulSoup
+    import requests
+    urls = []
+    items = []
+    title = None
+    guid = None
+    url = None
+    image = None
+    for b in ['hs', 'ks', 'kl', 'ts', 'ss']:
+        for i in range(10):
+            urls.append(f'http://localhost:8000/{b}/article/{i}')
+    for url in urls:
+        r = requests.get(url)
+        soup = BeautifulSoup(r.content, 'html.parser')
+        images = soup.find_all('img')
+        if len(images) > 2:
+            image =  images[1].attrs.get('src')
+            if image:
+                guid = url[-1:]
+                title = soup.find_all('h1')[0].text.strip()
+                item = {'title': title, 'guid': guid, 'url': url, 'image': image}
+                items.append(item)
+    return render_template('test.xml', items=items)
