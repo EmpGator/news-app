@@ -225,11 +225,12 @@ class PayTokens(Resource):
 
 
         amount = request.form.get('amount')
+        print(request.form)
         try:
             amount = int(amount)
         except Exception as e:
             print(e)
-            amount = 3
+            amount = 0
         print(amount)
         current_user.tokens += amount
         db.session.commit()
