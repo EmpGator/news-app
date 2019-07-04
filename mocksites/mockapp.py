@@ -1,4 +1,4 @@
-from flask import Flask, session, render_template, redirect, url_for, request, jsonify, make_response
+from flask import Flask, session, render_template, redirect, url_for, request, jsonify, make_response, flash
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField
 from wtforms.validators import DataRequired
@@ -59,6 +59,30 @@ def show_content(url):
     return paywall
 
 
+def get_info():
+    print('get info')
+    auth = session.get('user', None)
+    if not auth:
+        print('not auth')
+        jwt = session.get('accessToken')
+        if not jwt:
+            print('not jwt')
+            return None
+        headers = {'Authorization': f'Bearer {jwt}'}
+        r = requests.post('http://localhost:5000/api/userinfo', headers=headers)
+    else:
+        r = requests.post('http://localhost:5000/api/userinfo', auth=auth)
+    if r.status_code == 200:
+        print('r 200')
+        data = r.json()
+        print(data)
+        session['name'] = data.get('name')
+        session['payment_type'] = data.get('payment_type')
+        session['value'] = data.get('value')
+        return data
+    print(r.status_code, 'status not 200')
+    print
+
 @app.route('/loginfinnplus', methods=['POST'])
 def loginfinnplus():
     """ handles login with finn plus account"""
@@ -73,7 +97,11 @@ def logout():
     """logout route"""
     session['user'] = None
     session['accessToken'] = None
-    return render_template('logout_finnplus.html', url_to=url_for('index'))
+    if request.referrer is not None:
+        url = request.referrer
+    else:
+        url = url_for('index')
+    return render_template('logout_finnplus.html', url_to=url)
 
 
 @app.route('/')
@@ -99,9 +127,16 @@ def finnplus():
                           headers=headers, data=data)
     print(r.status_code)
     print(r.text)
-    if request.referrer is not None:
-        return redirect(request.referrer)
-    return redirect(url_for('index'))
+    if r.text.strip() == 'Not enough tokens':
+        flash('Not enough tokens')
+    return make_response('ok', 200)
+
+
+@app.context_processor
+def utility_processor():
+    def get_user_data():
+        return get_info()
+    return dict(get_user_data=get_user_data)
 
 
 @app.route('/<site>/')
@@ -116,8 +151,7 @@ def front(site='mock'):
 def news(site='mock', id=0):
     print('show content')
     show = show_content(str(request.url))
-    form = LoginForm()
-    return render_template(f'{site}/article_{id}.html', paywall=show, form=form)
+    return render_template(f'{site}/article_{id}.html', paywall=show, test='test')
 
 @app.route('/setcookie/<jwt>')
 def setcookie(jwt=None):

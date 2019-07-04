@@ -159,7 +159,7 @@ class PaidArticle(Resource):
             db.session.commit()
             resp = make_response('Ok', 200)
             return resp
-        return make_response('Invalid txid', 200)
+        return make_response('Not enough tokens', 200)
 
 
 class PaidMonth(Resource):
@@ -236,8 +236,32 @@ class PayTokens(Resource):
         return redirect(url_for('index'))
 
 
+class Userinfo(Resource):
+
+    @jwt_optional
+    def post(self):
+        local_user = current_user
+        if not local_user.is_authenticated:
+            uid = get_jwt_identity()
+            if uid:
+                local_user = User.query.get(int(uid))
+            else:
+                return jsonify([])
+        if local_user.subscription_end:
+            pay = 'monthly subscription'
+            value = f'valid until {local_user.subscription_end}'
+        elif local_user.prepaid_articles:
+            pay = 'Package'
+            value = f'{local_user.prepaid_articles} articles left'
+        else:
+            pay = 'Single payments'
+            value = f'{local_user.tokens} tokens left'
+        data = {'name': local_user.first_name, 'payment_type': pay, 'value': value}
+        return jsonify(data)
+
 api.add_resource(Userdata, '/api/userdata')
 api.add_resource(PaidPackage, '/api/packagepaid')
 api.add_resource(PaidArticle, '/api/articlepaid')
 api.add_resource(PaidMonth, '/api/monthpaid')
 api.add_resource(PayTokens, '/api/paytokens')
+api.add_resource(Userinfo, '/api/userinfo')
