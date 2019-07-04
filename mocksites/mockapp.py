@@ -7,6 +7,8 @@ import requests
 app = Flask(__name__)
 app.secret_key = b'dsaadsads'
 
+# TODO: logout logs user out from finnplus
+
 
 class LoginForm(FlaskForm):
     name = StringField('name', validators=[DataRequired()])
