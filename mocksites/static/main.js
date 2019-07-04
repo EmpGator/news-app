@@ -49,8 +49,3 @@ function badgerCallback(txid) {
     console.log('Success. Transaction ID:', txid);
     articlePaid(txid);
 };
-
-
-window.onload = function() {
-    console.log('Window loaded');
-};

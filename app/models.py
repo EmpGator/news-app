@@ -21,6 +21,7 @@ class User(UserMixin, db.Model):
     password = db.Column(db.String(80), nullable=False)
     subscription_end = db.Column(db.Date)
     prepaid_articles = db.Column(db.Integer, default=0, nullable=False)
+    tokens = db.Column(db.Integer, default=0, nullable=False)
     role = db.Column(db.String(20), nullable=False)  # admin, user, publisher
     articles = db.relationship('Article', secondary=association_table)
     publisher_id = db.Column(db.Integer, db.ForeignKey('publishers.id'))

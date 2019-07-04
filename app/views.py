@@ -54,7 +54,6 @@ def dashboard():
     return render_template('index.html', data=data)
 
 
-# TODO: add links to all providers
 @app.route('/ts')
 @login_required
 def ts():
@@ -65,3 +64,17 @@ def ts():
 def hs():
     return redirect('http://127.0.0.1:8000/hs/')
 
+
+@app.route('/kl')
+def kl():
+    return redirect('http://127.0.0.1:8000/kl/')
+
+
+@app.route('/ks')
+def ks():
+    return redirect('http://127.0.0.1:8000/ks/')
+
+
+@app.route('/ss')
+def ss():
+    return redirect('http://127.0.0.1:8000/ss/')
