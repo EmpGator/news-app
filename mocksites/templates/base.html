@@ -1,14 +1,22 @@
 <html>
 <head>
-    <link rel="stylesheet" href="{{ url_for('static', filename='popuplogin.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='paywall.css') }}">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
-     <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
     {% block head %}
     {% endblock %}
 </head>
 <body>
+		<header>
+			<nav class="fixed-header">
+		        <div ><a href="http://localhost:5000">FINN+</a></div>
+		        <ul>
+		            <li><a href="/logout">Logout</a></li>
+
+		        </ul>
+	    	</nav>
+	    </header>
     {% block body %}
     {% endblock %}
 </body>
