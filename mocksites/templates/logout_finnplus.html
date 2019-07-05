@@ -1,9 +1,13 @@
 <html>
 <head>
+    <script>
+        window.onload = function() {
+            window.location.replace("{{ url_to }}")
+        }
+    </script>
 </head>
 <body>
 <p>Loading... please wait</p>
 <img src="http://localhost:5000/logout">
-<script>window.location.replace("{{ url_to }}")</script>
 </body>
 </html>

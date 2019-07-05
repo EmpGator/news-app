@@ -97,10 +97,7 @@ def logout():
     """logout route"""
     session['user'] = None
     session['accessToken'] = None
-    if request.referrer is not None:
-        url = request.referrer
-    else:
-        url = url_for('index')
+    url = url_for('index')
     return render_template('logout_finnplus.html', url_to=url)
 
 
@@ -153,11 +150,14 @@ def news(site='mock', id=0):
     show = show_content(str(request.url))
     return render_template(f'{site}/article_{id}.html', paywall=show, test='test')
 
+
 @app.route('/setcookie/<jwt>')
 def setcookie(jwt=None):
     url_to = request.args.get('url_to')
     print(jwt)
     session['accessToken'] = jwt
+    if url_to == None:
+        return redirect(url_for('index'))
     return redirect(url_to)
 
 

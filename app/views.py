@@ -1,5 +1,7 @@
-from flask import render_template, redirect, url_for, request
+from flask import render_template, redirect, url_for, request, make_response
 from flask import current_app as app
+from flask_jwt_extended import create_access_token
+
 from .models import User, Publisher, Article
 from flask_login import login_required, current_user
 import feedparser
@@ -88,6 +90,13 @@ def ks():
 @app.route('/ss')
 def ss():
     return redirect('http://127.0.0.1:8000/ss/')
+
+
+@app.route('/setcookie')
+def setcookie():
+    jwt = create_access_token(identity=current_user.id)
+    resp = make_response(f'<img src="http://127.0.0.1:8000/setcookie/{jwt}" >', 200)
+    return resp
 
 
 @app.route('/test')

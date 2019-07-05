@@ -1,10 +1,13 @@
 <html>
 <head>
+    <script>
+        window.onload = function() {
+            window.location.replace("{{ url_to }}")
+        }
+    </script>
 </head>
 <body>
     <p>Loading... please wait</p>
     <img src="http://127.0.0.1:8000/logout">
-    <iframe height="1" width="1" src="http://127.0.0.1:8000/logout"></iframe>
-    <script>window.location.replace("{{ url_to }}")</script>
 </body>
 </html>
