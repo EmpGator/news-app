@@ -2,6 +2,7 @@ from .db import db
 from flask_login import UserMixin
 from datetime import date
 from passlib.hash import pbkdf2_sha256
+from .constants import Role
 
 association_table = db.Table('association', db.metadata,
                              db.Column('left_id', db.Integer, db.ForeignKey('users.id')),
@@ -22,7 +23,7 @@ class User(UserMixin, db.Model):
     subscription_end = db.Column(db.Date)
     prepaid_articles = db.Column(db.Integer, default=0, nullable=False)
     tokens = db.Column(db.Integer, default=0, nullable=False)
-    role = db.Column(db.String(20), nullable=False)  # admin, user, publisher
+    role = db.Column(db.Enum(Role))
     articles = db.relationship('Article', secondary=association_table)
     publisher_id = db.Column(db.Integer, db.ForeignKey('publishers.id'))
     publisher = db.relationship('Publisher', back_populates="users")
@@ -61,6 +62,7 @@ class Article(db.Model):
 class Publisher(db.Model):
     """
     Model to store analytics for publishers
+    TODO: add some sort of domain/base url field
     """
     __tablename__ = 'publishers'
 
@@ -86,19 +88,18 @@ def init_publishers():
         print(publishers)
         return
 
+    pw_hash = pbkdf2_sha256.hash('test')
     for i in names:
         pub = Publisher(name=i)
         db.session.add(pub)
-        pw_hash = pbkdf2_sha256.hash('test')
         # noinspection PyArgumentList
-        user = User(first_name='', last_name='', email=i, password=pw_hash, role='publisher',
+        user = User(first_name='', last_name='', email=i, password=pw_hash, role=Role.PUBLISHER,
                     publisher=pub)
         db.session.add(user)
     pub = Publisher(name='All')
     db.session.add(pub)
-    pw_hash = pbkdf2_sha256.hash('test')
     # noinspection PyArgumentList
-    user = User(first_name='', last_name='', email='admin', password=pw_hash, role='admin',
+    user = User(first_name='', last_name='', email='admin', password=pw_hash, role=Role.ADMIN,
                 publisher=pub)
     db.session.add(user)
     db.session.commit()

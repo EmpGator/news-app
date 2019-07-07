@@ -4,6 +4,7 @@ from flask import Blueprint, render_template, jsonify, url_for, redirect
 from flask_login import current_user, login_required
 from app.models import Publisher
 from operator import attrgetter
+from app.constants import Role
 
 bp = Blueprint('publisher', __name__)
 
@@ -13,7 +14,7 @@ bp = Blueprint('publisher', __name__)
 @login_required
 def analytics():
     try:
-        if current_user.role != 'publisher':
+        if current_user.role == Role.USER:
             return redirect(url_for('dashboard'))
 
         publisher = current_user.publisher
@@ -49,5 +50,5 @@ def analytics():
     except Exception as e:
         print('error')
         print(e)
-        data = []
+        data = {}
     return render_template('index.html', data=data)

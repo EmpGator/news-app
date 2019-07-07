@@ -2,12 +2,16 @@ from flask import render_template, redirect, url_for, request, make_response
 from flask import current_app as app
 from flask_jwt_extended import create_access_token
 from flask_login import login_required, current_user
-from app.constants import PUBLISHER_DOMAIN
+from app.constants import PUBLISHER_DOMAIN, Role
 import feedparser
 import json
 
 
 def fetch_articles():
+    # TODO: move mock rss feed to mocksite
+    # TODO: support unique rss from each publisher
+    # TODO: fetch publisher from database based on domain/base url
+    # TODO: create new or use existing Article objects from rss items
     src = 'app\\static\\news_app.xml'
     feed = feedparser.parse(src)
     data = {'MrData': [], 'TrData': [], 'LtData': []}
@@ -50,10 +54,9 @@ def dashboard():
     """
     Placeholder for logged in main page view
     """
-    if current_user.role == 'publisher':
+    if current_user.role == Role.PUBLISHER:
         return redirect(url_for('publisher.analytics'))
     data = fetch_articles()
-    print(data)
     return render_template('index.html', data=data)
 
 

@@ -3,10 +3,10 @@ from flask_jwt_extended import create_access_token
 from flask_login import current_user, login_user, logout_user, login_required
 
 from app.constants import PUBLISHER_DOMAIN
-from app.models import User, Article
+from app.models import User
 from app.db import db
 from passlib.hash import pbkdf2_sha256
-import pickle
+from app.constants import Role
 
 
 bp = Blueprint('auth', __name__)
@@ -24,7 +24,7 @@ def new_entry():
         pw_hash = pbkdf2_sha256.hash(request.form.get('password'))
         try:
             # noinspection PyArgumentList
-            new_user = User(first_name=fn, last_name=ln, email=email, password=pw_hash, role='user')
+            new_user = User(first_name=fn, last_name=ln, email=email, password=pw_hash, role=Role.USER)
             db.session.add(new_user)
             db.session.commit()
         except Exception as e:

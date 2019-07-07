@@ -80,8 +80,7 @@ def get_info():
         session['payment_type'] = data.get('payment_type')
         session['value'] = data.get('value')
         return data
-    print(r.status_code, 'status not 200')
-    print
+
 
 @app.route('/loginfinnplus', methods=['POST'])
 def loginfinnplus():
@@ -98,6 +97,8 @@ def logout():
     session['user'] = None
     session['accessToken'] = None
     url = url_for('index')
+    if request.referrer is not None:
+        url = request.referrer
     return render_template('logout_finnplus.html', url_to=url)
 
 

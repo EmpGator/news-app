@@ -6,7 +6,7 @@ from flask_login import current_user
 from app.db import db
 from app.models import Article, Publisher, User
 from datetime import date, timedelta
-
+from app.constants import *
 import requests
 import time
 
@@ -23,13 +23,7 @@ token_req_parser.add_argument('amount', required=True)
 api_bp = Blueprint('api', __name__)
 api = Api(api_bp)
 
-SUBS_TIME = 30
-BUNDLE_SIZE = 15
 
-SLP_ADDR = 'simpleledger:qq0nu0xa5rxj72wx043ulhm3qs28y95davd6djawyh'
-MONTH_PRICE = 1000
-BUNDLE_PRICE = 500
-SINGLE_PRICE = 100
 
 # TODO make more efficient
 # TODO clean up
@@ -45,7 +39,7 @@ def validate_txid(txid, price):
     resp = requests.get(url)
     retries = 5
     output_n = None
-    tokens_recieved = 0
+    tokens_received = 0
     for i in range(retries):
         if resp.status_code == 200:
             data = resp.json()
@@ -55,8 +49,8 @@ def validate_txid(txid, price):
                     output_n = i['n']
                     break
             if output_n:
-                tokens_recieved = int(data['tokenInfo']['sendOutputs'][output_n])
-            if tokens_recieved >= price:
+                tokens_received = int(data['tokenInfo']['sendOutputs'][output_n])
+            if tokens_received >= price:
                 print('return true')
                 return True
         else:
@@ -84,8 +78,12 @@ def get_article(url):
                 pub_name = 'Savon sanomat'
             elif split_url[3] == 'kl':
                 pub_name = 'Kauppalehti'
-
+        # TODO: fix to scale
+        # This is kinda bad way to get name for publisher
+        # Consider adding domain/base url for published model and
+        # Querying publisher directly with that
             art_name = ' '.join(split_url[2:])
+            # Ok this makes basically no sense. Either go fetch title or use rss feed generated objects
 
         publisher = Publisher.query.filter_by(name=pub_name).first()
         article = Article(url=url, publisher=publisher, name=art_name)
