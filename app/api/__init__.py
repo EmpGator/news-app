@@ -31,7 +31,8 @@ MONTH_PRICE = 1000
 BUNDLE_PRICE = 500
 SINGLE_PRICE = 100
 
-
+# TODO make more efficient
+# TODO clean up
 # TODO authorization to decorator
 
 def validate_txid(txid, price):

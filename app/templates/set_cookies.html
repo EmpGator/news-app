@@ -2,15 +2,15 @@
 <head>
     <script>
         window.onload = function() {
-            opener = window.opener;
-            var mock = document.getElementById('mock');
-            opener.postMessage('ready', '*');
+            var opener = window.opener;
+            if (opener)
+                opener.postMessage('ready', '*');
             window.location.replace("{{ url_to }}")
         };
     </script>
 </head>
 <body>
     <p>Loading... please wait</p>
-    <img id="mock" src="http://127.0.0.1:8000/setcookie/{{ token }}" alt="">
+    <img id="mock" src="http://{{ domain }}/setcookie/{{ token }}" alt="">
 </body>
 </html>

@@ -1,4 +1,4 @@
-from flask import Flask, session, render_template, redirect, url_for, request, jsonify, make_response, flash
+from flask import Flask, session, render_template, redirect, url_for, request, make_response, flash
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField
 from wtforms.validators import DataRequired
@@ -103,7 +103,6 @@ def logout():
 
 @app.route('/')
 def index():
-    print(session.get('accessToken'))
     return render_template('index.html')
 
 
@@ -136,6 +135,16 @@ def utility_processor():
     return dict(get_user_data=get_user_data)
 
 
+@app.route('/setcookie/<jwt>')
+def setcookie(jwt=None):
+    url_to = request.args.get('url_to')
+    print(jwt)
+    session['accessToken'] = jwt
+    if url_to == None:
+        return redirect(url_for('index'))
+    return redirect(url_to)
+
+
 @app.route('/<site>/')
 def front(site='mock'):
     if site == 'favicon.ico':
@@ -149,16 +158,6 @@ def news(site='mock', id=0):
     print('show content')
     show = show_content(str(request.url))
     return render_template(f'{site}/article_{id}.html', paywall=show, test='test')
-
-
-@app.route('/setcookie/<jwt>')
-def setcookie(jwt=None):
-    url_to = request.args.get('url_to')
-    print(jwt)
-    session['accessToken'] = jwt
-    if url_to == None:
-        return redirect(url_for('index'))
-    return redirect(url_to)
 
 
 if __name__ == '__main__':

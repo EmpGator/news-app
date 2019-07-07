@@ -7,6 +7,7 @@ from operator import attrgetter
 
 bp = Blueprint('publisher', __name__)
 
+# TODO: split this to functions
 
 @bp.route('/analytics')
 @login_required

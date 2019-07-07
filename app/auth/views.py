@@ -1,6 +1,8 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash, make_response, session
 from flask_jwt_extended import create_access_token
 from flask_login import current_user, login_user, logout_user, login_required
+
+from app.constants import PUBLISHER_DOMAIN
 from app.models import User, Article
 from app.db import db
 from passlib.hash import pbkdf2_sha256
@@ -51,7 +53,8 @@ def login():
             print(access_token)
             # TODO Encrypt access_token
             login_user(user)
-            return render_template('set_cookies.html', token=access_token, url_to=url_for('dashboard'))
+            return render_template('set_cookies.html', domain=PUBLISHER_DOMAIN, token=access_token,
+                                   url_to=url_for('dashboard'))
         else:
             print('username or pass incorrect')
 
@@ -63,4 +66,4 @@ def login():
 def logout():
     """logout route"""
     logout_user()
-    return render_template('logout_all.html', url_to=url_for('index'))
+    return render_template('logout_all.html', domain=PUBLISHER_DOMAIN, url_to=url_for('index'))

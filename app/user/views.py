@@ -1,31 +1,10 @@
 from flask import Blueprint, render_template, redirect, url_for, flash
 from flask_login import current_user, login_required
-from passlib.hash import pbkdf2_sha256
-from app.db import db
-from .forms import Edit
+
 
 import json
 
 bp = Blueprint('user', __name__)
-
-
-@bp.route('/edit', methods=['POST', 'GET'])
-@login_required
-def edit():
-    form = Edit()
-    if form.validate_on_submit():
-        try:
-            if form.email.data:
-                current_user.email = form.email.data
-            if form.password.data:
-                current_user.password = pbkdf2_sha256.hash(form.password.data)
-            db.session.commit()
-        except Exception as e:
-            print(e)
-            flash("Something went wrong, maybe email was already taken")
-        return redirect(url_for('user.profile'))
-    form.email.data = current_user.email
-    return render_template('user/edit_user.html', form=form)
 
 
 @bp.route('/profile')
