@@ -19,3 +19,9 @@ class Role(Enum):
     USER = 'user'
     PUBLISHER = 'publisher'
     ADMIN = 'admin'
+
+class PayOptions(Enum):
+    NULL = "0"
+    MONTHLY = "1"
+    PACKAGE = "2"
+    SINGLE = "3"

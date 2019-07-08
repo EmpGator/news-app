@@ -27,7 +27,8 @@ def get_articles():
 @app.route('/fetch_articles')
 def fetch_articles():
     # Todo: make this background task
-    src = 'app/static/news_app.xml'
+    import os
+    src = os.path.join('app','static','news_app.xml')
     feed = feedparser.parse(src)
     # query_publisher_with_this = feed.link
     author = 'mock'
@@ -42,11 +43,13 @@ def fetch_articles():
             author = 'Kauppalehti'
         elif 'ss' in entry.link:
             author = 'Savon sanomat'
-        author = Publisher.query.filter_by(name=author).first()
-        article = Article(name=entry.title, publisher=author, image=entry.media_content[0]['url'],
-                          url=entry.link.replace('localhost:8000', PUBLISHER_DOMAIN))
-        db.session.add(article)
-        db.session.commit()
+        url = entry.link.replace('localhost:8000', PUBLISHER_DOMAIN)
+        if not Article.query.filter_by(url=url).first():
+            author = Publisher.query.filter_by(name=author).first()
+            article = Article(name=entry.title, publisher=author, image=entry.media_content[0]['url'],
+                              url=url)
+            db.session.add(article)
+            db.session.commit()
     return make_response('ok', 200)
 
 

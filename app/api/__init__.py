@@ -1,4 +1,4 @@
-from flask import Blueprint, make_response, jsonify, request, redirect, url_for
+from flask import Blueprint, make_response, jsonify, request, redirect, url_for, flash
 from flask_jwt_extended import jwt_required, get_jwt_identity, jwt_optional
 from flask_restful import Api, Resource
 from flask_restful.reqparse import RequestParser
@@ -214,20 +214,37 @@ class PaidPackage(Resource):
         return make_response('Invalid txid', 200)
 
 
-class PayTokens(Resource):
+class TopUp(Resource):
     """
-    Token payment route
+    top up handler
     """
     @login_required
     def post(self):
-        amount = request.form.get('amount')
-        try:
-            amount = int(amount)
-        except Exception as e:
-            print(e)
-            amount = 0
-        current_user.tokens += amount
-        db.session.commit()
+        option = PayOptions(request.form.get('pay-method', "0"))
+        if option == PayOptions.MONTHLY:
+            analytics = Publisher.query.filter_by(name='All').first()
+            analytics.revenue += (MONTH_PRICE / 100)
+            if current_user.subscription_end is None:
+                current_user.subscription_end = date.today() + timedelta(days=SUBS_TIME)
+            elif current_user.subscription_end <= date.today():
+                current_user.subscription_end = date.today() + timedelta(days=SUBS_TIME)
+            else:
+                current_user.subscription_end += timedelta(days=SUBS_TIME)
+            db.session.commit()
+        elif option == PayOptions.PACKAGE:
+            current_user.prepaid_articles += BUNDLE_SIZE
+            db.session.commit()
+        elif option == PayOptions.SINGLE:
+            amount = request.form.get('amount')
+            try:
+                amount = int(amount)
+            except Exception as e:
+                print(e)
+                amount = 0
+            current_user.tokens += amount
+            db.session.commit()
+        else:
+            flash('something went wrong processing payment')
         return redirect(url_for('index'))
 
 
@@ -258,5 +275,5 @@ api.add_resource(Userdata, '/api/userdata')
 api.add_resource(PaidPackage, '/api/packagepaid')
 api.add_resource(PaidArticle, '/api/articlepaid')
 api.add_resource(PaidMonth, '/api/monthpaid')
-api.add_resource(PayTokens, '/api/paytokens')
+api.add_resource(TopUp, '/api/topup')
 api.add_resource(Userinfo, '/api/userinfo')
