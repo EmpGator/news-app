@@ -27,7 +27,7 @@ def get_articles():
 @app.route('/fetch_articles')
 def fetch_articles():
     # Todo: make this background task
-    src = 'app\\static\\news_app.xml'
+    src = 'app/static/news_app.xml'
     feed = feedparser.parse(src)
     # query_publisher_with_this = feed.link
     author = 'mock'

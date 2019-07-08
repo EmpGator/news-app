@@ -1,7 +1,7 @@
 from enum import Enum
 
 # in future this should be list of domains
-PUBLISHER_DOMAIN = 'localhost:8000'
+PUBLISHER_DOMAIN = 'tridample.eu.pythonanywhere.com'
 
 # amount of days subscription lasts
 SUBS_TIME = 30
