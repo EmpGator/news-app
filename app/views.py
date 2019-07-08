@@ -3,18 +3,33 @@ from flask import current_app as app
 from flask_jwt_extended import create_access_token
 from flask_login import login_required, current_user
 from app.constants import PUBLISHER_DOMAIN, Role
+from app.models import Article, Publisher
+from app.db import db
 import feedparser
 import json
 
 
+def get_articles():
+    data = {'MrData': [], 'TrData': [], 'LtData': []}
+    articles = Article.query.filter(Article.image.isnot(None))
+    for i, entry in enumerate(articles):
+        if i < 6:
+            data['MrData'].append(entry.get_data_dict())
+        elif i < 12:
+            data['TrData'].append(entry.get_data_dict())
+        elif i < 18:
+            data['LtData'].append(entry.get_data_dict())
+        else:
+            break
+    return json.dumps(data)
+
+
+@app.route('/fetch_articles')
 def fetch_articles():
-    # TODO: move mock rss feed to mocksite
-    # TODO: support unique rss from each publisher
-    # TODO: fetch publisher from database based on domain/base url
-    # TODO: create new or use existing Article objects from rss items
+    # Todo: make this background task
     src = 'app\\static\\news_app.xml'
     feed = feedparser.parse(src)
-    data = {'MrData': [], 'TrData': [], 'LtData': []}
+    # query_publisher_with_this = feed.link
     author = 'mock'
     for i, entry in enumerate(feed.entries):
         if 'hs' in entry.link:
@@ -27,16 +42,12 @@ def fetch_articles():
             author = 'Kauppalehti'
         elif 'ss' in entry.link:
             author = 'Savon sanomat'
-        obj = {'img': entry.media_content[0]['url'], 'title': entry.title, 'author': author,
-               'link': entry.link.replace('localhost:8000', PUBLISHER_DOMAIN)}
-        if i < 6:
-            data['MrData'].append(obj)
-        elif i < 12:
-            data['TrData'].append(obj)
-        else:
-            data['LtData'].append(obj)
-    data = json.dumps(data)
-    return data
+        author = Publisher.query.filter_by(name=author).first()
+        article = Article(name=entry.title, publisher=author, image=entry.media_content[0]['url'],
+                          url=entry.link.replace('localhost:8000', PUBLISHER_DOMAIN))
+        db.session.add(article)
+        db.session.commit()
+    return make_response('ok', 200)
 
 
 @app.route('/')
@@ -44,7 +55,7 @@ def index():
     """Place holder for main page view """
     if current_user.is_authenticated:
         return redirect(url_for('dashboard'))
-    data = fetch_articles()
+    data = get_articles()
     return render_template('index.html', data=data)
 
 
@@ -56,7 +67,7 @@ def dashboard():
     """
     if current_user.role == Role.PUBLISHER:
         return redirect(url_for('publisher.analytics'))
-    data = fetch_articles()
+    data = get_articles()
     return render_template('index.html', data=data)
 
 

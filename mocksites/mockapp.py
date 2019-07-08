@@ -146,6 +146,10 @@ def setcookie(jwt=None):
     return redirect(url_to)
 
 
+@app.route('/rss')
+def rss():
+    return render_template('news_app.xml')
+
 @app.route('/<site>/')
 def front(site='mock'):
     if site == 'favicon.ico':

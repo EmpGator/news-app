@@ -2,7 +2,7 @@ from flask import Blueprint, make_response, jsonify, request, redirect, url_for
 from flask_jwt_extended import jwt_required, get_jwt_identity, jwt_optional
 from flask_restful import Api, Resource
 from flask_restful.reqparse import RequestParser
-from flask_login import current_user
+from flask_login import current_user, login_required
 from app.db import db
 from app.models import Article, Publisher, User
 from datetime import date, timedelta
@@ -216,21 +216,16 @@ class PaidPackage(Resource):
 
 class PayTokens(Resource):
     """
-    test for jwt authorization
+    Token payment route
     """
+    @login_required
     def post(self):
-        if not current_user.is_authenticated:
-            return make_response('Bad login', 403)
-
-
         amount = request.form.get('amount')
-        print(request.form)
         try:
             amount = int(amount)
         except Exception as e:
             print(e)
             amount = 0
-        print(amount)
         current_user.tokens += amount
         db.session.commit()
         return redirect(url_for('index'))

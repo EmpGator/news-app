@@ -1,8 +1,10 @@
+import json
+
 from .db import db
 from flask_login import UserMixin
 from datetime import date
 from passlib.hash import pbkdf2_sha256
-from .constants import Role
+from .constants import Role, PUBLISHER_DOMAIN
 
 association_table = db.Table('association', db.metadata,
                              db.Column('left_id', db.Integer, db.ForeignKey('users.id')),
@@ -49,7 +51,7 @@ class Article(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255))
-    #image = db.Column(db.String(2000))
+    image = db.Column(db.String(2000))
     url = db.Column(db.String(2000), unique=True, nullable=False)
     hits = db.Column(db.Integer, nullable=False, default=0)
     publisher_id = db.Column(db.Integer, db.ForeignKey('publishers.id'))
@@ -58,16 +60,20 @@ class Article(db.Model):
     def __repr__(self):
         return f'Article: {self.url} \n by: {self.publisher}'
 
+    def get_data_dict(self):
+        data = dict(title=self.name, img=self.image, author=self.publisher.name, link=self.url)
+        return data
+
 
 class Publisher(db.Model):
     """
     Model to store analytics for publishers
-    TODO: add some sort of domain/base url field
     """
     __tablename__ = 'publishers'
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), unique=True, nullable=False)
+    url = db.Column(db.String(2000), unique=True, nullable=False)
     revenue = db.Column(db.Integer, nullable=False, default=0)
     monthly_pay = db.Column(db.Integer, nullable=False, default=0)
     package_pay = db.Column(db.Integer, nullable=False, default=0)
@@ -80,8 +86,9 @@ class Publisher(db.Model):
 
 
 def init_publishers():
-    names = ['Helsingin sanomat', 'Turun sanomat', 'Savon sanomat', 'Kauppalehti',
-             'Keskisuomalainen', 'mock']
+    names = [('Helsingin sanomat', f'{PUBLISHER_DOMAIN}/hs'), ('Turun sanomat', f'{PUBLISHER_DOMAIN}/ts'),
+             ('Savon sanomat', f'{PUBLISHER_DOMAIN}/ss'), ('Kauppalehti', f'{PUBLISHER_DOMAIN}/kl'),
+             ('Keskisuomalainen', f'{PUBLISHER_DOMAIN}/ks'), ('mock', f'{PUBLISHER_DOMAIN}/mock')]
     publishers = Publisher.query.all()
     print(publishers)
     if publishers:
@@ -89,14 +96,14 @@ def init_publishers():
         return
 
     pw_hash = pbkdf2_sha256.hash('test')
-    for i in names:
-        pub = Publisher(name=i)
+    for i, url in names:
+        pub = Publisher(name=i, url=url)
         db.session.add(pub)
         # noinspection PyArgumentList
         user = User(first_name='', last_name='', email=i, password=pw_hash, role=Role.PUBLISHER,
                     publisher=pub)
         db.session.add(user)
-    pub = Publisher(name='All')
+    pub = Publisher(name='All', url='admin')
     db.session.add(pub)
     # noinspection PyArgumentList
     user = User(first_name='', last_name='', email='admin', password=pw_hash, role=Role.ADMIN,
