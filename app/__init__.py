@@ -14,21 +14,28 @@ jwt = JWTManager()
 
 
 def create_app():
+    """
+    Loader for app
+    :return: flask app
+    """
+    # create app and load config
     app = Flask(__name__, instance_relative_config=False)
     app.config.from_object('config.Config')
+    # init flask extensions
     db.init_app(app)
     login_manager.init_app(app)
     csrf.init_app(app)
     csrf.exempt(api_bp)
     jwt.init_app(app)
+    # register blueprints
     app.register_blueprint(api_bp)
     app.register_blueprint(auth_bp)
     app.register_blueprint(user_bp)
     app.register_blueprint(pub_bp)
-    print(app.url_map)
+
+    # create db, add default accounts
     with app.app_context():
         from . import views
-
         db.create_all()
         init_publishers()
 

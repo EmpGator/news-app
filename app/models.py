@@ -6,6 +6,11 @@ from datetime import date
 from passlib.hash import pbkdf2_sha256
 from .constants import Role, PUBLISHER_DOMAIN
 
+"""
+Database models
+"""
+
+
 association_table = db.Table('association', db.metadata,
                              db.Column('left_id', db.Integer, db.ForeignKey('users.id')),
                              db.Column('right_id', db.Integer, db.ForeignKey('articles.id'))
@@ -86,13 +91,15 @@ class Publisher(db.Model):
 
 
 def init_publishers():
+    """
+    This function creates publisher user accounts and adds to db
+    :return: None
+    """
     names = [('Helsingin sanomat', f'{PUBLISHER_DOMAIN}/hs'), ('Turun sanomat', f'{PUBLISHER_DOMAIN}/ts'),
              ('Savon sanomat', f'{PUBLISHER_DOMAIN}/ss'), ('Kauppalehti', f'{PUBLISHER_DOMAIN}/kl'),
              ('Keskisuomalainen', f'{PUBLISHER_DOMAIN}/ks'), ('mock', f'{PUBLISHER_DOMAIN}/mock')]
     publishers = Publisher.query.all()
-    print(publishers)
     if publishers:
-        print(publishers)
         return
 
     pw_hash = pbkdf2_sha256.hash('test')

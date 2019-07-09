@@ -10,6 +10,10 @@ bp = Blueprint('user', __name__)
 @bp.route('/profile')
 @login_required
 def profile():
+    """
+    Fetches user data that is rendered on profile page
+    :return:
+    """
     name = current_user.first_name + ' ' + current_user.last_name
     email = current_user.email
     bought = [i.url for i in current_user.articles]

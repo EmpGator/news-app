@@ -10,6 +10,10 @@ import json
 
 
 def get_articles():
+    """
+    Fetches articles from database and adds them obj that is rendered then in frontpage
+    :return:
+    """
     data = {'MrData': [], 'TrData': [], 'LtData': []}
     articles = Article.query.filter(Article.image.isnot(None))
     for i, entry in enumerate(articles):
@@ -26,6 +30,11 @@ def get_articles():
 
 @app.route('/fetch_articles')
 def fetch_articles():
+    """
+    Fetches articles from rss feed
+    TODO: support multiple external feeds
+    :return:
+    """
     # Todo: make this background task
     import os
     src = os.path.join('app','static','news_app.xml')
@@ -55,7 +64,7 @@ def fetch_articles():
 
 @app.route('/')
 def index():
-    """Place holder for main page view """
+    """Main page view for non logged in users"""
     if current_user.is_authenticated:
         return redirect(url_for('dashboard'))
     data = get_articles()
@@ -66,7 +75,7 @@ def index():
 @login_required
 def dashboard():
     """
-    Placeholder for logged in main page view
+    Main page view for logged in users
     """
     if current_user.role == Role.PUBLISHER:
         return redirect(url_for('publisher.analytics'))
@@ -76,6 +85,11 @@ def dashboard():
 
 @app.route('/setcookie')
 def setcookie():
+    """
+    This is mainly for testing purposes
+    This attempts to set jwt token cookie at PUBLISHER_DOMAIN
+    :return: response object
+    """
     jwt = create_access_token(identity=current_user.id)
     resp = make_response(f'<img src="http://{PUBLISHER_DOMAIN}/setcookie/{jwt}" >', 200)
     return resp
@@ -83,6 +97,11 @@ def setcookie():
 
 @app.route('/<site>')
 def test(site=''):
-    print(PUBLISHER_DOMAIN)
+    """
+    This function redirects user to mocksite
+    This is for sidebars
+    :param site: string site name
+    :return: redirect
+    """
     url = f'http://{PUBLISHER_DOMAIN}/{site}'
     return redirect(url)

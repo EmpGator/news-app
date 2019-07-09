@@ -33,6 +33,9 @@ def validate_txid(txid, price):
     """
     Uses bitcoin api to validate slp transaction,
         checks if correct amount was sent to correct address
+    :param txid: transaction id
+    :param price: amount of tokens that were supposed to be received
+    :return: Bool if transaction were valid
     """
     print('validate_txid')
     url = 'https://rest.bitcoin.com/v2/slp/txDetails/' + txid
@@ -62,6 +65,11 @@ def validate_txid(txid, price):
 
 
 def get_article(url):
+    """
+    Fetches article from database, if article wasn't found, creates new article object
+    :param url: url for article
+    :return: returns article object
+    """
     article = Article.query.filter_by(url=url).first()
     if not article:
         split_url = url.split('/')
@@ -94,7 +102,9 @@ def get_article(url):
 
 class Userdata(Resource):
     """
-    Docstring
+    Handles user access data to give url
+    TODO: merge this with user info
+    TODO: Clean up and add most logic to user object methods
     """
     @jwt_required
     def post(self):
@@ -131,10 +141,11 @@ class Userdata(Resource):
 
 class PaidArticle(Resource):
     """
-    Docstring
+    Handles pay 1 token POST requests
     """
     @jwt_optional
     def post(self):
+
         local_user = current_user
         if not local_user.is_authenticated:
             uid = get_jwt_identity()
@@ -163,7 +174,7 @@ class PaidArticle(Resource):
 
 class PaidMonth(Resource):
     """
-    Docstring
+    Useless function currently, supposed to handle monthly payment
     """
     @jwt_optional
     def post(self):
@@ -192,7 +203,7 @@ class PaidMonth(Resource):
 
 class PaidPackage(Resource):
     """
-    Docstring
+    Useless function currently, supposed to handle package payment
     """
     @jwt_optional
     def post(self):
@@ -249,9 +260,16 @@ class TopUp(Resource):
 
 
 class Userinfo(Resource):
-
+    """
+    Class that sends relevant information of user
+    """
     @jwt_optional
     def post(self):
+        """
+        Sends relevant user info
+        TODO: merge this with userdata
+        :return: json formatted userdata
+        """
         local_user = current_user
         if not local_user.is_authenticated:
             uid = get_jwt_identity()

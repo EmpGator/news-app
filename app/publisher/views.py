@@ -12,6 +12,10 @@ bp = Blueprint('publisher', __name__)
 @bp.route('/analytics')
 @login_required
 def analytics():
+    """
+    Fetches publisher relevant information to render on analytics page
+    :return:
+    """
     if current_user.role == Role.USER:
         return redirect(url_for('dashboard'))
 

@@ -15,7 +15,8 @@ bp = Blueprint('auth', __name__)
 @bp.route('/signup', methods=['GET', 'POST'])
 def new_entry():
     """
-    Endpoint to create a user.
+    Handles login form handling and show user login form
+    :return:
     """
     if request.method == 'POST':
         fn = request.form.get('firstName')
@@ -39,7 +40,8 @@ def new_entry():
 @bp.route('/signin', methods=['GET', 'POST'])
 def login():
     """
-    Login form stuff
+    handles login form and shows it to user
+    :return:
     """
     if current_user.is_authenticated:
         return redirect(url_for('dashboard'))
@@ -64,6 +66,9 @@ def login():
 @bp.route('/logout')
 @login_required
 def logout():
-    """logout route"""
+    """
+    logout route, attempts to logout users from PUBLISHER_DOMAIN as well
+    :return:
+    """
     logout_user()
     return render_template('logout_all.html', domain=PUBLISHER_DOMAIN, url_to=url_for('index'))
