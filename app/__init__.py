@@ -15,7 +15,8 @@ jwt = JWTManager()
 
 def create_app():
     """
-    Loader for app
+    Application factory.
+
     :return: flask app
     """
     # create app and load config

@@ -1,0 +1,146 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Information for publishers &#8212; Finn+  documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="App documentation" href="../app/documentation.html" />
+    <link rel="prev" title="Overview of app" href="../app/overview.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="information-for-publishers">
+<h1>Information for publishers<a class="headerlink" href="#information-for-publishers" title="Permalink to this headline">¶</a></h1>
+<p>To use finn+ you need to create:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">setcookie</span><span class="o">/&lt;</span><span class="n">jwt</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>endpoint that stores jwt value as session cookie.
+To get relevant information you need to post to finnplus api with this authorization header:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Authorization</span><span class="p">:</span> <span class="n">Bearer</span> <span class="o">&lt;</span><span class="n">jwt</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>For access authorization post to:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">finnplusdomain</span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">userdata</span>
+</pre></div>
+</div>
+<p>Response in json format will be like:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s2">&quot;access&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>For userinformation post to:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">finnplusdomain</span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">userinfo</span>
+</pre></div>
+</div>
+<p>Response in json format will be like:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Erkki&quot;</span><span class="p">,</span> <span class="s2">&quot;payment_type&quot;</span><span class="p">:</span> <span class="s2">&quot;Monthly payment&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;2019-08-30&quot;</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>For article token payment post to:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">finnplusdomain</span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">articlepaid</span>
+</pre></div>
+</div>
+<p>Response will be:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Ok</span>
+<span class="o">//</span> <span class="ow">or</span>
+<span class="n">Not</span> <span class="n">enough</span> <span class="n">tokens</span>
+</pre></div>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Finn+</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="running.html">Setting up</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../app/overview.html">Overview of app</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Information for publishers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../app/documentation.html">App documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../app/api/contents.html">Api documentation</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="../app/overview.html" title="previous chapter">Overview of app</a></li>
+      <li>Next: <a href="../app/documentation.html" title="next chapter">App documentation</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Henri Korhonen.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/usage/publisher.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,7 +1,5 @@
 from flask import Blueprint, render_template
 from flask_login import current_user, login_required
-
-
 import json
 
 bp = Blueprint('user', __name__)
@@ -12,7 +10,8 @@ bp = Blueprint('user', __name__)
 def profile():
     """
     Fetches user data that is rendered on profile page
-    :return:
+
+    :return: Profile page with userdata
     """
     name = current_user.first_name + ' ' + current_user.last_name
     email = current_user.email

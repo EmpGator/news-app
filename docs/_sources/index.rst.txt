@@ -1,0 +1,28 @@
+.. Finn+ documentation master file, created by
+   sphinx-quickstart on Wed Jul 10 12:49:41 2019.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
+
+Welcome to Finn+'s documentation!
+=================================
+
+.. toctree::
+   :maxdepth: 2
+
+   usage/running
+   app/overview
+   usage/publisher
+   app/documentation
+   app/api/documentation
+   app/auth/documentation
+   app/publisher/documentation
+   app/user/documentation
+
+
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`

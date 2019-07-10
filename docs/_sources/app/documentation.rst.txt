@@ -1,0 +1,19 @@
+App documentation
+=================
+
+.. automodule:: app
+   :members:
+
+.. automodule:: app.constants
+   :members:
+
+.. automodule:: app.db
+   :members:
+
+
+.. automodule:: app.models
+   :members:
+
+
+.. automodule:: app.views
+   :members:

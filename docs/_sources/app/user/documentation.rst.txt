@@ -1,0 +1,8 @@
+User documentation
+=================
+
+.. automodule:: app.user
+   :members:
+
+.. automodule:: app.user.views
+   :members:

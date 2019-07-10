@@ -1,0 +1,95 @@
+Overview of app
+===============
+
+App is basically module that contains:
+
+- init_
+- constants_
+- db_
+- models_
+- views_
+
+and submodules:
+
+- api_
+- auth_
+- publisher_
+- user_
+
+
+Members
+-------
+
+
+.. _init:
+
+Init
+~~~~
+This has application factory in it.
+
+.. _constants:
+
+Constants
+~~~~~~~~~
+This contains app-wide constant variables like publisher domain(s)
+
+
+.. _db:
+
+Db
+~~~~
+This simply acts as database abstraction layer. Flask-SqlAlchemy were chosen as ORM library for this project because it is widely tested, well documented tool that is very scalable. It is popular tool for reason.
+
+
+.. _models:
+
+Models
+~~~~~~
+This contains database models. There currently are three models:
+
+- Article
+- Publisher
+- User
+
+Article
+    Article is used to store all articles. Article always has to have publisher reference
+
+Publisher
+    Publisher stores publisher specific information, like what payment types are used to access their articles. Publisher has list of article references and list of user references. User references are for publisher analytics view. For future it would make sense to add methods for generating analytics here.
+
+User
+    User model has all user specific information stored, like their payment choice and articles they have previously bought. User will always have role. If user role is publisher, user should have publisher reference. User has list of article references, that user has bought. In future user should have list for Articles accessed as separate list for analytics purpose as there currently is no way to check if monthly subscription user has accessed article previously.
+
+.. _views:
+
+Views
+~~~~~
+This contains generic views like main page and logged in main page. It has also logic for article fetching from rss.
+
+
+Submodules
+----------
+
+.. _api:
+
+Api
+~~~
+This module handles tracking of users, analytics for publisher, authorization of article access and payment handling. It currently has some useless code and some refactoring would be great. For example there currently are two separate routes for user information and authorization for given article. They should be merged.
+
+.. _auth:
+
+Auth
+~~~~
+This module handles user sign in, sign up and log out. Some validation (like email confirmation) is still undone.
+
+.. _publisher:
+
+Publisher
+~~~~~~~~~
+This module handles parsing and passing analytics data to front end.
+
+.. _user:
+
+User
+~~~~
+This module handles showing user information. There is some logic in place for user edit, but that still needs some work.

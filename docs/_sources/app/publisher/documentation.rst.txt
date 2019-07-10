@@ -1,0 +1,8 @@
+Publisher documentation
+=======================
+
+.. automodule:: app.publisher
+   :members:
+
+.. automodule:: app.publisher.views
+   :members:

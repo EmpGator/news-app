@@ -1,5 +1,9 @@
 from enum import Enum
 
+"""
+Contains constant parameters for app
+"""
+
 # in future this should be list of domains
 PUBLISHER_DOMAIN = 'tridample.eu.pythonanywhere.com'
 
@@ -16,11 +20,36 @@ BUNDLE_PRICE = 500
 SINGLE_PRICE = 100
 
 class Role(Enum):
+    """
+    Enumeration for User roles.
+
+    Valid options are:
+
+    USER
+
+    PUBLISHER
+
+    ADMIN
+    """
     USER = 'user'
     PUBLISHER = 'publisher'
     ADMIN = 'admin'
 
 class PayOptions(Enum):
+    """
+    Enumeration for payment options
+
+    Valid options are:
+
+    NULL
+
+    MONTHLY
+
+    PACKAGE
+
+    SINGLE
+
+    """
     NULL = "0"
     MONTHLY = "1"
     PACKAGE = "2"

@@ -32,10 +32,14 @@ api = Api(api_bp)
 def validate_txid(txid, price):
     """
     Uses bitcoin api to validate slp transaction,
-        checks if correct amount was sent to correct address
+    checks if correct amount was sent to correct address
+
     :param txid: transaction id
+
     :param price: amount of tokens that were supposed to be received
-    :return: Bool if transaction were valid
+
+    :return: True if transaction was valid Else False
+
     """
     print('validate_txid')
     url = 'https://rest.bitcoin.com/v2/slp/txDetails/' + txid
@@ -67,8 +71,10 @@ def validate_txid(txid, price):
 def get_article(url):
     """
     Fetches article from database, if article wasn't found, creates new article object
-    :param url: url for article
-    :return: returns article object
+
+    :param url: Article url, used to fetch article from database
+
+    :return: article object
     """
     article = Article.query.filter_by(url=url).first()
     if not article:
@@ -103,11 +109,19 @@ def get_article(url):
 class Userdata(Resource):
     """
     Handles user access data to give url
+
     TODO: merge this with user info
+
     TODO: Clean up and add most logic to user object methods
+
     """
     @jwt_required
     def post(self):
+        """
+        Handles post request
+
+        :return: Json formatted data with {"access": bool} format
+        """
         uid = get_jwt_identity()
         current_user = User.query.get(int(uid))
         args = u_data_req_parser.parse_args()
@@ -141,11 +155,15 @@ class Userdata(Resource):
 
 class PaidArticle(Resource):
     """
-    Handles pay 1 token POST requests
+    Handles token payment POST requests from publishers
     """
     @jwt_optional
     def post(self):
+        """
+        Handles post request
 
+        :return: Response object with text OK or Not enough Tokens
+        """
         local_user = current_user
         if not local_user.is_authenticated:
             uid = get_jwt_identity()
@@ -178,6 +196,11 @@ class PaidMonth(Resource):
     """
     @jwt_optional
     def post(self):
+        """
+        Useless
+
+        :return:
+        """
         print('PaidMonth')
         local_user = current_user
         if not local_user.is_authenticated:
@@ -207,6 +230,11 @@ class PaidPackage(Resource):
     """
     @jwt_optional
     def post(self):
+        """
+        Useless
+
+        :return:
+        """
         print('PaidPackage')
         local_user = current_user
         if not local_user.is_authenticated:
@@ -231,6 +259,12 @@ class TopUp(Resource):
     """
     @login_required
     def post(self):
+        """
+        Handles POST request
+        Checks chosen package and if amount was given. Adds information to user object
+
+        :return: Redirect to index page
+        """
         option = PayOptions(request.form.get('pay-method', "0"))
         if option == PayOptions.MONTHLY:
             analytics = Publisher.query.filter_by(name='All').first()
@@ -267,7 +301,9 @@ class Userinfo(Resource):
     def post(self):
         """
         Sends relevant user info
+
         TODO: merge this with userdata
+
         :return: json formatted userdata
         """
         local_user = current_user

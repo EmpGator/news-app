@@ -1,0 +1,37 @@
+Information for publishers
+==========================
+
+To use finn+ you need to create::
+
+    /setcookie/<jwt>
+
+endpoint that stores jwt value as session cookie.
+To get relevant information you need to post to finnplus api with this authorization header::
+
+    Authorization: Bearer <jwt>
+
+For access authorization post to::
+
+    finnplusdomain/api/userdata
+
+Response in json format will be like::
+
+    {"access": True}
+
+For userinformation post to::
+
+    finnplusdomain/api/userinfo
+
+Response in json format will be like::
+
+    {"name": "Erkki", "payment_type": "Monthly payment", "value": "2019-08-30"}
+
+For article token payment post to::
+
+    finnplusdomain/api/articlepaid
+
+Response will be::
+
+    Ok
+    // or
+    Not enough tokens

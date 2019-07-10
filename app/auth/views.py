@@ -16,7 +16,8 @@ bp = Blueprint('auth', __name__)
 def new_entry():
     """
     Handles login form handling and show user login form
-    :return:
+
+    :return: View that is either same view with errors or new view
     """
     if request.method == 'POST':
         fn = request.form.get('firstName')
@@ -41,7 +42,8 @@ def new_entry():
 def login():
     """
     handles login form and shows it to user
-    :return:
+
+    :return: View that is either same view with errors or new view
     """
     if current_user.is_authenticated:
         return redirect(url_for('dashboard'))
@@ -68,7 +70,8 @@ def login():
 def logout():
     """
     logout route, attempts to logout users from PUBLISHER_DOMAIN as well
-    :return:
+
+    :return: Main page, not logged in
     """
     logout_user()
     return render_template('logout_all.html', domain=PUBLISHER_DOMAIN, url_to=url_for('index'))

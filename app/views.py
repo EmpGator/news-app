@@ -12,7 +12,9 @@ import json
 def get_articles():
     """
     Fetches articles from database and adds them obj that is rendered then in frontpage
-    :return:
+
+    :return: Json formatted article data
+
     """
     data = {'MrData': [], 'TrData': [], 'LtData': []}
     articles = Article.query.filter(Article.image.isnot(None))
@@ -33,7 +35,8 @@ def fetch_articles():
     """
     Fetches articles from rss feed
     TODO: support multiple external feeds
-    :return:
+
+    :return: Response: OK, 200
     """
     # Todo: make this background task
     import os
@@ -64,7 +67,11 @@ def fetch_articles():
 
 @app.route('/')
 def index():
-    """Main page view for non logged in users"""
+    """
+    Main page view for non logged in users
+
+    :return: index.html with article data
+    """
     if current_user.is_authenticated:
         return redirect(url_for('dashboard'))
     data = get_articles()
@@ -76,6 +83,8 @@ def index():
 def dashboard():
     """
     Main page view for logged in users
+
+    :return: index.html with article data
     """
     if current_user.role == Role.PUBLISHER:
         return redirect(url_for('publisher.analytics'))
@@ -88,7 +97,8 @@ def setcookie():
     """
     This is mainly for testing purposes
     This attempts to set jwt token cookie at PUBLISHER_DOMAIN
-    :return: response object
+
+    :return: Response 200
     """
     jwt = create_access_token(identity=current_user.id)
     resp = make_response(f'<img src="http://{PUBLISHER_DOMAIN}/setcookie/{jwt}" >', 200)
@@ -100,8 +110,11 @@ def test(site=''):
     """
     This function redirects user to mocksite
     This is for sidebars
-    :param site: string site name
-    :return: redirect
+
+    :param site:
+        site name as string
+
+    :return: redirect to {PUBLISHER_DOMAIN}/{site}
     """
     url = f'http://{PUBLISHER_DOMAIN}/{site}'
     return redirect(url)

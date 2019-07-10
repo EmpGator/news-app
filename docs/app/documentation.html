@@ -1,0 +1,266 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>App documentation &#8212; Finn+  documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Api documentation" href="api/contents.html" />
+    <link rel="prev" title="Overview of app" href="overview.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-app">
+<span id="app-documentation"></span><h1>App documentation<a class="headerlink" href="#module-app" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="app.create_app">
+<code class="sig-prename descclassname">app.</code><code class="sig-name descname">create_app</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app.create_app" title="Permalink to this definition">¶</a></dt>
+<dd><p>Application factory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>flask app</p>
+</dd>
+</dl>
+</dd></dl>
+
+<span class="target" id="module-app.constants"></span><dl class="class">
+<dt id="app.constants.PayOptions">
+<em class="property">class </em><code class="sig-prename descclassname">app.constants.</code><code class="sig-name descname">PayOptions</code><a class="headerlink" href="#app.constants.PayOptions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Enumeration for payment options</p>
+<p>Valid options are:</p>
+<p>NULL</p>
+<p>MONTHLY</p>
+<p>PACKAGE</p>
+<p>SINGLE</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="app.constants.Role">
+<em class="property">class </em><code class="sig-prename descclassname">app.constants.</code><code class="sig-name descname">Role</code><a class="headerlink" href="#app.constants.Role" title="Permalink to this definition">¶</a></dt>
+<dd><p>Enumeration for User roles.</p>
+<p>Valid options are:</p>
+<p>USER</p>
+<p>PUBLISHER</p>
+<p>ADMIN</p>
+</dd></dl>
+
+<span class="target" id="module-app.db"></span><span class="target" id="module-app.models"></span><dl class="class">
+<dt id="app.models.Article">
+<em class="property">class </em><code class="sig-prename descclassname">app.models.</code><code class="sig-name descname">Article</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#app.models.Article" title="Permalink to this definition">¶</a></dt>
+<dd><p>Model to store articles</p>
+<dl class="method">
+<dt id="app.models.Article.get_data_dict">
+<code class="sig-name descname">get_data_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app.models.Article.get_data_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method that returns relevant article information in python dictionary</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>dictionary with keys title, img, author and link</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="app.models.Publisher">
+<em class="property">class </em><code class="sig-prename descclassname">app.models.</code><code class="sig-name descname">Publisher</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#app.models.Publisher" title="Permalink to this definition">¶</a></dt>
+<dd><p>Model to store analytics for publishers</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="app.models.User">
+<em class="property">class </em><code class="sig-prename descclassname">app.models.</code><code class="sig-name descname">User</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#app.models.User" title="Permalink to this definition">¶</a></dt>
+<dd><p>User account database model</p>
+<dl class="method">
+<dt id="app.models.User.check_subscription">
+<code class="sig-name descname">check_subscription</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app.models.User.check_subscription" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to check if user has valid monthly subscription
+if subscription has ended it’ll be nullified</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>True if subscription is valid Else False</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="app.models.init_publishers">
+<code class="sig-prename descclassname">app.models.</code><code class="sig-name descname">init_publishers</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app.models.init_publishers" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function creates publisher user accounts and adds to db</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<span class="target" id="module-app.views"></span><dl class="function">
+<dt id="app.views.dashboard">
+<code class="sig-prename descclassname">app.views.</code><code class="sig-name descname">dashboard</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app.views.dashboard" title="Permalink to this definition">¶</a></dt>
+<dd><p>Main page view for logged in users</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>index.html with article data</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="app.views.fetch_articles">
+<code class="sig-prename descclassname">app.views.</code><code class="sig-name descname">fetch_articles</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app.views.fetch_articles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetches articles from rss feed
+TODO: support multiple external feeds</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Response: OK, 200</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="app.views.get_articles">
+<code class="sig-prename descclassname">app.views.</code><code class="sig-name descname">get_articles</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app.views.get_articles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetches articles from database and adds them obj that is rendered then in frontpage</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Json formatted article data</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="app.views.index">
+<code class="sig-prename descclassname">app.views.</code><code class="sig-name descname">index</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app.views.index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Main page view for non logged in users</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>index.html with article data</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="app.views.setcookie">
+<code class="sig-prename descclassname">app.views.</code><code class="sig-name descname">setcookie</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app.views.setcookie" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is mainly for testing purposes
+This attempts to set jwt token cookie at PUBLISHER_DOMAIN</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Response 200</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="app.views.test">
+<code class="sig-prename descclassname">app.views.</code><code class="sig-name descname">test</code><span class="sig-paren">(</span><em class="sig-param">site=''</em><span class="sig-paren">)</span><a class="headerlink" href="#app.views.test" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function redirects user to mocksite
+This is for sidebars</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>site</strong> – site name as string</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>redirect to {PUBLISHER_DOMAIN}/{site}</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Finn+</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../usage/running.html">Setting up</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview of app</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">App documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/contents.html">Api documentation</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="overview.html" title="previous chapter">Overview of app</a></li>
+      <li>Next: <a href="api/contents.html" title="next chapter">Api documentation</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Henri Korhonen.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/app/documentation.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

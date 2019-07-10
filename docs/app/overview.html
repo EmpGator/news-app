@@ -1,0 +1,183 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Overview of app &#8212; Finn+  documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Api documentation" href="api/contents.html" />
+    <link rel="prev" title="Setting up" href="../usage/running.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="overview-of-app">
+<h1>Overview of app<a class="headerlink" href="#overview-of-app" title="Permalink to this headline">¶</a></h1>
+<p>App is basically module that contains:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#init">init</a></p></li>
+<li><p><a class="reference internal" href="#constants">constants</a></p></li>
+<li><p><a class="reference internal" href="#db">db</a></p></li>
+<li><p><a class="reference internal" href="#models">models</a></p></li>
+<li><p><a class="reference internal" href="#views">views</a></p></li>
+</ul>
+<p>and submodules:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#api">api</a></p></li>
+<li><p><a class="reference internal" href="#auth">auth</a></p></li>
+<li><p><a class="reference internal" href="#publisher">publisher</a></p></li>
+<li><p><a class="reference internal" href="#user">user</a></p></li>
+</ul>
+<div class="section" id="members">
+<h2>Members<a class="headerlink" href="#members" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="init">
+<span id="id1"></span><h3>Init<a class="headerlink" href="#init" title="Permalink to this headline">¶</a></h3>
+<p>This has application factory in it.</p>
+</div>
+<div class="section" id="constants">
+<span id="id2"></span><h3>Constants<a class="headerlink" href="#constants" title="Permalink to this headline">¶</a></h3>
+<p>This contains app-wide constant variables like publisher domain(s)</p>
+</div>
+<div class="section" id="db">
+<span id="id3"></span><h3>Db<a class="headerlink" href="#db" title="Permalink to this headline">¶</a></h3>
+<p>This simply acts as database abstraction layer. Flask-SqlAlchemy were chosen as ORM library for this project because it is widely tested, well documented tool that is very scalable. It is popular tool for reason.</p>
+</div>
+<div class="section" id="models">
+<span id="id4"></span><h3>Models<a class="headerlink" href="#models" title="Permalink to this headline">¶</a></h3>
+<p>This contains database models. There currently are three models:</p>
+<ul class="simple">
+<li><p>Article</p></li>
+<li><p>Publisher</p></li>
+<li><p>User</p></li>
+</ul>
+<dl class="simple">
+<dt>Article</dt><dd><p>Article is used to store all articles. Article always has to have publisher reference</p>
+</dd>
+<dt>Publisher</dt><dd><p>Publisher stores publisher specific information, like what payment types are used to access their articles. Publisher has list of article references and list of user references. User references are for publisher analytics view. For future it would make sense to add methods for generating analytics here.</p>
+</dd>
+<dt>User</dt><dd><p>User model has all user specific information stored, like their payment choice and articles they have previously bought. User will always have role. If user role is publisher, user should have publisher reference. User has list of article references, that user has bought. In future user should have list for Articles accessed as separate list for analytics purpose as there currently is no way to check if monthly subscription user has accessed article previously.</p>
+</dd>
+</dl>
+</div>
+<div class="section" id="views">
+<span id="id5"></span><h3>Views<a class="headerlink" href="#views" title="Permalink to this headline">¶</a></h3>
+<p>This contains generic views like main page and logged in main page. It has also logic for article fetching from rss.</p>
+</div>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="api">
+<span id="id6"></span><h3>Api<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h3>
+<p>This module handles tracking of users, analytics for publisher, authorization of article access and payment handling. It currently has some useless code and some refactoring would be great. For example there currently are two separate routes for user information and authorization for given article. They should be merged.</p>
+</div>
+<div class="section" id="auth">
+<span id="id7"></span><h3>Auth<a class="headerlink" href="#auth" title="Permalink to this headline">¶</a></h3>
+<p>This module handles user sign in, sign up and log out. Some validation (like email confirmation) is still undone.</p>
+</div>
+<div class="section" id="publisher">
+<span id="id8"></span><h3>Publisher<a class="headerlink" href="#publisher" title="Permalink to this headline">¶</a></h3>
+<p>This module handles parsing and passing analytics data to front end.</p>
+</div>
+<div class="section" id="user">
+<span id="id9"></span><h3>User<a class="headerlink" href="#user" title="Permalink to this headline">¶</a></h3>
+<p>This module handles showing user information. There is some logic in place for user edit, but that still needs some work.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Finn+</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../usage/running.html">Setting up</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Overview of app</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#members">Members</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/contents.html">Api documentation</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="../usage/running.html" title="previous chapter">Setting up</a></li>
+      <li>Next: <a href="api/contents.html" title="next chapter">Api documentation</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Henri Korhonen.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/app/overview.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

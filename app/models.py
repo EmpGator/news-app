@@ -18,7 +18,9 @@ association_table = db.Table('association', db.metadata,
 
 
 class User(UserMixin, db.Model):
-    """User account database model"""
+    """
+    User account database model
+    """
 
     __tablename__ = 'users'
 
@@ -39,6 +41,12 @@ class User(UserMixin, db.Model):
         return f'User: {self.first_name} {self.last_name} \nemail: {self.email} \nrole: {self.role}'
 
     def check_subscription(self):
+        """
+        Method to check if user has valid monthly subscription
+        if subscription has ended it'll be nullified
+
+        :return: True if subscription is valid Else False
+        """
         if self.subscription_end is not None:
             if self.subscription_end >= date.today():
                 return True
@@ -66,6 +74,11 @@ class Article(db.Model):
         return f'Article: {self.url} \n by: {self.publisher}'
 
     def get_data_dict(self):
+        """
+        Method that returns relevant article information in python dictionary
+
+        :return: dictionary with keys title, img, author and link
+        """
         data = dict(title=self.name, img=self.image, author=self.publisher.name, link=self.url)
         return data
 
@@ -93,6 +106,7 @@ class Publisher(db.Model):
 def init_publishers():
     """
     This function creates publisher user accounts and adds to db
+
     :return: None
     """
     names = [('Helsingin sanomat', f'{PUBLISHER_DOMAIN}/hs'), ('Turun sanomat', f'{PUBLISHER_DOMAIN}/ts'),

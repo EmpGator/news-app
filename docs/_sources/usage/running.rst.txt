@@ -1,0 +1,59 @@
+Setting up
+==========
+
+To get development server running you need at least python3.6
+
+You can get latest python from `here`__.
+
+.. _python3: https://www.python.org/downloads/
+
+__ python3_
+
+Setting up
+----------
+
+You can clone project from github with::
+
+    git clone https://github.com/EmpGator/news-app.git
+
+
+It's recommended to set up virtual environment for dependencies. Python comes with venv so to set up new virtual environment you can use::
+
+    python -m venv .\venv
+
+
+Before installing any dependencies remember to active your virtual environment.
+
+For windows::
+
+    .\\venv\\scripts\\activate.bat
+
+
+And installing dependencies::
+
+    pip install -r requirements.txt
+
+
+Running development server
+----------------------------
+
+You can simply run with::
+
+    python wsgi.py
+
+Remember if you installed dependencies to venv you need to activate venv before you run. Many times it's still more desirable to run with debug and testing mode on. To do this you should add these settings to your environmental variables. For cmd::
+
+    SET FLASK_APP=wsgi.py
+    SET FLASK_ENV=development
+    SET FLASK_DEBUG=True
+
+For powershell::
+
+    $env:FLASK_APP = "wsgi.py"
+    $env:FLASK_ENV = "development"
+    $env:FLASK_DEBUG = "True"
+
+and then start server with::
+
+    Flask run
+

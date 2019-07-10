@@ -1,0 +1,5 @@
+Api documentation
+=================
+
+.. automodule:: app.api
+   :members:

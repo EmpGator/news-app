@@ -1,0 +1,8 @@
+Auth documentation
+==================
+
+.. automodule:: app.auth
+   :members:
+
+.. automodule:: app.auth.views
+   :members:

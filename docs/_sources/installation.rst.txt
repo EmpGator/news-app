@@ -1,0 +1,8 @@
+
+Installation instructions
+=========================
+
+Test pls ignore
+
+.. automodule:: app.api
+   :members:
