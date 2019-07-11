@@ -10,7 +10,6 @@ from .constants import Role, PUBLISHER_DOMAIN
 Database models
 """
 
-
 association_table = db.Table('association', db.metadata,
                              db.Column('left_id', db.Integer, db.ForeignKey('users.id')),
                              db.Column('right_id', db.Integer, db.ForeignKey('articles.id'))
@@ -20,6 +19,8 @@ association_table = db.Table('association', db.metadata,
 class User(UserMixin, db.Model):
     """
     User account database model
+
+    TODO: add read articles tracking for monthly users
     """
 
     __tablename__ = 'users'
@@ -59,6 +60,8 @@ class User(UserMixin, db.Model):
 class Article(db.Model):
     """
     Model to store articles
+
+    TODO: add category
     """
     __tablename__ = 'articles'
 

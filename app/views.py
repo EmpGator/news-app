@@ -35,10 +35,10 @@ def fetch_articles():
     """
     Fetches articles from rss feed
     TODO: support multiple external feeds
+    TODO: make this background task to be executed one in a while
 
     :return: Response: OK, 200
     """
-    # Todo: make this background task
     import os
     src = os.path.join('app','static','news_app.xml')
     feed = feedparser.parse(src)

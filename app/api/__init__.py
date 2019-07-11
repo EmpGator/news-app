@@ -162,6 +162,9 @@ class PaidArticle(Resource):
         """
         Handles post request
 
+        TODO: change response to be json format
+        possible optimization: add access and user information to response as well
+
         :return: Response object with text OK or Not enough Tokens
         """
         local_user = current_user

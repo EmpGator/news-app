@@ -5,8 +5,8 @@ Contains constant parameters for app
 """
 
 # in future this should be list of domains
-PUBLISHER_DOMAIN = 'tridample.eu.pythonanywhere.com'
-
+# PUBLISHER_DOMAIN = 'tridample.eu.pythonanywhere.com'
+PUBLISHER_DOMAIN = '127.0.0.1:8000'
 # amount of days subscription lasts
 SUBS_TIME = 30
 # Amount of articles you can access with package
@@ -18,6 +18,8 @@ SLP_ADDR = 'simpleledger:qq0nu0xa5rxj72wx043ulhm3qs28y95davd6djawyh'
 MONTH_PRICE = 1000
 BUNDLE_PRICE = 500
 SINGLE_PRICE = 100
+BAD_CHAR_LIST = list('!"@#£¤$%&/{([)]=}+?\\´`\'<>|¨^~*,.-_;:½§1234567890')
+
 
 class Role(Enum):
     """
