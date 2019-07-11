@@ -1,10 +1,11 @@
 import re
 
-from flask import Blueprint, render_template, redirect, url_for, request, flash
+from flask import Blueprint, render_template, redirect, url_for, request, flash, current_app
 from flask_jwt_extended import create_access_token
 from flask_login import current_user, login_user, logout_user, login_required
+from flask_mail import Message
 
-
+from app.mail import mail
 from app.constants import PUBLISHER_DOMAIN, BAD_CHAR_LIST
 from app.models import User
 from app.db import db
@@ -39,6 +40,15 @@ def validate_and_hash_password(pw, pw_again):
     return pw_hash
 
 
+def send_confirm_email(user):
+    sender = 'tridample@gmail.com'
+    msg = Message('Confirmation email',sender=sender, recipients=[user.email])
+    jwt = create_access_token(identity=user.id)
+    msg.body = f'Confirmationlink: {PUBLISHER_DOMAIN}/activate/{jwt}'
+    mail.send(msg)
+    return 'Email sent'
+
+
 @bp.route('/signup', methods=['GET', 'POST'])
 def new_entry():
     """
@@ -60,7 +70,7 @@ def new_entry():
             new_user = User(first_name=fn, last_name=ln, email=email, password=pw_hash, role=Role.USER)
             db.session.add(new_user)
             db.session.commit()
-
+            send_confirm_email(new_user)
         except Exception as e:
             print(e)
             return redirect(url_for('auth.new_entry'))
@@ -106,3 +116,10 @@ def logout():
     """
     logout_user()
     return render_template('logout_all.html', domain=PUBLISHER_DOMAIN, url_to=url_for('index'))
+
+
+@bp.route('/activate/<token>')
+def activate(token=None):
+    if token:
+        pass
+    return 'Not implemented yet'

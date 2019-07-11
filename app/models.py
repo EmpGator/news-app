@@ -19,8 +19,9 @@ association_table = db.Table('association', db.metadata,
 class User(UserMixin, db.Model):
     """
     User account database model
-
+    TODO: add confirmed email flag
     TODO: add read articles tracking for monthly users
+    TODO: add favourite articles list
     """
 
     __tablename__ = 'users'

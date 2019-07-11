@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_wtf.csrf import CSRFProtect
 from flask_jwt_extended import JWTManager
+from .mail import mail
 from .db import db
 from .models import init_publishers
 from .auth import login_manager, auth_bp
@@ -9,8 +10,8 @@ from .user import user_bp
 from .publisher import pub_bp
 
 csrf = CSRFProtect()
-login_manager.login_view = 'auth.login'
 jwt = JWTManager()
+login_manager.login_view = 'auth.login'
 
 
 def create_app():
@@ -28,6 +29,7 @@ def create_app():
     csrf.init_app(app)
     csrf.exempt(api_bp)
     jwt.init_app(app)
+    mail.init_app(app)
     # register blueprints
     app.register_blueprint(api_bp)
     app.register_blueprint(auth_bp)
