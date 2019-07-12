@@ -4,9 +4,10 @@ from flask import Blueprint, render_template, redirect, url_for, request, flash,
 from flask_jwt_extended import create_access_token
 from flask_login import current_user, login_user, logout_user, login_required
 from flask_mail import Message
+from itsdangerous import URLSafeSerializer, BadSignature
 
 from app.mail import mail
-from app.constants import PUBLISHER_DOMAIN, BAD_CHAR_LIST
+from app.constants import PUBLISHER_DOMAIN, BAD_CHAR_LIST, FINNPLUS_DOMAIN
 from app.models import User
 from app.db import db
 from passlib.hash import pbkdf2_sha256
@@ -43,10 +44,25 @@ def validate_and_hash_password(pw, pw_again):
 def send_confirm_email(user):
     sender = 'tridample@gmail.com'
     msg = Message('Confirmation email',sender=sender, recipients=[user.email])
-    jwt = create_access_token(identity=user.id)
-    msg.body = f'Confirmationlink: {PUBLISHER_DOMAIN}/activate/{jwt}'
+    serializer = URLSafeSerializer('verification_salt')
+    token = serializer.dumps(user.id)
+    msg.body = f'Confirmation link: {FINNPLUS_DOMAIN}/activate/{token}'
     mail.send(msg)
     return 'Email sent'
+
+
+def send_password_reset_mail(user):
+    sender = 'tridample@gmail.com'
+    serializer = URLSafeSerializer('reset_salt')
+    token = serializer.dumps(user.id)
+    msg = Message('Password reset', sender=sender, recipients=[user.email])
+    msg.body = f'Password reset link: {FINNPLUS_DOMAIN}/reset/{token}'
+    mail.send(msg)
+    return 'Email sent'
+
+@bp.route('/reset/<token>')
+def reset_pass(token=None):
+    return 'New password form here'
 
 
 @bp.route('/signup', methods=['GET', 'POST'])
@@ -71,10 +87,11 @@ def new_entry():
             db.session.add(new_user)
             db.session.commit()
             send_confirm_email(new_user)
+            login_user(new_user)
+            return redirect(url_for('dashboard'))
         except Exception as e:
             print(e)
             return redirect(url_for('auth.new_entry'))
-        return redirect(url_for('auth.login'))
 
     return render_template('index.html')
 
@@ -118,8 +135,18 @@ def logout():
     return render_template('logout_all.html', domain=PUBLISHER_DOMAIN, url_to=url_for('index'))
 
 
+@bp.route('/resend')
+@login_required
+def resend():
+    return send_confirm_email(current_user)
+
+
 @bp.route('/activate/<token>')
 def activate(token=None):
-    if token:
-        pass
-    return 'Not implemented yet'
+    serializer = URLSafeSerializer('verification_salt')
+    try:
+        uid = serializer.loads(token)
+        user = User.query.get(uid)
+        return str(user)
+    except BadSignature:
+        return 'Something went wrong'

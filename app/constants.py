@@ -4,6 +4,7 @@ from enum import Enum
 Contains constant parameters for app
 """
 
+FINNPLUS_DOMAIN = 'http://127.0.0.1:5000'
 # in future this should be list of domains
 # PUBLISHER_DOMAIN = 'tridample.eu.pythonanywhere.com'
 PUBLISHER_DOMAIN = '127.0.0.1:8000'
