@@ -15,10 +15,15 @@ u_data_req_parser.add_argument("url", required=True)
 
 pay_req_parser = RequestParser(bundle_errors=True)
 pay_req_parser.add_argument("url", required=True)
-pay_req_parser.add_argument("txid", required=True)
 
 token_req_parser = RequestParser(bundle_errors=True)
 token_req_parser.add_argument('amount', required=True)
+
+access_req_parser = RequestParser(bundle_errors=True)
+access_req_parser.add_argument('url')
+access_req_parser.add_argument('domain')
+access_req_parser.add_argument('pay', type=bool)
+
 
 api_bp = Blueprint('api', __name__)
 api = Api(api_bp)
@@ -106,6 +111,23 @@ def get_article(url):
     return article
 
 
+def get_authenticated_user(user):
+    """
+    Get's authenticated user if any
+
+    :param: current_user
+
+    :return: User or None
+    """
+    if user.is_authenticated:
+        return user
+    uid = get_jwt_identity()
+    if uid:
+        return User.query.get(int(uid))
+
+
+
+
 class Userdata(Resource):
     """
     Handles user access data to give url
@@ -132,10 +154,13 @@ class Userdata(Resource):
             return jsonify({'access': True})
         elif current_user.subscription_end is not None:
             if current_user.subscription_end >= date.today():
-                article.hits += 1
-                article.publisher.monthly_pay += 1
-                analytics.monthly_pay += 1
-                db.session.commit()
+                if article not in current_user.read_articles:
+                    current_user.read_articles.append(article)
+                    article.hits += 1
+                    article.monthly_pay += 1
+                    article.publisher.monthly_pay += 1
+                    analytics.monthly_pay += 1
+                    db.session.commit()
                 return jsonify({'access': True})
             else:
                 current_user.subscription_end = None
@@ -143,6 +168,7 @@ class Userdata(Resource):
         elif current_user.prepaid_articles > 0:
             current_user.prepaid_articles -= 1
             article.hits += 1
+            article.package_pay += 1
             article.publisher.package_pay += 1
             article.publisher.revenue += 1
             analytics.revenue += 1
@@ -153,7 +179,7 @@ class Userdata(Resource):
         return jsonify({'access': False})
 
 
-class PaidArticle(Resource):
+class OldPaidArticle(Resource):
     """
     Handles token payment POST requests from publishers
     """
@@ -175,12 +201,12 @@ class PaidArticle(Resource):
             else:
                 return make_response('Bad username or password', 403)
         args = pay_req_parser.parse_args()
-        txid = args['txid']
         url = args['url']
         if local_user.tokens > 0:
             analytics = Publisher.query.filter_by(name='All').first()
             article = get_article(url)
             article.hits += 1
+            article.single_pay += 1
             article.publisher.single_pay += 1
             article.publisher.revenue += 1
             analytics.revenue += 1
@@ -193,67 +219,65 @@ class PaidArticle(Resource):
         return make_response('Not enough tokens', 200)
 
 
-class PaidMonth(Resource):
+class PaidArticle(Resource):
     """
-    Useless function currently, supposed to handle monthly payment
-    """
-    @jwt_optional
-    def post(self):
-        """
-        Useless
-
-        :return:
-        """
-        print('PaidMonth')
-        local_user = current_user
-        if not local_user.is_authenticated:
-            uid = get_jwt_identity()
-            if uid:
-                local_user = User.query.get(int(uid))
-            else:
-                return make_response('Bad username or password', 403)
-        args = pay_req_parser.parse_args()
-        if args['txid']:
-            analytics = Publisher.query.filter_by(name='All').first()
-            analytics.revenue += (MONTH_PRICE / 100)
-            if local_user.subscription_end is None:
-                local_user.subscription_end = date.today() + timedelta(days=SUBS_TIME)
-            if local_user.subscription_end <= date.today():
-                local_user.subscription_end = date.today() + timedelta(days=SUBS_TIME)
-            else:
-                local_user.subscription_end += timedelta(days=SUBS_TIME)
-            db.session.commit()
-            return make_response('Ok', 200)
-        return make_response('Invalid txid', 200)
-
-
-class PaidPackage(Resource):
-    """
-    Useless function currently, supposed to handle package payment
+    Handles token payment POST requests from publishers
     """
     @jwt_optional
     def post(self):
         """
-        Useless
+        Handles post request
+
+        TODO: change response to be json format
+        possible optimization: add access and user information to response as well
+
+        :return: Response object with text OK or Not enough Tokens
+        """
+        user = get_authenticated_user(current_user)
+        if not user:
+            return make_response('Bad username or password', 403)
+        args = pay_req_parser.parse_args()
+        article = get_article(args['url'])
+        if user.pay_article('single_pay', article):
+            return make_response('Ok', 200)
+        return make_response('Not enough tokens', 200)
+
+
+class Test(Resource):
+    """
+    Test for unified endpoint for article pay, user info and accessdata
+    """
+    @jwt_optional
+    def post(self):
+        """
 
         :return:
         """
-        print('PaidPackage')
-        local_user = current_user
-        if not local_user.is_authenticated:
-            uid = get_jwt_identity()
-            if uid:
-                local_user = User.query.get(int(uid))
-            else:
-                return make_response('Bad username or password', 403)
-        args = pay_req_parser.parse_args()
-        if args['txid']:
-            analytics = Publisher.query.filter_by(name='All').first()
-            analytics.revenue += (BUNDLE_PRICE / 100)
-            local_user.prepaid_articles += BUNDLE_SIZE
-            db.session.commit()
-            return make_response('Ok', 200)
-        return make_response('Invalid txid', 200)
+        user = get_authenticated_user(current_user)
+        if not user:
+            return make_response('bad auth', 403)
+        args = access_req_parser.parse_args()
+        pay = args.get('pay')
+        url = args.get('url')
+        article = get_article(url)
+        data = {
+            'access': False,
+            'name': user.first_name,
+            'method': None,
+            'expiration': user.subscription_end,
+            'package_left': user.prepaid_articles,
+            'tokens_left': user.tokens,
+            'message': 'ok'
+        }
+        if pay and article:
+            if not user.pay_article('single_pay', article):
+                data['message'] = 'Payment failed'
+        elif article:
+            data['access'] = user.access_article(article)
+        return jsonify(data)
+
+
+
 
 
 class TopUp(Resource):
@@ -329,8 +353,7 @@ class Userinfo(Resource):
         return jsonify(data)
 
 api.add_resource(Userdata, '/api/userdata')
-api.add_resource(PaidPackage, '/api/packagepaid')
 api.add_resource(PaidArticle, '/api/articlepaid')
-api.add_resource(PaidMonth, '/api/monthpaid')
 api.add_resource(TopUp, '/api/topup')
 api.add_resource(Userinfo, '/api/userinfo')
+api.add_resource(Test, '/api/test')

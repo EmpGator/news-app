@@ -30,12 +30,15 @@ class User(UserMixin, db.Model):
     first_name = db.Column(db.String(64), nullable=False)
     last_name = db.Column(db.String(64), nullable=False)
     email = db.Column(db.String(80), unique=True, nullable=False)
+    email_confirmed = db.Column(db.Boolean, nullable=False, default=False)
     password = db.Column(db.String(80), nullable=False)
     subscription_end = db.Column(db.Date)
     prepaid_articles = db.Column(db.Integer, default=0, nullable=False)
     tokens = db.Column(db.Integer, default=0, nullable=False)
     role = db.Column(db.Enum(Role))
     articles = db.relationship('Article', secondary=association_table)
+    read_articles = db.relationship('Article', secondary=association_table)
+    fav_articles = db.relationship('Article', secondary=association_table)
     publisher_id = db.Column(db.Integer, db.ForeignKey('publishers.id'))
     publisher = db.relationship('Publisher', back_populates="users")
 
@@ -57,6 +60,39 @@ class User(UserMixin, db.Model):
                 db.session.commit()
         return False
 
+    def access_article(self, article):
+        print(f'Trying to access article\n{article}')
+        if article in self.articles:
+            return True
+        elif self.check_subscription():
+            return True
+        elif self.prepaid_articles > 0:
+            if self.pay_article('package_pay', article):
+                return True
+        return False
+
+
+    def pay_article(self, method, article):
+        print(f'Pay article: \n Method: {method}\n {article}')
+        if method == 'single_pay' and self.tokens > 0:
+            if not article.new_paid_article(method):
+                return False
+            self.tokens -= 1
+            self.articles.append(article)
+        elif method == 'package_pay' and self.prepaid_articles > 0:
+            if not article.new_paid_article(method):
+                return False
+            self.prepaid_articles -= 1
+            self.articles.append(article)
+        elif method == 'monthly_pay' and self.check_subscription():
+            if not article.new_paid_article(method):
+                return False
+        else:
+            return False
+        self.read_articles.append(article)
+        db.session.commit()
+        return True
+
 
 class Article(db.Model):
     """
@@ -71,6 +107,9 @@ class Article(db.Model):
     image = db.Column(db.String(2000))
     url = db.Column(db.String(2000), unique=True, nullable=False)
     hits = db.Column(db.Integer, nullable=False, default=0)
+    monthly_pay = db.Column(db.Integer, nullable=False, default=0)
+    package_pay = db.Column(db.Integer, nullable=False, default=0)
+    single_pay = db.Column(db.Integer, nullable=False, default=0)
     publisher_id = db.Column(db.Integer, db.ForeignKey('publishers.id'))
     publisher = db.relationship('Publisher', back_populates="articles")
 
@@ -85,6 +124,21 @@ class Article(db.Model):
         """
         data = dict(title=self.name, img=self.image, author=self.publisher.name, link=self.url)
         return data
+
+    def read_single(self):
+        self.publisher.read_single()
+        self.hits += 1
+        self.single_pay += 1
+
+    def new_paid_article(self, method):
+        try:
+            val = getattr(self, method) + 1
+            setattr(self, method, val)
+            self.hits += 1
+            self.publisher.new_paid_article(method)
+            return True
+        except AttributeError:
+            print(f'Article has no attribute {method}')
 
 
 class Publisher(db.Model):
@@ -105,6 +159,15 @@ class Publisher(db.Model):
 
     def __repr__(self):
         return f'Publisher: {self.name}'
+
+    def new_paid_article(self, method):
+        try:
+            val = getattr(self, method) + 1
+            setattr(self, method, val)
+            self.revenue += 1
+            return True
+        except AttributeError:
+            print(f'Publisher has no attribute {method}')
 
 
 def init_publishers():

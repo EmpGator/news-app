@@ -147,6 +147,17 @@ def activate(token=None):
     try:
         uid = serializer.loads(token)
         user = User.query.get(uid)
-        return str(user)
+        user.email_confirmed = True
+        db.session.commit()
+        return redirect(url_for('dashboard'))
+    except BadSignature:
+        return 'Something went wrong'
+
+@bp.route('/reset/<token>')
+def reset(token=None):
+    serializer = URLSafeSerializer('verification_salt')
+    try:
+        uid = serializer.loads(token)
+        user = User.query.get(uid)
     except BadSignature:
         return 'Something went wrong'
