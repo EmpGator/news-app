@@ -16,7 +16,6 @@ from app.constants import Role
 
 bp = Blueprint('auth', __name__)
 
-# TODO: move validation functions to own file maybe
 def validate_email(email):
     if not re.match('[^@]+@[^@]+\.[^@]+', email):
         flash('Possibly bad email format')
@@ -153,7 +152,7 @@ def activate(token=None):
     except BadSignature:
         return 'Something went wrong'
 
-@bp.route('/reset/<token>')
+@bp.route('/reset/<token>', methods=['POST', 'GET'])
 def reset(token=None):
     serializer = URLSafeSerializer('verification_salt')
     try:
@@ -161,3 +160,13 @@ def reset(token=None):
         user = User.query.get(uid)
     except BadSignature:
         return 'Something went wrong'
+    if request.method == "POST":
+        password = request.form.get('password')
+        password2 = request.form.get('password')
+        if password == password2:
+            user.password = pbkdf2_sha256.hash(password)
+            db.session.commit()
+        return redirect(url_for('login'))
+    return render_template('index.html')
+
+

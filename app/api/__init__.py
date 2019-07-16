@@ -29,11 +29,6 @@ api_bp = Blueprint('api', __name__)
 api = Api(api_bp)
 
 
-
-# TODO make more efficient
-# TODO clean up
-# TODO authorization to decorator
-
 def validate_txid(txid, price):
     """
     Uses bitcoin api to validate slp transaction,
@@ -97,7 +92,6 @@ def get_article(url):
                 pub_name = 'Savon sanomat'
             elif split_url[3] == 'kl':
                 pub_name = 'Kauppalehti'
-        # TODO: fix to scale
         # This is kinda bad way to get name for publisher
         # Consider adding domain/base url for published model and
         # Querying publisher directly with that
@@ -131,10 +125,6 @@ def get_authenticated_user(user):
 class Userdata(Resource):
     """
     Handles user access data to give url
-
-    TODO: merge this with user info
-
-    TODO: Clean up and add most logic to user object methods
 
     """
     @jwt_required
@@ -188,7 +178,6 @@ class OldPaidArticle(Resource):
         """
         Handles post request
 
-        TODO: change response to be json format
         possible optimization: add access and user information to response as well
 
         :return: Response object with text OK or Not enough Tokens
@@ -228,7 +217,6 @@ class PaidArticle(Resource):
         """
         Handles post request
 
-        TODO: change response to be json format
         possible optimization: add access and user information to response as well
 
         :return: Response object with text OK or Not enough Tokens
@@ -328,8 +316,6 @@ class Userinfo(Resource):
     def post(self):
         """
         Sends relevant user info
-
-        TODO: merge this with userdata
 
         :return: json formatted userdata
         """
