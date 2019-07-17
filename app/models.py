@@ -4,7 +4,7 @@ from .db import db
 from flask_login import UserMixin
 from datetime import date
 from passlib.hash import pbkdf2_sha256
-from .constants import Role, PUBLISHER_DOMAIN
+from .constants import Role, PUBLISHER_DOMAIN, Category
 
 """
 Database models
@@ -19,9 +19,6 @@ association_table = db.Table('association', db.metadata,
 class User(UserMixin, db.Model):
     """
     User account database model
-    TODO: add confirmed email flag
-    TODO: add read articles tracking for monthly users
-    TODO: add favourite articles list
     """
 
     __tablename__ = 'users'
@@ -98,13 +95,12 @@ class Article(db.Model):
     """
     Model to store articles
 
-    TODO: add category
     """
     __tablename__ = 'articles'
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255))
-    category = db.Column(db.Enum)
+    category = db.Column(db.Enum(Category))
     image = db.Column(db.String(2000))
     url = db.Column(db.String(2000), unique=True, nullable=False)
     hits = db.Column(db.Integer, nullable=False, default=0)
@@ -125,11 +121,6 @@ class Article(db.Model):
         """
         data = dict(title=self.name, img=self.image, author=self.publisher.name, link=self.url)
         return data
-
-    def read_single(self):
-        self.publisher.read_single()
-        self.hits += 1
-        self.single_pay += 1
 
     def new_paid_article(self, method):
         try:

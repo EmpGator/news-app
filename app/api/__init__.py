@@ -95,11 +95,14 @@ def get_article(url):
         # This is kinda bad way to get name for publisher
         # Consider adding domain/base url for published model and
         # Querying publisher directly with that
-            art_name = ' '.join(split_url[2:])
+            art_name = ' '.join(split_url[3:])
             # Ok this makes basically no sense. Either go fetch title or use rss feed generated objects
 
         publisher = Publisher.query.filter_by(name=pub_name).first()
-        article = Article(url=url, publisher=publisher, name=art_name)
+        from random import randint
+        from app.constants import Category
+        cat = Category(randint(1, 6))
+        article = Article(url=url, publisher=publisher, name=art_name, category=cat)
         db.session.add(article)
         db.session.commit()
     return article

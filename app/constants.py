@@ -57,3 +57,11 @@ class PayOptions(Enum):
     MONTHLY = "1"
     PACKAGE = "2"
     SINGLE = "3"
+
+class Category(Enum):
+    POLITICS = 1
+    SPORTS  = 2
+    ECONOMY = 3
+    TECHNOLOGY = 4
+    HEALTH = 5
+    ENTERTAINMENT = 6

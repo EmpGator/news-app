@@ -87,7 +87,9 @@ def new_entry():
             db.session.commit()
             send_confirm_email(new_user)
             login_user(new_user)
-            return redirect(url_for('dashboard'))
+            access_token = create_access_token(identity=new_user.id)
+            return render_template('set_cookies.html', domain=PUBLISHER_DOMAIN, token=access_token,
+                                   url_to=url_for('dashboard'))
         except Exception as e:
             print(e)
             return redirect(url_for('auth.new_entry'))
@@ -154,7 +156,7 @@ def activate(token=None):
 
 @bp.route('/reset/<token>', methods=['POST', 'GET'])
 def reset(token=None):
-    serializer = URLSafeSerializer('verification_salt')
+    serializer = URLSafeSerializer('reset_salt')
     try:
         uid = serializer.loads(token)
         user = User.query.get(uid)
