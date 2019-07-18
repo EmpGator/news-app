@@ -59,10 +59,6 @@ def send_password_reset_mail(user):
     mail.send(msg)
     return 'Email sent'
 
-@bp.route('/reset/<token>')
-def reset_pass(token=None):
-    return 'New password form here'
-
 
 @bp.route('/signup', methods=['GET', 'POST'])
 def new_entry():
@@ -134,6 +130,17 @@ def logout():
     """
     logout_user()
     return render_template('logout_all.html', domain=PUBLISHER_DOMAIN, url_to=url_for('index'))
+
+@bp.route('/forgotpw', methods=['GET', 'POST'])
+def forgotpw():
+    if request.method == 'POST':
+        email = request.form.get('email')
+        user = User.query.filter_by(email=email).first()
+        if user and user.email_confirmed:
+            send_password_reset_mail(user)
+            return redirect(url_for('index'))
+    return render_template('index.html')
+
 
 
 @bp.route('/resend')
