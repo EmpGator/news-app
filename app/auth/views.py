@@ -6,6 +6,7 @@ from flask_login import current_user, login_user, logout_user, login_required
 from flask_mail import Message
 from itsdangerous import URLSafeSerializer, BadSignature
 
+from app.auth.forms import PassResetForm
 from app.mail import mail
 from app.constants import PUBLISHER_DOMAIN, BAD_CHAR_LIST, FINNPLUS_DOMAIN
 from app.models import User
@@ -139,6 +140,7 @@ def forgotpw():
         if user and user.email_confirmed:
             send_password_reset_mail(user)
             return redirect(url_for('index'))
+
     return render_template('index.html')
 
 
@@ -175,7 +177,8 @@ def reset(token=None):
         if password == password2:
             user.password = pbkdf2_sha256.hash(password)
             db.session.commit()
-        return redirect(url_for('login'))
-    return render_template('index.html')
+        return redirect(url_for('auth.login'))
+    form = PassResetForm()
+    return render_template('resetpassword.html',  form=form)
 
 

@@ -1,8 +1,9 @@
-from flask import Blueprint, render_template, url_for, redirect, request
+from flask import Blueprint, render_template, url_for, redirect, request, jsonify
 from flask_login import current_user, login_required
 import json
 
 from app.auth.views import validate_email, validate_name, validate_and_hash_password
+from app.models import Article
 
 bp = Blueprint('user', __name__)
 
@@ -58,3 +59,16 @@ def edit():
         print(e)
 
     return redirect(url_for('index'))
+
+
+bp.route('/favtoggle', methods=['POST'])
+@login_required
+def favtoggle():
+    data = request.json
+    article = Article.query.filter_by(url=data.get('url'))
+    if article in current_user.favourites:
+        current_user.fav_articles.remove(article)
+        return jsonify(['ok'])
+    elif article:
+        current_user.fav_articles.append(article)
+    return jsonify(['ok'])

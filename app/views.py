@@ -34,34 +34,35 @@ def get_articles():
 def fetch_articles():
     """
     Fetches articles from rss feed
-    TODO: support multiple external feeds
     TODO: make this background task to be executed one in a while
 
     :return: Response: OK, 200
     """
-    import os
-    src = os.path.join('app','static','news_app.xml')
-    feed = feedparser.parse(src)
-    # query_publisher_with_this = feed.link
-    author = 'mock'
-    for i, entry in enumerate(feed.entries):
-        if 'hs' in entry.link:
-            author = 'Helsingin sanomat'
-        elif 'ts' in entry.link:
-            author = 'Turun sanomat'
-        elif 'ks' in entry.link:
-            author = 'Keskisuomalainen'
-        elif 'kl' in entry.link:
-            author = 'Kauppalehti'
-        elif 'ss' in entry.link:
-            author = 'Savon sanomat'
-        url = entry.link.replace('localhost:8000', PUBLISHER_DOMAIN)
-        if not Article.query.filter_by(url=url).first():
-            author = Publisher.query.filter_by(name=author).first()
-            article = Article(name=entry.title, publisher=author, image=entry.media_content[0]['url'],
-                              url=url)
-            db.session.add(article)
-            db.session.commit()
+    url_list = [f'http://{PUBLISHER_DOMAIN}/{i}/rss' for i in ['ts', 'hs', 'ks', 'kl', 'ss']]
+    import requests
+    for src in url_list:
+        feed = feedparser.parse(src)
+        url = feed.feed.link.replace('http://', '')
+        author = Publisher.query.filter_by(url=url).first()
+        if author:
+            for i, entry in enumerate(feed.entries):
+                url = entry.link
+                if not Article.query.filter_by(url=url).first():
+                    img = entry.media_content[0]['url']
+                    if not img:
+                        img = author.image
+                    article = Article(name=entry.title, publisher=author, image=img, url=url)
+                    db.session.add(article)
+                    db.session.commit()
+            print(f'fetched {author.url} articles succesfully')
+        else:
+            print('Couldnt find author with given url')
+            print(f'URL:\n{url}')
+            print('\n'*3)
+            publishers = [i.url for i in Publisher.query.all()]
+            for i in publishers:
+                print(i)
+            print('\n'*3)
     return make_response('ok', 200)
 
 
@@ -116,5 +117,7 @@ def test(site=''):
 
     :return: redirect to {PUBLISHER_DOMAIN}/{site}
     """
+    if site not in ['ts', 'hs', 'ks', 'kl', 'ss']:
+        return make_response('not found', 404)
     url = f'http://{PUBLISHER_DOMAIN}/{site}'
     return redirect(url)
