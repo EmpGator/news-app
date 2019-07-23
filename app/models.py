@@ -1,5 +1,3 @@
-import json
-
 from .db import db
 from flask_login import UserMixin
 from datetime import date
@@ -8,6 +6,8 @@ from .constants import Role, PUBLISHER_DOMAIN, Category
 
 """
 Database models
+
+TODO: add read date to association table to show users when he read article
 """
 
 association_table = db.Table('association', db.metadata,
@@ -58,6 +58,7 @@ class User(UserMixin, db.Model):
         return False
 
     def access_article(self, article):
+        # TODO: Change this to only check if user already has access to content
         print(f'Trying to access article\n{article}')
         if article in self.articles:
             return True
@@ -70,6 +71,8 @@ class User(UserMixin, db.Model):
 
 
     def pay_article(self, method, article):
+        # TODO: Change this to 1st attempt monthly payment then package and finally single
+        # Method then can be omitted
         print(f'Pay article: \n Method: {method}\n {article}')
         if method == 'single_pay' and self.tokens > 0:
             if not article.new_paid_article(method):

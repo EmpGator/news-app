@@ -22,7 +22,6 @@ token_req_parser.add_argument('amount', required=True)
 access_req_parser = RequestParser(bundle_errors=True)
 access_req_parser.add_argument('url')
 access_req_parser.add_argument('domain')
-access_req_parser.add_argument('pay', type=bool)
 
 
 api_bp = Blueprint('api', __name__)
@@ -214,6 +213,7 @@ class OldPaidArticle(Resource):
 class PaidArticle(Resource):
     """
     Handles token payment POST requests from publishers
+    TODO: make this handle all payment methods
     """
     @jwt_optional
     def post(self):
@@ -241,14 +241,13 @@ class Test(Resource):
     @jwt_optional
     def post(self):
         """
-
+        TODO: Make this only return access information and userdata
         :return:
         """
         user = get_authenticated_user(current_user)
         if not user:
             return make_response('bad auth', 403)
         args = access_req_parser.parse_args()
-        pay = args.get('pay')
         url = args.get('url')
         article = get_article(url)
         data = {
@@ -260,10 +259,7 @@ class Test(Resource):
             'tokens_left': user.tokens,
             'message': 'ok'
         }
-        if pay and article:
-            if not user.pay_article('single_pay', article):
-                data['message'] = 'Payment failed'
-        elif article:
+        if article:
             data['access'] = user.access_article(article)
         return jsonify(data)
 

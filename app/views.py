@@ -13,21 +13,36 @@ def get_articles():
     """
     Fetches articles from database and adds them obj that is rendered then in frontpage
 
-    :return: Json formatted article data
+    :return: article data in python dictionary
 
     """
     data = {'MrData': [], 'TrData': [], 'LtData': []}
     articles = Article.query.filter(Article.image.isnot(None))
     for i, entry in enumerate(articles):
+        art_data = get_article_data(entry)
         if i < 6:
-            data['MrData'].append(entry.get_data_dict())
+            data['MrData'].append(art_data)
         elif i < 12:
-            data['TrData'].append(entry.get_data_dict())
+            data['TrData'].append(art_data)
         elif i < 18:
-            data['LtData'].append(entry.get_data_dict())
+            data['LtData'].append(art_data)
         else:
             break
-    return json.dumps(data)
+    return data
+
+
+def get_article_data(article):
+    """
+    Handles single articles data
+
+    :param article:
+    :return: dictionary containing article data
+    """
+    art_data = article.get_data_dict()
+    art_data['read'] = False
+    if article in current_user.read_articles:
+        art_data['read'] = True
+    return art_data
 
 
 @app.route('/fetch_articles')
@@ -89,7 +104,20 @@ def dashboard():
     """
     if current_user.role == Role.PUBLISHER:
         return redirect(url_for('publisher.analytics'))
-    data = get_articles()
+
+    art_data = get_articles()
+    # Temp start
+    name = current_user.first_name + ' ' + current_user.last_name
+    email = current_user.email
+    bought = [i.url for i in current_user.articles]
+    end = str(current_user.subscription_end) if current_user.subscription_end else None
+    paid = current_user.prepaid_articles
+    read = [{'title': i.name, 'link': i.url, 'accessed': '2019-06-22'} for i in current_user.read_articles]
+    user_data = {'name': name, 'email': email, 'bought': bought, 'end_date': end,
+            'prepaid': paid, 'tokens': current_user.tokens, 'latestArticles': read}
+    # Temp end
+    data = {**art_data, **user_data}
+    data = json.dumps(data)
     return render_template('index.html', data=data)
 
 
