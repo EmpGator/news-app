@@ -59,9 +59,9 @@ class PayOptions(Enum):
     SINGLE = "3"
 
 class Category(Enum):
-    POLITICS = 1
-    SPORTS  = 2
-    ECONOMY = 3
-    TECHNOLOGY = 4
-    HEALTH = 5
-    ENTERTAINMENT = 6
+    POLITICS = 'politics'
+    SPORTS  = 'sports'
+    ECONOMY = 'economy'
+    TECHNOLOGY = 'technology'
+    HEALTH = 'health'
+    ENTERTAINMENT = 'entertainment'

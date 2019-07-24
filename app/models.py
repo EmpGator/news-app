@@ -106,6 +106,7 @@ class Article(db.Model):
     date = db.Column(db.Date)
     category = db.Column(db.Enum(Category))
     image = db.Column(db.String(2000))
+    description  = db.Column(db.String(3000))
     url = db.Column(db.String(2000), unique=True, nullable=False)
     hits = db.Column(db.Integer, nullable=False, default=0)
     monthly_pay = db.Column(db.Integer, nullable=False, default=0)
@@ -115,7 +116,7 @@ class Article(db.Model):
     publisher = db.relationship('Publisher', back_populates="articles")
 
     def __repr__(self):
-        return f'Article: {self.url} \n by: {self.publisher}'
+        return f'Article: {self.url} \n by: {self.publisher} \n date: {self.date} \n category: {self.category} \n description: {self.description}'
 
     def get_data_dict(self):
         """
@@ -123,7 +124,8 @@ class Article(db.Model):
 
         :return: dictionary with keys title, img, author and link
         """
-        data = dict(title=self.name, img=self.image, author=self.publisher.name, link=self.url)
+        data = dict(title=self.name, img=self.image, author=self.publisher.name, link=self.url,
+                    preview=self.description, date=str(self.date))
         return data
 
     def new_paid_article(self, method):

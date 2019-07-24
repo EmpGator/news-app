@@ -1,8 +1,9 @@
+from datetime import datetime, date
 from flask import render_template, redirect, url_for, request, make_response
 from flask import current_app as app
 from flask_jwt_extended import create_access_token
 from flask_login import login_required, current_user
-from app.constants import PUBLISHER_DOMAIN, Role
+from app.constants import PUBLISHER_DOMAIN, Role, Category
 from app.models import Article, Publisher
 from app.db import db
 import feedparser
@@ -40,8 +41,12 @@ def get_article_data(article):
     """
     art_data = article.get_data_dict()
     art_data['read'] = False
-    if article in current_user.read_articles:
-        art_data['read'] = True
+    art_data['fav'] = False
+    if current_user.is_authenticated:
+        if article in current_user.read_articles:
+            art_data['read'] = True
+        if article in current_user.fav_articles:
+            art_data['fav'] = True
     return art_data
 
 
@@ -54,7 +59,6 @@ def fetch_articles():
     :return: Response: OK, 200
     """
     url_list = [f'http://{PUBLISHER_DOMAIN}/{i}/rss' for i in ['ts', 'hs', 'ks', 'kl', 'ss']]
-    import requests
     for src in url_list:
         feed = feedparser.parse(src)
         url = feed.feed.link.replace('http://', '')
@@ -66,7 +70,10 @@ def fetch_articles():
                     img = entry.media_content[0]['url']
                     if not img:
                         img = author.image
-                    article = Article(name=entry.title, publisher=author, image=img, url=url)
+                    category = Category(entry.category)
+                    day = date.fromisoformat(entry.published)
+                    article = Article(name=entry.title, publisher=author, image=img, url=url,
+                                      description=entry.description, date=day, category=category)
                     db.session.add(article)
                     db.session.commit()
             print(f'fetched {author.url} articles succesfully')
@@ -112,7 +119,7 @@ def dashboard():
     bought = [i.url for i in current_user.articles]
     end = str(current_user.subscription_end) if current_user.subscription_end else None
     paid = current_user.prepaid_articles
-    read = [{'title': i.name, 'link': i.url, 'accessed': '2019-06-22'} for i in current_user.read_articles]
+    read = [{'title': i.name, 'link': i.url, 'accessed': '2019-06-22'} for i in current_user.read_articles][:-6:-1]
     user_data = {'name': name, 'email': email, 'bought': bought, 'end_date': end,
             'prepaid': paid, 'tokens': current_user.tokens, 'latestArticles': read}
     # Temp end
