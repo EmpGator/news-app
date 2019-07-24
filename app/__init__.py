@@ -1,15 +1,15 @@
 from flask import Flask
-from flask_wtf.csrf import CSRFProtect
 from flask_jwt_extended import JWTManager
 from .mail import mail
 from .db import db
+from .csrf import csrf
 from .models import init_publishers
 from .auth import login_manager, auth_bp
 from .api import api_bp
 from .user import user_bp
 from .publisher import pub_bp
 
-csrf = CSRFProtect()
+
 jwt = JWTManager()
 login_manager.login_view = 'auth.login'
 
