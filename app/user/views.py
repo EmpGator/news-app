@@ -2,6 +2,8 @@ from flask import Blueprint, render_template, url_for, redirect, request, jsonif
 from flask_login import current_user, login_required
 import json
 
+from app import db
+from app.csrf import csrf
 from app.auth.views import validate_email, validate_name, validate_and_hash_password
 from app.models import Article
 
@@ -54,21 +56,31 @@ def edit():
         if password:
             pw_hash = validate_and_hash_password(password, pw_again)
             current_user.password = pw_hash
-
     except Exception as e:
         print(e)
-
     return redirect(url_for('index'))
 
+@bp.route('/payment')
+@login_required
+def payment():
+    return render_template('index.html')
 
-bp.route('/favtoggle', methods=['POST'])
+
+@bp.route('/api/favtoggle', methods=['POST'])
+@csrf.exempt
 @login_required
 def favtoggle():
+    print('test')
     data = request.json
-    article = Article.query.filter_by(url=data.get('url'))
-    if article in current_user.favourites:
+    if not data:
+        print('not ok')
+        return jsonify(['ei ok'])
+    article = Article.query.filter_by(url=data.get('url')).first()
+    if article in current_user.fav_articles:
         current_user.fav_articles.remove(article)
         return jsonify(['ok'])
     elif article:
         current_user.fav_articles.append(article)
+    if article:
+        db.session.commit()
     return jsonify(['ok'])
