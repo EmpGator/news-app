@@ -1,4 +1,5 @@
 import re
+from datetime import date, timedelta
 
 from flask import Blueprint, render_template, redirect, url_for, request, flash, current_app
 from flask_jwt_extended import create_access_token
@@ -8,8 +9,9 @@ from itsdangerous import URLSafeSerializer, BadSignature
 
 from app.auth.forms import PassResetForm
 from app.mail import mail
-from app.constants import PUBLISHER_DOMAIN, BAD_CHAR_LIST, FINNPLUS_DOMAIN
-from app.models import User
+from app.constants import PUBLISHER_DOMAIN, BAD_CHAR_LIST, FINNPLUS_DOMAIN, PayOptions, MONTH_PRICE, SUBS_TIME, \
+    BUNDLE_SIZE
+from app.models import User, Publisher
 from app.db import db
 from passlib.hash import pbkdf2_sha256
 from app.constants import Role
@@ -47,6 +49,7 @@ def send_confirm_email(user):
     serializer = URLSafeSerializer('verification_salt')
     token = serializer.dumps(user.id)
     msg.body = f'Confirmation link: {FINNPLUS_DOMAIN}/activate/{token}'
+    print(f'{FINNPLUS_DOMAIN}/activate/{token}')
     mail.send(msg)
     return 'Email sent'
 
@@ -57,9 +60,33 @@ def send_password_reset_mail(user):
     token = serializer.dumps(user.id)
     msg = Message('Password reset', sender=sender, recipients=[user.email])
     msg.body = f'Password reset link: {FINNPLUS_DOMAIN}/reset/{token}'
+    print(f'{FINNPLUS_DOMAIN}/resetpw/{token}')
     mail.send(msg)
     return 'Email sent'
 
+
+def pay_handler(option, user, amount=None):
+    if option == PayOptions.MONTHLY:
+        analytics = Publisher.query.filter_by(name='All').first()
+        analytics.revenue += (MONTH_PRICE / 100)
+        if user.subscription_end is None:
+            user.subscription_end = date.today() + timedelta(days=SUBS_TIME)
+        elif user.subscription_end <= date.today():
+            user.subscription_end = date.today() + timedelta(days=SUBS_TIME)
+        else:
+            user.subscription_end += timedelta(days=SUBS_TIME)
+    elif option == PayOptions.PACKAGE:
+        user.prepaid_articles += BUNDLE_SIZE
+    elif option == PayOptions.SINGLE:
+        try:
+            amount = int(amount)
+        except Exception as e:
+            print(e)
+            amount = 0
+        user.tokens += amount
+    else:
+        return
+    db.session.commit()
 
 @bp.route('/signup', methods=['GET', 'POST'])
 def new_entry():
@@ -74,6 +101,12 @@ def new_entry():
         email = request.form.get('email')
         pw = request.form.get('password')
         pw_again = request.form.get('password')
+        option = request.form.get('pay-method', "-1")
+        if not option:
+            option = "-1"
+        option = PayOptions("-1")
+        amount = request.form.get('amount')
+
         try:
             validate_name(fn+ln)
             validate_email(email)
@@ -85,6 +118,7 @@ def new_entry():
             send_confirm_email(new_user)
             login_user(new_user)
             access_token = create_access_token(identity=new_user.id)
+            pay_handler(option, new_user, amount)
             return render_template('set_cookies.html', domain=PUBLISHER_DOMAIN, token=access_token,
                                    url_to=url_for('dashboard'))
         except Exception as e:
@@ -140,6 +174,11 @@ def forgotpw():
         if user and user.email_confirmed:
             send_password_reset_mail(user)
             return redirect(url_for('index'))
+        else:
+            if not user:
+                flash(f'Email {email} doesnt exists')
+            else:
+                flash(f'You need to confirm email: {email} first')
 
     return render_template('index.html')
 
@@ -163,7 +202,7 @@ def activate(token=None):
     except BadSignature:
         return 'Something went wrong'
 
-@bp.route('/reset/<token>', methods=['POST', 'GET'])
+@bp.route('/resetpw/<token>', methods=['POST', 'GET'])
 def reset(token=None):
     serializer = URLSafeSerializer('reset_salt')
     try:
@@ -173,12 +212,12 @@ def reset(token=None):
         return 'Something went wrong'
     if request.method == "POST":
         password = request.form.get('password')
-        password2 = request.form.get('password')
+        password2 = request.form.get('rPassword')
         if password == password2:
             user.password = pbkdf2_sha256.hash(password)
             db.session.commit()
         return redirect(url_for('auth.login'))
     form = PassResetForm()
-    return render_template('resetpassword.html',  form=form)
+    return render_template('index.html')
 
 
