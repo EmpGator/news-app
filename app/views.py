@@ -43,8 +43,11 @@ def get_article_data(article):
     art_data['read'] = False
     art_data['fav'] = False
     if current_user.is_authenticated:
-        if article in current_user.read_articles:
-            art_data['read'] = True
+        # TODO: comeup with better method
+        for art_lnk in current_user.read_articles:
+            if article == art_lnk.article:
+                art_data['read'] = True
+                break
         if article in current_user.fav_articles:
             art_data['fav'] = True
     return art_data
@@ -116,10 +119,10 @@ def dashboard():
     # Temp start
     name = current_user.first_name + ' ' + current_user.last_name
     email = current_user.email
-    bought = [i.url for i in current_user.articles]
+    bought = current_user.prepaid_articles
     end = str(current_user.subscription_end) if current_user.subscription_end else None
     paid = current_user.prepaid_articles
-    read = [{'title': i.name, 'link': i.url, 'accessed': '2019-06-22'} for i in current_user.read_articles][:-6:-1]
+    read = [{'title': i.article.name, 'link': i.article.url, 'accessed': str(i.day)} for i in current_user.read_articles][:-6:-1]
     user_data = {'name': name, 'email': email, 'bought': bought, 'end_date': end,
             'prepaid': paid, 'tokens': current_user.tokens, 'latestArticles': read}
     # Temp end
