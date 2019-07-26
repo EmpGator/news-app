@@ -10,10 +10,27 @@ Database models
 TODO: add read date to association table to show users when he read article
 """
 
-association_table = db.Table('association', db.metadata,
-                             db.Column('left_id', db.Integer, db.ForeignKey('users.id')),
-                             db.Column('right_id', db.Integer, db.ForeignKey('articles.id'))
-                             )
+user_bought_articles_table = db.Table('user_articles_bought_link', db.metadata,
+                                      db.Column('user_id', db.Integer, db.ForeignKey('users.id')),
+                                      db.Column('article_id', db.Integer, db.ForeignKey('articles.id'))
+                                      )
+
+user_read_articles_table = db.Table('user_articles_read_link', db.metadata,
+                                      db.Column('user_id', db.Integer, db.ForeignKey('users.id')),
+                                      db.Column('read_article_id', db.Integer, db.ForeignKey('read_articles.id'))
+                                      )
+
+user_fav_articles_table = db.Table('user_articles_favourited_link', db.metadata,
+                                      db.Column('user_id', db.Integer, db.ForeignKey('users.id')),
+                                      db.Column('article_id', db.Integer, db.ForeignKey('articles.id'))
+                                      )
+
+class ReadArticleLink(db.Model):
+    __tablename__ = 'read_articles'
+    id = db.Column(db.Integer, primary_key=True)
+    article_id = db.Column(db.Integer, db.ForeignKey('articles.id'))
+    article = db.relationship('Article', uselist=False)
+    day = db.Column(db.Date, nullable=False)
 
 
 class User(UserMixin, db.Model):
@@ -33,9 +50,9 @@ class User(UserMixin, db.Model):
     prepaid_articles = db.Column(db.Integer, default=0, nullable=False)
     tokens = db.Column(db.Integer, default=0, nullable=False)
     role = db.Column(db.Enum(Role))
-    articles = db.relationship('Article', secondary=association_table)
-    read_articles = db.relationship('Article', secondary=association_table)
-    fav_articles = db.relationship('Article', secondary=association_table)
+    articles = db.relationship('Article', secondary=user_bought_articles_table)
+    read_articles = db.relationship('ReadArticleLink', secondary=user_read_articles_table)
+    fav_articles = db.relationship('Article', secondary=user_fav_articles_table)
     publisher_id = db.Column(db.Integer, db.ForeignKey('publishers.id'))
     publisher = db.relationship('Publisher', back_populates="users")
 
@@ -58,38 +75,51 @@ class User(UserMixin, db.Model):
         return False
 
     def access_article(self, article):
-        # TODO: Change this to only check if user already has access to content
         print(f'Trying to access article\n{article}')
         if article in self.articles:
+            print('Access granted')
             return True
-        elif self.check_subscription():
-            return True
-        elif self.prepaid_articles > 0:
-            if self.pay_article('package_pay', article):
-                return True
+        print('Access denied')
         return False
 
+    def can_pay(self):
+        # TODO add optional price variable
+        PRICE = 1
+        if self.check_subscription():
+            return True
+        elif self.prepaid_articles > 0:
+            return True
+        elif self.tokens >= PRICE:
+            return True
+        return False
 
-    def pay_article(self, method, article):
-        # TODO: Change this to 1st attempt monthly payment then package and finally single
-        # Method then can be omitted
-        print(f'Pay article: \n Method: {method}\n {article}')
-        if method == 'single_pay' and self.tokens > 0:
-            if not article.new_paid_article(method):
+    def pay_article(self, article, price=1):
+        """
+
+        :param article:
+        :return:
+        """
+        print(f'Pay article: \n {article}')
+        if article in self.articles:
+            print('article has been paid already')
+            return True
+        if self.check_subscription():
+            if not article.new_paid_article('monthly_pay'):
+               return False
+        elif self.prepaid_articles > 0:
+            if not article.new_paid_article('package_pay'):
+                return False
+            self.articles.append(article)
+            self.prepaid_articles -= 1
+        else:
+            if not article.new_paid_article('single_pay'):
                 return False
             self.tokens -= 1
             self.articles.append(article)
-        elif method == 'package_pay' and self.prepaid_articles > 0:
-            if not article.new_paid_article(method):
-                return False
-            self.prepaid_articles -= 1
-            self.articles.append(article)
-        elif method == 'monthly_pay' and self.check_subscription():
-            if not article.new_paid_article(method):
-                return False
-        else:
-            return False
-        self.read_articles.append(article)
+
+        if article not in [i.article for i in  self.read_articles]:
+            article_link = ReadArticleLink(article=article, day=date.today())
+            self.read_articles.append(article_link)
         db.session.commit()
         return True
 
@@ -114,6 +144,7 @@ class Article(db.Model):
     single_pay = db.Column(db.Integer, nullable=False, default=0)
     publisher_id = db.Column(db.Integer, db.ForeignKey('publishers.id'))
     publisher = db.relationship('Publisher', back_populates="articles")
+
 
     def __repr__(self):
         return f'Article: {self.url} \n by: {self.publisher} \n date: {self.date} \n category: {self.category} \n description: {self.description}'
