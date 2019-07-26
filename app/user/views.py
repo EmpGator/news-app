@@ -20,11 +20,11 @@ def profile():
     """
     name = current_user.first_name + ' ' + current_user.last_name
     email = current_user.email
-    bought = [i.url for i in current_user.articles]
     end = str(current_user.subscription_end) if current_user.subscription_end else None
     paid = current_user.prepaid_articles
-    data = {'name': name, 'email': email, 'bought': bought, 'end_date': end,
-            'prepaid': paid, 'tokens': current_user.tokens}
+    latest = [{'title': i.article.name, 'link': i.article.url, 'accessed': str(i.day)} for i in current_user.read_articles]
+    data = {'name': name, 'email': email, 'end_date': end,
+            'prepaid': paid, 'tokens': current_user.tokens, 'latestArticles': latest}
     data = json.dumps(data)
     return render_template('index.html', data=data)
 
@@ -37,7 +37,7 @@ def edit():
 
     :return:
     """
-    first_name = request.form.get('first_name')
+    first_name = request.form.get('firstName')
     last_name = request.form.get('last_name')
     email = request.form.get('email')
     password = request.form.get('password')
@@ -56,6 +56,7 @@ def edit():
         if password:
             pw_hash = validate_and_hash_password(password, pw_again)
             current_user.password = pw_hash
+        db.session.commit()
     except Exception as e:
         print(e)
     return redirect(url_for('index'))
@@ -66,7 +67,7 @@ def payment():
     return render_template('index.html')
 
 
-@bp.route('/api/favtoggle', methods=['POST'])
+@bp.route('/favtoggle', methods=['POST'])
 @csrf.exempt
 @login_required
 def favtoggle():
@@ -76,11 +77,30 @@ def favtoggle():
         print('not ok')
         return jsonify(['ei ok'])
     article = Article.query.filter_by(url=data.get('url')).first()
+    print('\n'*3)
     if article in current_user.fav_articles:
+        print(f'Removing \n{article} \nfrom \n{current_user} \nFavourites')
+        print('\n' * 3)
+        print('Favourites before: ')
+        print(current_user.fav_articles)
+        print('\n' * 3)
         current_user.fav_articles.remove(article)
-        return jsonify(['ok'])
+        print('\n' * 3)
+        print('Favourites after:')
+        print(current_user.fav_articles)
+        print('\n' * 3)
     elif article:
+        print(f'Adding \n{article} \nto \n{current_user} \nFavourites')
+        print('\n' * 3)
+        print('Favourites before: ')
+        print(current_user.fav_articles)
+        print('\n' * 3)
         current_user.fav_articles.append(article)
+        print('\n' * 3)
+        print('Favourites after:')
+        print(current_user.fav_articles)
+        print('\n' * 3)
+    print('\n' * 3)
     if article:
         db.session.commit()
     return jsonify(['ok'])
