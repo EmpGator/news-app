@@ -336,12 +336,14 @@ class PayArticle(Resource):
         args = pay_req_parser.parse_args()
         price = args.get('article_price')
         article = get_article_from_args(args)
-        data = get_user_info(user)
-        data['payment_successful'] = True
+
         if article and user.pay_article(article, price=price):
+            data = get_user_info(user)
             data['access'] = True
             data['payment_successful'] = True
-
+        else:
+            data = get_user_info(user)
+            data['payment_successful'] = False
         return jsonify(data)
 
 
