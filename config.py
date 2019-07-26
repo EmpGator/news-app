@@ -7,7 +7,7 @@ class Config:
 
     # General Config
     TESTING = False
-    DEBUG = True
+    DEBUG = False
     SECRET_KEY = os.environ.get('SECRET_KEY')
     SESSION_COOKIE_NAME = os.environ.get('SESSION_COOKIE_NAME')
 

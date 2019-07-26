@@ -101,10 +101,8 @@ def new_entry():
         email = request.form.get('email')
         pw = request.form.get('password')
         pw_again = request.form.get('password')
-        option = request.form.get('pay-method', "-1")
-        if not option:
-            option = "-1"
-        option = PayOptions("-1")
+        option = request.form.get('pay-method', "")
+        option = PayOptions(option)
         amount = request.form.get('amount')
 
         try:
@@ -115,7 +113,10 @@ def new_entry():
             new_user = User(first_name=fn, last_name=ln, email=email, password=pw_hash, role=Role.USER)
             db.session.add(new_user)
             db.session.commit()
-            send_confirm_email(new_user)
+            try:
+                send_confirm_email(new_user)
+            except Exception as e:
+                print(e)
             login_user(new_user)
             access_token = create_access_token(identity=new_user.id)
             pay_handler(option, new_user, amount)
@@ -139,7 +140,6 @@ def login():
         return redirect(url_for('dashboard'))
 
     if request.method == 'POST':
-        print(request.form)
         email = request.form.get('email')
         user = User.query.filter_by(email=email).first()
         if user is not None and pbkdf2_sha256.verify(request.form.get('password'), user.password):
@@ -172,7 +172,10 @@ def forgotpw():
         email = request.form.get('email')
         user = User.query.filter_by(email=email).first()
         if user and user.email_confirmed:
-            send_password_reset_mail(user)
+            try:
+                send_password_reset_mail(user)
+            except Exception as e:
+                print(e)
             return redirect(url_for('index'))
         else:
             if not user:
@@ -181,13 +184,6 @@ def forgotpw():
                 flash(f'You need to confirm email: {email} first')
 
     return render_template('index.html')
-
-
-
-@bp.route('/resend')
-@login_required
-def resend():
-    return send_confirm_email(current_user)
 
 
 @bp.route('/activate/<token>')
