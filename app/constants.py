@@ -54,9 +54,9 @@ class PayOptions(Enum):
 
     """
     NULL = ""
-    MONTHLY = "1"
-    PACKAGE = "2"
-    SINGLE = "3"
+    MONTHLY = "0"
+    PACKAGE = "1"
+    SINGLE = "2"
 
 class Category(Enum):
     POLITICS = 'politics'
