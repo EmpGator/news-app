@@ -102,9 +102,7 @@ def new_entry():
         pw = request.form.get('password')
         pw_again = request.form.get('password')
         option = request.form.get('pay-method', "-1")
-        if not option:
-            option = "-1"
-        option = PayOptions("-1")
+        option = PayOptions(option)
         amount = request.form.get('amount')
 
         try:

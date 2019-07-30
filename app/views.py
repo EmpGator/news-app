@@ -10,7 +10,7 @@ import feedparser
 import json
 
 
-def get_articles():
+def get_articles(publishers=None, categories=None):
     """
     Fetches articles from database and adds them obj that is rendered then in frontpage
 
@@ -18,7 +18,16 @@ def get_articles():
 
     """
     data = {'MrData': [], 'TrData': [], 'LtData': []}
-    articles = Article.query.filter(Article.image.isnot(None))
+    if publishers and categories:
+        articles = Article.query.filter(Article.publisher.in_(publishers),
+                                        Article.category.in_(categories))
+    elif publishers:
+        articles = Article.query.filter(Article.publisher.in_(publishers))
+    elif categories:
+        articles = Article.query.filter(Article.category.in_(categories))
+    else:
+        articles = Article.query.filter(Article.image.isnot(None))
+
     for i, entry in enumerate(articles):
         art_data = get_article_data(entry)
         if i < 6:
@@ -31,6 +40,23 @@ def get_articles():
             break
     return data
 
+def get_articles2(publishers=None, categories=None):
+    """
+    Fetches articles from database and adds them obj that is rendered then in frontpage
+
+    :return: article data in python dictionary
+
+    """
+    data = []
+    for cat in Category:
+        articles = Article.query.filter(Article.category == cat)
+        art_data_lst = []
+        for i, entry in enumerate(articles):
+            art_data = get_article_data(entry)
+            art_data_lst.append(art_data)
+        headline = cat.value
+        data.append(dict(name=headline, content=art_data_lst))
+    print(json.dumps(data))
 
 def get_article_data(article):
     """
@@ -43,11 +69,9 @@ def get_article_data(article):
     art_data['read'] = False
     art_data['fav'] = False
     if current_user.is_authenticated:
-        # TODO: comeup with better method
-        for art_lnk in current_user.read_articles:
-            if article == art_lnk.article:
-                art_data['read'] = True
-                break
+
+        if any(article == i.article for i in current_user.read_articles):
+            art_data['read'] = True
         if article in current_user.fav_articles:
             art_data['fav'] = True
     return art_data
@@ -58,6 +82,7 @@ def fetch_articles():
     """
     Fetches articles from rss feed
     TODO: make this background task to be executed one in a while
+
 
     :return: Response: OK, 200
     """
@@ -112,6 +137,7 @@ def dashboard():
 
     :return: index.html with article data
     """
+    get_articles2()
     if current_user.role == Role.PUBLISHER:
         return redirect(url_for('publisher.analytics'))
 

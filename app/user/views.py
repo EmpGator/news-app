@@ -1,11 +1,23 @@
-from flask import Blueprint, render_template, url_for, redirect, request, jsonify
+from datetime import date, timedelta
+
+from flask import Blueprint, render_template, url_for, redirect, request, jsonify, flash
 from flask_login import current_user, login_required
 import json
 
 from app import db
+from app.constants import PayOptions, MONTH_PRICE, SUBS_TIME, BUNDLE_SIZE
 from app.csrf import csrf
 from app.auth.views import validate_email, validate_name, validate_and_hash_password
-from app.models import Article
+from app.models import Article, Publisher
+
+"""
+Handles user specific views
+
+TODO: add support for account deletion
+    One possible way to do this is:
+        when user has confirmed email, send delete account confirmation link to email
+        if user hasnt confirmed email allow deletion trough edit form without confirmation link 
+"""
 
 bp = Blueprint('user', __name__)
 
@@ -42,6 +54,7 @@ def edit():
     email = request.form.get('email')
     password = request.form.get('password')
     pw_again = request.form.get('password')
+    prof_pic = request.files.get('profile_picture')
 
     try:
         if first_name:
@@ -67,6 +80,21 @@ def payment():
     return render_template('index.html')
 
 
+@bp.route('/delete')
+@bp.route('/delete/<token>')
+def delete_account(token=None):
+    if current_user.is_authenticated() and not current_user.email_confirmed:
+        current_user.delete()
+    elif token:
+        pass
+    else:
+        if request.referrer:
+            return redirect(url_for(request.referrer))
+        return redirect(url_for('dashboard'))
+    db.session.commit()
+    return redirect(url_for('index'))
+
+
 @bp.route('/favtoggle', methods=['POST'])
 @csrf.exempt
 @login_required
@@ -77,30 +105,47 @@ def favtoggle():
         print('not ok')
         return jsonify(['ei ok'])
     article = Article.query.filter_by(url=data.get('url')).first()
-    print('\n'*3)
     if article in current_user.fav_articles:
-        print(f'Removing \n{article} \nfrom \n{current_user} \nFavourites')
-        print('\n' * 3)
-        print('Favourites before: ')
-        print(current_user.fav_articles)
-        print('\n' * 3)
         current_user.fav_articles.remove(article)
-        print('\n' * 3)
-        print('Favourites after:')
-        print(current_user.fav_articles)
-        print('\n' * 3)
     elif article:
-        print(f'Adding \n{article} \nto \n{current_user} \nFavourites')
-        print('\n' * 3)
-        print('Favourites before: ')
-        print(current_user.fav_articles)
-        print('\n' * 3)
         current_user.fav_articles.append(article)
-        print('\n' * 3)
-        print('Favourites after:')
-        print(current_user.fav_articles)
-        print('\n' * 3)
-    print('\n' * 3)
+
     if article:
         db.session.commit()
     return jsonify(['ok'])
+
+@bp.route('/topup')
+@login_required
+def TopUp(self):
+    """
+    Handles POST request
+    Checks chosen package and if amount was given. Adds information to user object
+    :return: Redirect to index page
+    """
+    print(request.form)
+    option = PayOptions(request.form.get('pay-method', "0"))
+    if option == PayOptions.MONTHLY:
+        analytics = Publisher.query.filter_by(name='All').first()
+        analytics.revenue += (MONTH_PRICE / 100)
+        if current_user.subscription_end is None:
+            current_user.subscription_end = date.today() + timedelta(days=SUBS_TIME)
+        elif current_user.subscription_end <= date.today():
+            current_user.subscription_end = date.today() + timedelta(days=SUBS_TIME)
+        else:
+            current_user.subscription_end += timedelta(days=SUBS_TIME)
+        db.session.commit()
+    elif option == PayOptions.PACKAGE:
+        current_user.prepaid_articles += BUNDLE_SIZE
+        db.session.commit()
+    elif option == PayOptions.SINGLE:
+        amount = request.form.get('amount')
+        try:
+            amount = int(amount)
+        except Exception as e:
+            print(e)
+            amount = 0
+        current_user.tokens += amount
+        db.session.commit()
+    else:
+        flash('something went wrong processing payment')
+    return redirect(url_for('index'))

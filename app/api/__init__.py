@@ -117,80 +117,6 @@ def get_article_from_args(args):
     return article
 
 
-
-
-class OldUserdata(Resource):
-    """
-    Handles user access data to give url
-
-    """
-    @jwt_required
-    def post(self):
-        """
-        Handles post request
-
-        :return: Json formatted data with {"access": bool} format
-        """
-        uid = get_jwt_identity()
-        current_user = User.query.get(int(uid))
-        args = u_data_req_parser.parse_args()
-        url = args.get('url')
-        article = get_article(url)
-        analytics = Publisher.query.filter_by(name='All').first()
-        if any(url == x.url for x in current_user.articles):
-            return jsonify({'access': True})
-        elif current_user.subscription_end is not None:
-            if current_user.subscription_end >= date.today():
-                if article not in current_user.read_articles:
-                    # TODO: change this to current_user.read_articles.append(article_link)
-                    current_user.read_articles.append(article)
-                    article.hits += 1
-                    article.monthly_pay += 1
-                    article.publisher.monthly_pay += 1
-                    analytics.monthly_pay += 1
-                    db.session.commit()
-                return jsonify({'access': True})
-            else:
-                current_user.subscription_end = None
-                db.session.commit()
-        elif current_user.prepaid_articles > 0:
-            current_user.prepaid_articles -= 1
-            article.hits += 1
-            article.package_pay += 1
-            article.publisher.package_pay += 1
-            article.publisher.revenue += 1
-            analytics.revenue += 1
-            analytics.package_pay += 1
-            current_user.articles.append(article)
-            db.session.commit()
-            return jsonify({'access': True})
-        return jsonify({'access': False})
-
-
-class OldPaidArticle(Resource):
-    """
-    Handles token payment POST requests from publishers
-    TODO: make this handle all payment methods
-    """
-    @jwt_optional
-    def post(self):
-        """
-        Handles post request
-
-        possible optimization: add access and user information to response as well
-
-        :return: Response object with text OK or Not enough Tokens
-        """
-        user = get_authenticated_user(current_user)
-        if not user:
-            return make_response('Bad username or password', 403)
-        args = pay_req_parser.parse_args()
-        article = get_article(args['url'])
-        if user.pay_article('single_pay', article):
-            return make_response('Ok', 200)
-        return make_response('Not enough tokens', 200)
-
-
 class UserInfo(Resource):
     """
     Test for unified endpoint for article pay, user info and accessdata
@@ -336,7 +262,6 @@ class PayArticle(Resource):
         args = pay_req_parser.parse_args()
         price = args.get('article_price')
         article = get_article_from_args(args)
-
         if article and user.pay_article(article, price=price):
             data = get_user_info(user)
             data['access'] = True
@@ -357,7 +282,6 @@ class TopUp(Resource):
         """
         Handles POST request
         Checks chosen package and if amount was given. Adds information to user object
-        TODO: move this to user module
         :return: Redirect to index page
         """
         print(request.form)
@@ -388,42 +312,8 @@ class TopUp(Resource):
             flash('something went wrong processing payment')
         return redirect(url_for('index'))
 
-
-class OldUserinfo(Resource):
-    """
-    Class that sends relevant information of user
-    """
-    @jwt_optional
-    def post(self):
-        """
-        Sends relevant user info
-
-        :return: json formatted userdata
-        """
-        local_user = current_user
-        if not local_user.is_authenticated:
-            uid = get_jwt_identity()
-            if uid:
-                local_user = User.query.get(int(uid))
-            else:
-                return jsonify([])
-        if local_user.subscription_end:
-            pay = 'monthly subscription'
-            value = f'valid until {local_user.subscription_end}'
-        elif local_user.prepaid_articles:
-            pay = 'Package'
-            value = f'{local_user.prepaid_articles} articles left'
-        else:
-            pay = 'Single payments'
-            value = f'{local_user.tokens} tokens left'
-        data = {'name': local_user.first_name, 'payment_type': pay, 'value': value}
-        return jsonify(data)
-
-api.add_resource(OldUserdata, '/api/userdata')
-api.add_resource(OldPaidArticle, '/api/articlepaid')
-api.add_resource(OldUserinfo, '/api/olduserinfo')
 # above routes should be obsolette
-api.add_resource(TopUp, '/topup')
+api.add_resource(TopUp, '/api/topup')
 # Above should be moved
 api.add_resource(PayArticle, '/api/payarticle')
 api.add_resource(UserInfo, '/api/userinfo')

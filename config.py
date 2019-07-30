@@ -6,10 +6,14 @@ class Config:
     """Set Flask configuration vars."""
 
     # General Config
-    TESTING = False
+    TESTING = True
     DEBUG = True
     SECRET_KEY = os.environ.get('SECRET_KEY')
     SESSION_COOKIE_NAME = os.environ.get('SESSION_COOKIE_NAME')
+
+    # Upload options
+    UPLOAD_FOLDER = os.path.join('..', 'instance')
+    ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
     # Database
     SQLALCHEMY_TRACK_MODIFICATIONS = False

@@ -36,6 +36,10 @@ class ReadArticleLink(db.Model):
 class User(UserMixin, db.Model):
     """
     User account database model
+    TODO: Consider moving read_articles to _read_articles and add property function that gets
+        art_lnks and merges values to single list of article objects with added date field. Setter
+        would then be very simple list that gets given article and makes new art_lnk object out of it
+    TODO: User profile picture
     """
 
     __tablename__ = 'users'
@@ -82,14 +86,12 @@ class User(UserMixin, db.Model):
         print('Access denied')
         return False
 
-    def can_pay(self):
-        # TODO add optional price variable
-        PRICE = 1
+    def can_pay(self, price=1):
         if self.check_subscription():
             return True
         elif self.prepaid_articles > 0:
             return True
-        elif self.tokens >= PRICE:
+        elif self.tokens >= price:
             return True
         return False
 
@@ -203,10 +205,11 @@ class Publisher(db.Model):
 def init_publishers():
     """
     This function creates publisher user accounts and adds to db
-
+    TODO: make article default images with url_for (instead of os.path.join
     :return: None
     """
     from os import path
+
     names = [('Helsingin sanomat', f'{PUBLISHER_DOMAIN}/hs', path.join('static', 'media', 'Helsinginsanomat.7df10021.svg')),
              ('Turun sanomat', f'{PUBLISHER_DOMAIN}/ts', path.join('static', 'media', 'Turunsanomat.2b59c2f8.svg')),
              ('Savon sanomat', f'{PUBLISHER_DOMAIN}/ss', path.join('static', 'media', 'savonsanomat.d8cb55d7.svg')),

@@ -54,6 +54,7 @@ class PayOptions(Enum):
 
     """
     NULL = ""
+    NON = "-1"
     MONTHLY = "0"
     PACKAGE = "1"
     SINGLE = "2"
