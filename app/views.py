@@ -89,7 +89,10 @@ def fetch_articles():
     url_list = [f'http://{PUBLISHER_DOMAIN}/{i}/rss' for i in ['ts', 'hs', 'ks', 'kl', 'ss']]
     for src in url_list:
         feed = feedparser.parse(src)
-        url = feed.feed.link.replace('http://', '')
+        try:
+            url = feed.feed.link.replace('http://', '')
+        except:
+            return make_response(f'{feed}\n{src}')
         author = Publisher.query.filter_by(url=url).first()
         if author:
             for i, entry in enumerate(feed.entries):
