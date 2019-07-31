@@ -5,11 +5,10 @@ import os
 Contains constant parameters for app
 """
 
-FINNPLUS_DOMAIN = 'http://127.0.0.1:5000'
+
 FINNPLUS_DOMAIN = os.environ.get('FINNPLUS_DOMAIN')
 # in future this should be list of domains
 # PUBLISHER_DOMAIN = 'tridample.eu.pythonanywhere.com'
-PUBLISHER_DOMAIN = '127.0.0.1:8000'
 PUBLISHER_DOMAIN = os.environ.get('PUBLISHER_DOMAIN')
 print(PUBLISHER_DOMAIN)
 # amount of days subscription lasts
