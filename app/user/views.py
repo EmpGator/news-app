@@ -35,13 +35,14 @@ def profile():
     end = str(current_user.subscription_end) if current_user.subscription_end else None
     paid = current_user.prepaid_articles
     latest = [{'title': i.article.name, 'link': i.article.url, 'accessed': str(i.day)} for i in current_user.read_articles]
-    data = {'name': name, 'email': email, 'end_date': end,
-            'prepaid': paid, 'tokens': current_user.tokens, 'latestArticles': latest}
-    data = json.dumps(data)
+    favs = [{'title': i.name, 'link': i.url} for i in current_user.fav_articles]
+    data = {'name': name, 'email': email, 'end_date': end, 'favoriteArticles': favs,
+            'prepaid': paid, 'tokens': current_user.tokens, 'latestArticles': latest[::-1]}
+    data = json.dumps({'user': data})
     return render_template('index.html', data=data)
 
 
-@bp.route('/edit', methods=['POST'])
+@bp.route('/profileedit', methods=['GET', 'POST'])
 @login_required
 def edit():
     """
@@ -49,12 +50,24 @@ def edit():
 
     :return:
     """
+    if request.method != 'POST':
+        return render_template('index.html')
     first_name = request.form.get('firstName')
-    last_name = request.form.get('last_name')
+    last_name = request.form.get('lastName')
     email = request.form.get('email')
     password = request.form.get('password')
-    pw_again = request.form.get('password')
-    prof_pic = request.files.get('profile_picture')
+    pw_again = request.form.get('rPassword')
+    prof_pic = request.files.get('prof_pic')
+    print(request.values)
+    print(request.form)
+    print(request.data)
+    print(request.json)
+    print(request.args)
+    print(request.files)
+    try:
+        info, prof_pic = prof_pic.split(',')
+    except:
+        pass
 
     try:
         if first_name:
@@ -114,9 +127,9 @@ def favtoggle():
         db.session.commit()
     return jsonify(['ok'])
 
-@bp.route('/topup')
+@bp.route('/topup', methods=['POST'])
 @login_required
-def TopUp(self):
+def TopUp():
     """
     Handles POST request
     Checks chosen package and if amount was given. Adds information to user object

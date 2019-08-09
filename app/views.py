@@ -1,10 +1,14 @@
 from datetime import datetime, date
+from time import time
+
 from flask import render_template, redirect, url_for, request, make_response
 from flask import current_app as app
 from flask_jwt_extended import create_access_token
 from flask_login import login_required, current_user
+from werkzeug.useragents import UserAgent
+
 from app.constants import PUBLISHER_DOMAIN, Role, Category
-from app.models import Article, Publisher
+from app.models import Article, Publisher, Analytics
 from app.db import db
 import feedparser
 import json
@@ -55,8 +59,8 @@ def get_articles2(publishers=None, categories=None):
             art_data = get_article_data(entry)
             art_data_lst.append(art_data)
         headline = cat.value
-        data.append(dict(name=headline, content=art_data_lst))
-    print(json.dumps(data))
+        data.append(dict(name=headline.title(), content=art_data_lst))
+    return data
 
 def get_article_data(article):
     """
@@ -126,10 +130,10 @@ def index():
 
     :return: index.html with article data
     """
+
     if current_user.is_authenticated:
         return redirect(url_for('dashboard'))
-    data = get_articles()
-    return render_template('index.html', data=data)
+    return render_template('index.html')
 
 
 @app.route('/dashboard')
@@ -140,22 +144,23 @@ def dashboard():
 
     :return: index.html with article data
     """
-    get_articles2()
+    art_data = get_articles2()
     if current_user.role == Role.PUBLISHER:
         return redirect(url_for('publisher.analytics'))
 
-    art_data = get_articles()
-    # Temp start
+
     name = current_user.first_name + ' ' + current_user.last_name
     email = current_user.email
     bought = current_user.prepaid_articles
     end = str(current_user.subscription_end) if current_user.subscription_end else None
     paid = current_user.prepaid_articles
-    read = [{'title': i.article.name, 'link': i.article.url, 'accessed': str(i.day)} for i in current_user.read_articles][:-6:-1]
-    user_data = {'name': name, 'email': email, 'bought': bought, 'end_date': end,
-            'prepaid': paid, 'tokens': current_user.tokens, 'latestArticles': read}
-    # Temp end
-    data = {**art_data, **user_data}
+    read = [{'title': i.article.name, 'link': i.article.url, 'accessed': str(i.day)}
+            for i in current_user.read_articles][:-6:-1]
+    favs = [{'title': i.name, 'link': i.url} for i in current_user.fav_articles][:-6:-1]
+    user_data = {'name': name, 'email': email, 'bought': bought, 'end_date': end, 'favoriteArticles': favs,
+                'prepaid': paid, 'tokens': current_user.tokens, 'latestArticles': read}
+
+    data = {'articles': art_data, 'user': user_data}
     data = json.dumps(data)
     return render_template('index.html', data=data)
 
@@ -171,6 +176,25 @@ def setcookie():
     jwt = create_access_token(identity=current_user.id)
     resp = make_response(f'<img src="http://{PUBLISHER_DOMAIN}/setcookie/{jwt}" >', 200)
     return resp
+
+
+@app.route('/a')
+def analytics():
+    print('\n'*3)
+    print('analytics view\n')
+    ua = UserAgent(request.headers.get('User-Agent'))
+    os = ua.platform
+    browser = ua.browser + ' ' + ua.version
+    lat = request.args.get('lat')
+    lon = request.args.get('lon')
+    dev = request.args.get('dev')
+    dur = request.args.get('dur')
+    seconds = request.args.get('time')
+    t = datetime.fromtimestamp(int(seconds) / 1e3).time()
+    db.session.add(Analytics(device=dev, os=os, browser=browser, duration=dur, traffic=t,
+                             lat=lat, lon=lon))
+    db.session.commit()
+    return make_response('ok')
 
 
 @app.route('/<site>')

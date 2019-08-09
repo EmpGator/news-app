@@ -1,12 +1,23 @@
 import json
+import math
+from collections import Counter
+from pprint import PrettyPrinter
+from statistics import mean
 
 from flask import Blueprint, render_template, url_for, redirect
 from flask_login import current_user, login_required
-from app.models import Publisher
+from app.models import Publisher, Analytics
 from operator import attrgetter
 from app.constants import Role
 
 bp = Blueprint('publisher', __name__)
+
+
+def dict_counter(attr, dictr):
+    if attr in dictr:
+        dictr[attr] += 1
+    else:
+        dictr[attr] = 1
 
 
 @bp.route('/analytics')
@@ -14,9 +25,11 @@ bp = Blueprint('publisher', __name__)
 def analytics():
     """
     Fetches publisher relevant information to render on analytics page
+    TODO: add new analytics data to object
 
     :return: Publisher analytics view
     """
+
     if current_user.role == Role.USER:
         return redirect(url_for('dashboard'))
 
@@ -24,10 +37,55 @@ def analytics():
     revenue = get_percent_of_total_revenue(publisher)
     payment_percent = get_payment_percentages(publisher)
     articles = get_top_articles(publisher)
-    data = {'name': publisher.name, 'revenue': revenue, 'payment_percent': payment_percent,
-            'articles': articles}
+    anal = get_analytics_data()
+    data = {'name': publisher.name, 'percent_of_total_revenue': revenue, 'payment_percent': payment_percent,
+            'top_articles': articles, **anal}
+
+    pp = PrettyPrinter(indent=4)
+    pp.pprint(data)
     data = json.dumps(data)
     return render_template('index.html', data=data)
+
+
+def get_analytics_data():
+    devices = {}
+    os = {}
+    locations = {}
+    traffics = {}
+    durations = {}
+    browsers = {}
+
+
+    analytics = Analytics.query.all()
+    total_dur = 0
+    for a in analytics:
+        dict_counter(a.device, devices)
+        dict_counter(a.os, os)
+        dict_counter(a.traffic.hour, traffics)
+        dur = math.ceil(a.duration / 60)
+        total_dur += dur
+        dict_counter(dur, durations)
+        dict_counter(a.browser, browsers)
+
+    avg_dur = int(round(total_dur / len(analytics)))
+    max_dur = max(durations.keys())
+    min_dur = min(durations.keys())
+    min_traf = min(traffics, key=traffics.get)
+    max_traf = max(traffics, key=traffics.get)
+
+    devices = [{'name': i, 'amount': devices[i]} for i in devices]
+    os = [{'name': i, 'amount': os[i]} for i in os]
+    locations = []
+    categories = []
+    browsers = [{'name': i, 'amount': browsers[i]} for i in browsers]
+    # TODO: make loops from similar list comprehensions
+    traffics = [{'time': i, 'amount': traffics[i]} for i in traffics]
+    durations = [{'time': i, 'amount': durations[i]} for i in durations]
+    data = {'categories': categories, 'devices': devices, 'location': locations, 'browser': browsers,
+            'os': os, 'duration_chart': durations, 'traffic_chart': traffics,
+            'average_duration': avg_dur, 'min_duration': min_dur, 'max_duration': max_dur,
+            'min_traffic': min_traf, 'max_traffic': max_traf}
+    return data
 
 
 def get_top_articles(publisher):
@@ -40,10 +98,11 @@ def get_top_articles(publisher):
 
     """
     MAX_ARTICLES = 4
-    articles = [{'name': i.url, 'hits': i.hits} for i in sorted(publisher.articles, reverse=True,
+    art = {'title': None, 'link': None, 'total_reads': 0, 'monthly_percent': 0, 'package_percent': 0, 'single_percent': 0}
+    articles = [i.art_analytics_data() for i in sorted(publisher.articles, reverse=True,
                                                                 key=attrgetter('hits'))[:MAX_ARTICLES] if i.hits]
     while len(articles) < MAX_ARTICLES:
-        articles.append({'name': None, 'hits': 0})
+        articles.append(art)
     return articles
 
 
@@ -75,8 +134,6 @@ def get_percent_of_total_revenue(publisher):
     from app import db
     from sqlalchemy.sql import func
     qry = db.session.query(func.sum(Publisher.revenue).label('total_revenue'))
-    for res in qry.all():
-        print(res)
     total = Publisher.query.filter_by(name='All').first()
     total_monthly_rev = total.revenue - total.single_pay - total.package_pay
     # total monthly revenue is needed to calculate how much revenue one monthly access has generated

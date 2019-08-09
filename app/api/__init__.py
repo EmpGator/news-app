@@ -10,13 +10,6 @@ from app.constants import *
 import requests
 import time
 
-u_data_req_parser = RequestParser(bundle_errors=True)
-u_data_req_parser.add_argument("url", required=True)
-
-token_req_parser = RequestParser(bundle_errors=True)
-token_req_parser.add_argument('amount', required=True)
-
-# above should be obsolette
 
 pay_req_parser = RequestParser(bundle_errors=True)
 pay_req_parser.add_argument('url', required=True)
@@ -51,6 +44,7 @@ def get_article(url, domain=None, art_name='', art_date=date.today(), art_desc='
     """
     article = Article.query.filter_by(url=url).first()
     if not article:
+        # TODO: add publisher with given domain if publisher doesnt yet exist
         publisher = Publisher.query.filter_by(url=domain).first()
         if not publisher:
             publisher = Publisher.query.filter_by(name='mock').first()
@@ -129,7 +123,7 @@ class UserInfo(Resource):
         if user has access given article or not.
 
         request body can be left empty or can contain all relevant article information. If given
-        article info, new article will be made and added to database and. Example request bodies:
+        article info, new article will be made and added to database. Example request bodies:
 
 
         Request:
@@ -262,7 +256,7 @@ class PayArticle(Resource):
         args = pay_req_parser.parse_args()
         price = args.get('article_price')
         article = get_article_from_args(args)
-        if article and user.pay_article(article, price=price):
+        if article and user.can_pay() and user.pay_article(article, price=price):
             data = get_user_info(user)
             data['access'] = True
             data['payment_successful'] = True

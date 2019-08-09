@@ -16,14 +16,15 @@ user_bought_articles_table = db.Table('user_articles_bought_link', db.metadata,
                                       )
 
 user_read_articles_table = db.Table('user_articles_read_link', db.metadata,
-                                      db.Column('user_id', db.Integer, db.ForeignKey('users.id')),
-                                      db.Column('read_article_id', db.Integer, db.ForeignKey('read_articles.id'))
-                                      )
+                                    db.Column('user_id', db.Integer, db.ForeignKey('users.id')),
+                                    db.Column('read_article_id', db.Integer, db.ForeignKey('read_articles.id'))
+                                    )
 
 user_fav_articles_table = db.Table('user_articles_favourited_link', db.metadata,
-                                      db.Column('user_id', db.Integer, db.ForeignKey('users.id')),
-                                      db.Column('article_id', db.Integer, db.ForeignKey('articles.id'))
-                                      )
+                                   db.Column('user_id', db.Integer, db.ForeignKey('users.id')),
+                                   db.Column('article_id', db.Integer, db.ForeignKey('articles.id'))
+                                   )
+
 
 class ReadArticleLink(db.Model):
     __tablename__ = 'read_articles'
@@ -40,6 +41,7 @@ class User(UserMixin, db.Model):
         art_lnks and merges values to single list of article objects with added date field. Setter
         would then be very simple list that gets given article and makes new art_lnk object out of it
     TODO: User profile picture
+    TODO: add user creation date/new user flag
     """
 
     __tablename__ = 'users'
@@ -79,7 +81,7 @@ class User(UserMixin, db.Model):
         return False
 
     def access_article(self, article):
-        print(f'Trying to access article\n{article}')
+        print(f'Trying to access article\n {article}')
         if article in self.articles:
             print('Access granted')
             return True
@@ -88,11 +90,15 @@ class User(UserMixin, db.Model):
 
     def can_pay(self, price=1):
         if self.check_subscription():
+            print('User can pay because of monthly subscription')
             return True
         elif self.prepaid_articles > 0:
+            print('User can pay because of prepaid articles')
             return True
         elif self.tokens >= price:
+            print('User can pay because of singlepayment tokens')
             return True
+        print("User can't pay article")
         return False
 
     def pay_article(self, article, price=1):
@@ -101,13 +107,13 @@ class User(UserMixin, db.Model):
         :param article:
         :return:
         """
-        print(f'Pay article: \n {article}')
+        print(f'Pay article: \n {article}\n Price: {price}')
         if article in self.articles:
             print('article has been paid already')
             return True
         if self.check_subscription():
             if not article.new_paid_article('monthly_pay'):
-               return False
+                return False
         elif self.prepaid_articles > 0:
             if not article.new_paid_article('package_pay'):
                 return False
@@ -119,7 +125,7 @@ class User(UserMixin, db.Model):
             self.tokens -= 1
             self.articles.append(article)
 
-        if article not in [i.article for i in  self.read_articles]:
+        if article not in [i.article for i in self.read_articles]:
             article_link = ReadArticleLink(article=article, day=date.today())
             self.read_articles.append(article_link)
         db.session.commit()
@@ -138,7 +144,7 @@ class Article(db.Model):
     date = db.Column(db.Date)
     category = db.Column(db.Enum(Category))
     image = db.Column(db.String(2000))
-    description  = db.Column(db.String(3000))
+    description = db.Column(db.String(3000))
     url = db.Column(db.String(2000), unique=True, nullable=False)
     hits = db.Column(db.Integer, nullable=False, default=0)
     monthly_pay = db.Column(db.Integer, nullable=False, default=0)
@@ -147,9 +153,8 @@ class Article(db.Model):
     publisher_id = db.Column(db.Integer, db.ForeignKey('publishers.id'))
     publisher = db.relationship('Publisher', back_populates="articles")
 
-
     def __repr__(self):
-        return f'Article: {self.url} \n by: {self.publisher} \n date: {self.date} \n category: {self.category} \n description: {self.description}'
+        return f'Article: {self.url} \n {self.publisher} \n Date: {self.date} \n Category: {self.category} \n Description: {self.description}'
 
     def get_data_dict(self):
         """
@@ -171,10 +176,20 @@ class Article(db.Model):
         except AttributeError:
             print(f'Article has no attribute {method}')
 
+    def art_analytics_data(self):
+        return {
+            'title': self.name,
+            'link': self.url,
+            'total_reads': self.hits,
+            'monthly_percent': round(self.monthly_pay/self.hits*100, 1),
+            'package_percent': round(self.package_pay/self.hits*100, 1),
+            'single_percent': round(self.single_pay/self.hits*100, 1)
+        }
+
 
 class Publisher(db.Model):
     """
-    Model to store analytics for publishers
+    Model to store publishers data
     """
     __tablename__ = 'publishers'
 
@@ -202,6 +217,25 @@ class Publisher(db.Model):
             print(f'Publisher has no attribute {method}')
 
 
+class Analytics(db.Model):
+    """
+    Model to store common analytics data
+    """
+    __tablename__ = 'analytics'
+    id = db.Column(db.Integer, primary_key=True)
+    device = db.Column(db.String(255))
+    os = db.Column(db.String(255))
+    browser = db.Column(db.String(255))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    duration = db.Column(db.Integer)
+    traffic = db.Column(db.Time)
+    lat = db.Column(db.Integer)
+    lon = db.Column(db.Integer)
+
+    def __repr__(self):
+        return f'Dev: {self.device}, time: {self.traffic}, dur: {self.duration}'
+
+
 def init_publishers():
     """
     This function creates publisher user accounts and adds to db
@@ -210,12 +244,13 @@ def init_publishers():
     """
     from os import path
 
-    names = [('Helsingin sanomat', f'{PUBLISHER_DOMAIN}/hs', path.join('static', 'media', 'Helsinginsanomat.7df10021.svg')),
-             ('Turun sanomat', f'{PUBLISHER_DOMAIN}/ts', path.join('static', 'media', 'Turunsanomat.2b59c2f8.svg')),
-             ('Savon sanomat', f'{PUBLISHER_DOMAIN}/ss', path.join('static', 'media', 'savonsanomat.d8cb55d7.svg')),
-             ('Kauppalehti', f'{PUBLISHER_DOMAIN}/kl', path.join('static', 'media', 'kauppalehti.ec98efbe.svg')),
-             ('Keskisuomalainen', f'{PUBLISHER_DOMAIN}/ks', path.join('static', 'media', 'keskisuomalainen.0b4f2b1c.svg')),
-             ('mock', f'{PUBLISHER_DOMAIN}/mock', None)]
+    names = [
+        ('Helsingin sanomat', f'{PUBLISHER_DOMAIN}/hs', path.join('static', 'media', 'Helsinginsanomat.7df10021.svg')),
+        ('Turun sanomat', f'{PUBLISHER_DOMAIN}/ts', path.join('static', 'media', 'Turunsanomat.2b59c2f8.svg')),
+        ('Savon sanomat', f'{PUBLISHER_DOMAIN}/ss', path.join('static', 'media', 'savonsanomat.d8cb55d7.svg')),
+        ('Kauppalehti', f'{PUBLISHER_DOMAIN}/kl', path.join('static', 'media', 'kauppalehti.ec98efbe.svg')),
+        ('Keskisuomalainen', f'{PUBLISHER_DOMAIN}/ks', path.join('static', 'media', 'keskisuomalainen.0b4f2b1c.svg')),
+        ('mock', f'{PUBLISHER_DOMAIN}/mock', None)]
     publishers = Publisher.query.all()
     if publishers:
         return

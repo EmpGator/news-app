@@ -58,7 +58,6 @@ class PayOptions(Enum):
     """
     NON = "-1"
     NULL = ""
-    NON = "-1"
     MONTHLY = "0"
     PACKAGE = "1"
     SINGLE = "2"
@@ -70,3 +69,14 @@ class Category(Enum):
     TECHNOLOGY = 'technology'
     HEALTH = 'health'
     ENTERTAINMENT = 'entertainment'
+
+    def __str__(self):
+        return self.name
+
+
+class Device(Enum):
+    PC = "pc"
+    TABLET = "tablet"
+    MOBILE = "mobile"
+    UNKNOWN = ""
+
