@@ -43,7 +43,7 @@ def profile():
         pic = url_for('static', filename='media/profile-placeholder.5a0ca145.png')
     latest = [{'title': i.article.name, 'link': i.article.url, 'accessed': str(i.day)} for i in current_user.read_articles]
     favs = [{'title': i.name, 'link': i.url} for i in current_user.fav_articles]
-    data = {'name': name, 'email': email, 'subsription_end': end, 'favoriteArticles': favs, 'image': pic,
+    data = {'name': name, 'email': email, 'subscription_end': end, 'favoriteArticles': favs, 'image': pic,
             'package_end': paid, 'tokens': current_user.tokens, 'latestArticles': latest[::-1]}
     data = json.dumps({'user': data})
     return render_template('index.html', data=data)
