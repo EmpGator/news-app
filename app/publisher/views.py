@@ -1,13 +1,13 @@
 import json
 import math
-from collections import Counter
+from collections import Counter, defaultdict
 from pprint import PrettyPrinter
 from statistics import mean
 
 from flask import Blueprint, render_template, url_for, redirect
 from flask_login import current_user, login_required
 from app.models import Publisher, Analytics
-from operator import attrgetter
+from operator import attrgetter, itemgetter
 from app.constants import Role
 
 bp = Blueprint('publisher', __name__)
@@ -51,8 +51,8 @@ def get_analytics_data():
     devices = {}
     os = {}
     locations = {}
-    traffics = {}
-    durations = {}
+    traffics = defaultdict(int)
+    durations = defaultdict(int)
     browsers = {}
 
 
@@ -78,9 +78,9 @@ def get_analytics_data():
     locations = []
     categories = []
     browsers = [{'name': i, 'amount': browsers[i]} for i in browsers]
-    # TODO: make loops from similar list comprehensions
-    traffics = [{'time': i, 'amount': traffics[i]} for i in traffics]
-    durations = [{'time': i, 'amount': durations[i]} for i in durations]
+    traffics = [{'time': i, 'amount': traffics[i]} for i in range(1, 25)]
+    durations = [{'time': i, 'amount': durations[i]} for i in range(min_dur, max_dur + 1)]
+    #durations = sorted([{'time': i, 'amount': durations[i]} for i in durations], key=itemgetter('time'))
     data = {'categories': categories, 'devices': devices, 'location': locations, 'browser': browsers,
             'os': os, 'duration_chart': durations, 'traffic_chart': traffics,
             'average_duration': avg_dur, 'min_duration': min_dur, 'max_duration': max_dur,
