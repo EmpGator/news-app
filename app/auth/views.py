@@ -44,6 +44,7 @@ def validate_and_hash_password(pw, pw_again):
 
 
 def send_confirm_email(user):
+    # TODO: merge with password reset email
     sender = 'tridample@gmail.com'
     msg = Message('Confirmation email',sender=sender, recipients=[user.email])
     serializer = URLSafeSerializer('verification_salt')
@@ -92,6 +93,8 @@ def pay_handler(option, user, amount=None):
 def new_entry():
     """
     Handles login form handling and show user login form
+
+    TODO: split this to logical parts
 
     :return: View that is either same view with errors or new view
     """
@@ -145,7 +148,7 @@ def login():
         if user is not None and pbkdf2_sha256.verify(request.form.get('password'), user.password):
             access_token = create_access_token(identity=user.id)
             print(access_token)
-            # TODO Encrypt access_token
+
             login_user(user)
             return render_template('set_cookies.html', domain=PUBLISHER_DOMAIN, token=access_token,
                                    url_to=url_for('dashboard'))
