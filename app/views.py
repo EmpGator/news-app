@@ -21,36 +21,6 @@ def get_articles(publishers=None, categories=None):
     :return: article data in python dictionary
 
     """
-    data = {'MrData': [], 'TrData': [], 'LtData': []}
-    if publishers and categories:
-        articles = Article.query.filter(Article.publisher.in_(publishers),
-                                        Article.category.in_(categories))
-    elif publishers:
-        articles = Article.query.filter(Article.publisher.in_(publishers))
-    elif categories:
-        articles = Article.query.filter(Article.category.in_(categories))
-    else:
-        articles = Article.query.filter(Article.image.isnot(None))
-
-    for i, entry in enumerate(articles):
-        art_data = get_article_data(entry)
-        if i < 6:
-            data['MrData'].append(art_data)
-        elif i < 12:
-            data['TrData'].append(art_data)
-        elif i < 18:
-            data['LtData'].append(art_data)
-        else:
-            break
-    return data
-
-def get_articles2(publishers=None, categories=None):
-    """
-    Fetches articles from database and adds them obj that is rendered then in frontpage
-
-    :return: article data in python dictionary
-
-    """
     data = []
     for cat in Category:
         articles = Article.query.filter(Article.category == cat)
@@ -86,7 +56,7 @@ def fetch_articles():
     """
     Fetches articles from rss feed
     TODO: make this background task to be executed one in a while
-
+    TODO: cleanup code here
 
     :return: Response: OK, 200
     """
@@ -142,9 +112,11 @@ def dashboard():
     """
     Main page view for logged in users
 
+    TODO: cleanup code here
+
     :return: index.html with article data
     """
-    art_data = get_articles2()
+    art_data = get_articles()
     if current_user.role == Role.PUBLISHER:
         return redirect(url_for('publisher.analytics'))
 
@@ -157,8 +129,8 @@ def dashboard():
     read = [{'title': i.article.name, 'link': i.article.url, 'accessed': str(i.day)}
             for i in current_user.read_articles][:-6:-1]
     favs = [{'title': i.name, 'link': i.url} for i in current_user.fav_articles][:-6:-1]
-    user_data = {'name': name, 'email': email, 'bought': bought, 'end_date': end, 'favoriteArticles': favs,
-                'prepaid': paid, 'tokens': current_user.tokens, 'latestArticles': read}
+    user_data = {'name': name, 'email': email, 'bought': bought, 'subscription_end': end, 'favoriteArticles': favs,
+                'package_end': paid, 'tokens': current_user.tokens, 'latestArticles': read}
 
     data = {'articles': art_data, 'user': user_data}
     data = json.dumps(data)
@@ -180,8 +152,7 @@ def setcookie():
 
 @app.route('/a')
 def analytics():
-    print('\n'*3)
-    print('analytics view\n')
+    # TODO: move this to different module
     ua = UserAgent(request.headers.get('User-Agent'))
     os = ua.platform
     browser = ua.browser + ' ' + ua.version
@@ -202,6 +173,7 @@ def test(site=''):
     """
     This function redirects user to mocksite
     This is for sidebars
+    # TODO: maybe move away from catch all routes solution
 
     :param site:
         site name as string
