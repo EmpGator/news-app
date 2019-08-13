@@ -21,6 +21,10 @@ class Config:
         os.stat('instance')
     except FileNotFoundError:
         os.mkdir('instance')
+    try:
+        os.stat(os.path.join('app', 'static', 'profile_pics'))
+    except FileNotFoundError:
+        os.mkdir(os.path.join('app', 'static', 'profile_pics'))
     SQLALCHEMY_DATABASE_URI = 'sqlite:///../instance/test.db'
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(days=365)
 

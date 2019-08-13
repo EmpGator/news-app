@@ -44,10 +44,14 @@ def get_article(url, domain=None, art_name='', art_date=date.today(), art_desc='
     """
     article = Article.query.filter_by(url=url).first()
     if not article:
-        # TODO: add publisher with given domain if publisher doesnt yet exist
         publisher = Publisher.query.filter_by(url=domain).first()
         if not publisher:
-            publisher = Publisher.query.filter_by(name='mock').first()
+            if domain:
+                publisher = Publisher(name=domain, url=domain)
+                db.session.add(publisher)
+                db.session.commit()
+            else:
+                publisher = Publisher.query.filter_by(name='mock').first()
 
         article = Article(url=url, publisher=publisher, name=art_name, category=art_category,
                           date=art_date, description=art_desc)
