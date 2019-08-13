@@ -1,8 +1,12 @@
+import os
 from datetime import date, timedelta
+from pathlib import Path
 
 from flask import Blueprint, render_template, url_for, redirect, request, jsonify, flash
 from flask_login import current_user, login_required
 import json
+
+from werkzeug.utils import secure_filename
 
 from app import db
 from app.constants import PayOptions, MONTH_PRICE, SUBS_TIME, BUNDLE_SIZE
@@ -34,10 +38,13 @@ def profile():
     email = current_user.email
     end = str(current_user.subscription_end) if current_user.subscription_end else None
     paid = current_user.prepaid_articles
+    pic = current_user.image
+    if not pic:
+        pic = url_for('static', filename='media/profile-placeholder.5a0ca145.png')
     latest = [{'title': i.article.name, 'link': i.article.url, 'accessed': str(i.day)} for i in current_user.read_articles]
     favs = [{'title': i.name, 'link': i.url} for i in current_user.fav_articles]
-    data = {'name': name, 'email': email, 'end_date': end, 'favoriteArticles': favs,
-            'prepaid': paid, 'tokens': current_user.tokens, 'latestArticles': latest[::-1]}
+    data = {'name': name, 'email': email, 'subsription_end': end, 'favoriteArticles': favs, 'image': pic,
+            'package_end': paid, 'tokens': current_user.tokens, 'latestArticles': latest[::-1]}
     data = json.dumps({'user': data})
     return render_template('index.html', data=data)
 
@@ -47,6 +54,7 @@ def profile():
 def edit():
     """
     Handles edited userdata
+    TODO: cleanup code here
 
     :return:
     """
@@ -57,17 +65,8 @@ def edit():
     email = request.form.get('email')
     password = request.form.get('password')
     pw_again = request.form.get('rPassword')
-    prof_pic = request.files.get('prof_pic')
-    print(request.values)
-    print(request.form)
-    print(request.data)
-    print(request.json)
-    print(request.args)
-    print(request.files)
-    try:
-        info, prof_pic = prof_pic.split(',')
-    except:
-        pass
+    prof_pic = request.files.get('photo-file')
+
 
     try:
         if first_name:
@@ -82,6 +81,12 @@ def edit():
         if password:
             pw_hash = validate_and_hash_password(password, pw_again)
             current_user.password = pw_hash
+        if prof_pic:
+            ext = Path(prof_pic.filename).suffix
+            file_name = f'{current_user.id}{ext}'
+            path = os.path.join('app', 'static', 'profile_pics', secure_filename(file_name))
+            prof_pic.save(path)
+            current_user.image = url_for('static', filename=f'profile_pics/{file_name}')
         db.session.commit()
     except Exception as e:
         print(e)

@@ -40,8 +40,7 @@ class User(UserMixin, db.Model):
     TODO: Consider moving read_articles to _read_articles and add property function that gets
         art_lnks and merges values to single list of article objects with added date field. Setter
         would then be very simple list that gets given article and makes new art_lnk object out of it
-    TODO: User profile picture
-    TODO: add user creation date/new user flag
+    TODO: add user dict data returning function
     """
 
     __tablename__ = 'users'
@@ -52,6 +51,8 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(80), unique=True, nullable=False)
     email_confirmed = db.Column(db.Boolean, nullable=False, default=False)
     password = db.Column(db.String(80), nullable=False)
+    account_created = db.Column(db.Date)
+    image = db.Column(db.String(255))
     subscription_end = db.Column(db.Date)
     prepaid_articles = db.Column(db.Integer, default=0, nullable=False)
     tokens = db.Column(db.Integer, default=0, nullable=False)
@@ -239,7 +240,8 @@ class Analytics(db.Model):
 def init_publishers():
     """
     This function creates publisher user accounts and adds to db
-    TODO: make article default images with url_for (instead of os.path.join
+
+
     :return: None
     """
     from os import path
