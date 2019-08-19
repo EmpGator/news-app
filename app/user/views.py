@@ -117,11 +117,10 @@ def delete_account(token=None):
 @csrf.exempt
 @login_required
 def favtoggle():
-    print('test')
     data = request.json
     if not data:
         print('not ok')
-        return jsonify(['ei ok'])
+        return jsonify(['not ok'])
     article = Article.query.filter_by(url=data.get('url')).first()
     if article in current_user.fav_articles:
         current_user.fav_articles.remove(article)

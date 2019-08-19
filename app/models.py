@@ -37,8 +37,8 @@ class ReadArticleLink(db.Model):
 class User(UserMixin, db.Model):
     """
     User account database model
-    TODO: Consider moving read_articles to _read_articles and add property function that gets
-        art_lnks and merges values to single list of article objects with added date field. Setter
+    TODO: Consider moving read_articles to _read_articles and add property function that gets /
+        art_lnks and merges values to single list of article objects with added date field. Setter /
         would then be very simple list that gets given article and makes new art_lnk object out of it
     TODO: add user dict data returning function
     """

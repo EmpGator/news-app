@@ -77,6 +77,13 @@ def get_authenticated_user(user):
 
 
 def get_user_info(user):
+    """
+    Get's relevant information of user that is sent to publisher
+
+
+    :param user:
+    :return:
+    """
     if user.subscription_end:
         method = 'Monthly Subscription'
         msg = f'Valid until {user.subscription_end}'
@@ -100,6 +107,13 @@ def get_user_info(user):
 
 
 def get_article_from_args(args):
+    """
+    Get's article from given arguments, if article exists in database, it's returned.
+    Otherwise new article is created.
+
+    :param args:
+    :return:
+    """
     url = args.get('url')
     article = Article.query.filter_by(url=url).first()
     if not article and all(args.values()):
@@ -130,11 +144,13 @@ class UserInfo(Resource):
         article info, new article will be made and added to database. Example request bodies:
 
 
-        Request:
+        Request: ::
+
             { "url": "http://localhost:8000/ts/article/1" }
 
 
-        Response:
+        Response: ::
+
             {
                 "access": false,
                 "can_pay": true,
@@ -147,7 +163,8 @@ class UserInfo(Resource):
             }
 
 
-        Request:
+        Request: ::
+
             {
                 "url": "http://localhost:8000/ts/article/1",
                 "domain": "http://localhost:8000/ts/",
@@ -157,7 +174,8 @@ class UserInfo(Resource):
                 "article_category": "health"
             }
 
-        Response:
+        Response: ::
+
             {
                 "access": true,
                 "can_pay": true,
@@ -169,8 +187,10 @@ class UserInfo(Resource):
                 "message": "8 prepaid articles left"
             }
 
-        article_date must be format YYYY-MM-DD
-        currently valid categories are:
+        Article_date must be format YYYY-MM-DD.
+
+        Currently valid categories are: ::
+
             'politics'
             'sports'
             'economy'
@@ -197,9 +217,7 @@ class UserInfo(Resource):
 
 
 class PayArticle(Resource):
-    """
-    testpay
-    """
+
     @jwt_optional
     def post(self):
         """
@@ -211,11 +229,13 @@ class PayArticle(Resource):
         payment can't happen so article information should be provided as well. Example
         request/response bodies:
 
-        Request:
+        Request: ::
+
             { "url": "http://localhost:8000/ts/article/1", "domain": "http://localhost:8000/ts" }
 
 
-        Response:
+        Response: ::
+
             {
                 "payment_successful": true,
                 "access": true,
@@ -228,7 +248,8 @@ class PayArticle(Resource):
             }
 
 
-        Request:
+        Request: ::
+
             {
                 "url": "http://localhost:8000/ts/article/1",
                 "domain": "http://localhost:8000/ts/",
@@ -239,7 +260,8 @@ class PayArticle(Resource):
                 "article_price": 2
             }
 
-        Response:
+        Response: ::
+
             {
                 "payment_successful": true,
                 "access": true,
@@ -270,48 +292,5 @@ class PayArticle(Resource):
         return jsonify(data)
 
 
-
-class TopUp(Resource):
-    """
-    top up handler
-    """
-    @login_required
-    def post(self):
-        """
-        Handles POST request
-        Checks chosen package and if amount was given. Adds information to user object
-        :return: Redirect to index page
-        """
-        print(request.form)
-        option = PayOptions(request.form.get('pay-method', "0"))
-        if option == PayOptions.MONTHLY:
-            analytics = Publisher.query.filter_by(name='All').first()
-            analytics.revenue += (MONTH_PRICE / 100)
-            if current_user.subscription_end is None:
-                current_user.subscription_end = date.today() + timedelta(days=SUBS_TIME)
-            elif current_user.subscription_end <= date.today():
-                current_user.subscription_end = date.today() + timedelta(days=SUBS_TIME)
-            else:
-                current_user.subscription_end += timedelta(days=SUBS_TIME)
-            db.session.commit()
-        elif option == PayOptions.PACKAGE:
-            current_user.prepaid_articles += BUNDLE_SIZE
-            db.session.commit()
-        elif option == PayOptions.SINGLE:
-            amount = request.form.get('amount')
-            try:
-                amount = int(amount)
-            except Exception as e:
-                print(e)
-                amount = 0
-            current_user.tokens += amount
-            db.session.commit()
-        else:
-            flash('something went wrong processing payment')
-        return redirect(url_for('index'))
-
-# above routes should be obsolette
-api.add_resource(TopUp, '/api/topup')
-# Above should be moved
 api.add_resource(PayArticle, '/api/payarticle')
 api.add_resource(UserInfo, '/api/userinfo')

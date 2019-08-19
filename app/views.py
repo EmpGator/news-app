@@ -1,7 +1,7 @@
 from datetime import datetime, date
 from time import time
 
-from flask import render_template, redirect, url_for, request, make_response
+from flask import render_template, redirect, url_for, request, make_response, jsonify
 from flask import current_app as app
 from flask_jwt_extended import create_access_token
 from flask_login import login_required, current_user
@@ -13,6 +13,9 @@ from app.db import db
 import feedparser
 import json
 
+# for autodoc
+#from flask import Blueprint
+#app = Blueprint('asd', __name__)
 
 def get_articles(publishers=None, categories=None):
     """
@@ -137,19 +140,6 @@ def dashboard():
     return render_template('index.html', data=data)
 
 
-@app.route('/setcookie')
-def setcookie():
-    """
-    This is mainly for testing purposes
-    This attempts to set jwt token cookie at PUBLISHER_DOMAIN
-
-    :return: Response 200
-    """
-    jwt = create_access_token(identity=current_user.id)
-    resp = make_response(f'<img src="http://{PUBLISHER_DOMAIN}/setcookie/{jwt}" >', 200)
-    return resp
-
-
 @app.route('/a')
 def analytics():
     # TODO: move this to different module
@@ -167,9 +157,16 @@ def analytics():
     db.session.commit()
     return make_response('ok')
 
+@app.route('/user_activities')
+def test():
+    read = [get_article_data(i.article) for i in current_user.read_articles]
+    favs = [get_article_data(i) for i in current_user.fav_articles]
+    data = {'favoriteArticles': favs, 'latestArticles': read}
+    return jsonify(data)
+
 
 @app.route('/<site>')
-def test(site=''):
+def redirect_to_mocksites(site=''):
     """
     This function redirects user to mocksite
     This is for sidebars
