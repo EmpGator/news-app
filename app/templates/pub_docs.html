@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Information for publishers &#8212; Finn+ documentation</title>
+    <link rel="stylesheet" href="../static/css/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../static/css/pygments.css" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+</head>
+
+<body>
+    <div class="document">
+        <div class="documentwrapper">
+            <div class="bodywrapper">
+                <div class="body" role="main">
+                    <div class="section" id="information-for-publishers">
+                        <h1>Information for publishers<a class="headerlink" href="#information-for-publishers" title="Permalink to this headline">¶</a></h1>
+                        <p>For automated external login you need to create endpoint that stores jwt as cookie. That jwt is used for authentication. Endpoint needs to be in following format:</p>
+                        <div class="highlight-default notranslate">
+                            <div class="highlight">
+                                <pre><span></span><span class="n">yourdomain</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">setcookie</span><span class="o">/&lt;</span><span class="n">jwt</span><span class="o">&gt;</span>
+</pre>
+                            </div>
+                        </div>
+                        <p>Alternatively you can use regular login and use those credentials with basic auth with each request.</p>
+                        <p>To use automated logout (if you use automated login) you need to have route <code class="docutils literal notranslate"><span class="pre">yourdomain.com/logout</span></code> that removes jwtcookie</p>
+                        <p>To use jwt you need to add it to your request header in following style:</p>
+                        <div class="highlight-default notranslate">
+                            <div class="highlight">
+                                <pre><span></span><span class="n">Authorization</span><span class="p">:</span> <span class="n">Bearer</span> <span class="o">&lt;</span><span class="n">jwt</span><span class="o">&gt;</span>
+</pre>
+                            </div>
+                        </div>
+                        <p>There’s two different api endpoints, one for user information, one for article payment.</p>
+                        <div class="section" id="user-information-fetching">
+                            <h2>User information fetching<a class="headerlink" href="#user-information-fetching" title="Permalink to this headline">¶</a></h2>
+                            <p>For userinformation post to <code class="docutils literal notranslate"><span class="pre">finnplusdomain/api/userinfo</span></code>. You can have requestbody containing only url of article, but preferred way is to post all relecant article information, so that if article can be created and added to database.</p>
+                            <p>Request:</p>
+                            <div class="highlight-default notranslate">
+                                <div class="highlight">
+                                    <pre><span></span><span class="p">{</span> <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;http://localhost:8000/ts/article/1&quot;</span> <span class="p">}</span>
+</pre>
+                                </div>
+                            </div>
+                            <p>Response:</p>
+                            <div class="highlight-default notranslate">
+                                <div class="highlight">
+                                    <pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;access&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
+    <span class="s2">&quot;can_pay&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Matti&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;method&quot;</span><span class="p">:</span> <span class="s2">&quot;Single payments&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;expiration&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
+    <span class="s2">&quot;package_left&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="s2">&quot;tokens_left&quot;</span><span class="p">:</span> <span class="mi">23</span><span class="p">,</span>
+    <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;23 Tokens left&quot;</span>
+<span class="p">}</span>
+</pre>
+                                </div>
+                            </div>
+                            <p>Request:</p>
+                            <div class="highlight-default notranslate">
+                                <div class="highlight">
+                                    <pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;http://localhost:8000/ts/article/1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;domain&quot;</span><span class="p">:</span> <span class="s2">&quot;http://localhost:8000/ts/&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;article_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Kahvi on hyvää&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;article_desc&quot;</span><span class="p">:</span> <span class="s2">&quot;Kahvi on hyvää ja terveellistä&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;article_date&quot;</span><span class="p">:</span> <span class="s2">&quot;2019-06-21&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;article_category&quot;</span><span class="p">:</span> <span class="s2">&quot;health&quot;</span>
+<span class="p">}</span>
+</pre>
+                                </div>
+                            </div>
+                            <p>Response:</p>
+                            <div class="highlight-default notranslate">
+                                <div class="highlight">
+                                    <pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;access&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+    <span class="s2">&quot;can_pay&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Matti&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;method&quot;</span><span class="p">:</span> <span class="s2">&quot;Package subscription&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;expiration&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
+    <span class="s2">&quot;package_left&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+    <span class="s2">&quot;tokens_left&quot;</span><span class="p">:</span> <span class="mi">103</span><span class="p">,</span>
+    <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;8 prepaid articles left&quot;</span>
+<span class="p">}</span>
+</pre>
+                                </div>
+                            </div>
+                            <p>article_date must be format YYYY-MM-DD.</p>
+                            <p>Currently valid categories are:</p>
+                            <div class="highlight-default notranslate">
+                                <div class="highlight">
+                                    <pre><span></span><span class="s1">&#39;politics&#39;</span>
+<span class="s1">&#39;sports&#39;</span>
+<span class="s1">&#39;economy&#39;</span>
+<span class="s1">&#39;technology&#39;</span>
+<span class="s1">&#39;health&#39;</span>
+<span class="s1">&#39;entertainment&#39;</span>
+</pre>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="section" id="article-payment">
+                            <h2>Article payment<a class="headerlink" href="#article-payment" title="Permalink to this headline">¶</a></h2>
+                            <p>For article token payment post to <code class="docutils literal notranslate"><span class="pre">finnplusdomain/api/articlepaid</span></code>. Response will have information if payment was successfull. Response will also have relevant userinformation. You can have request body containing only article url and domain, but it’s strong preference to include article information (including price) anyways.</p>
+                            <p>Request:</p>
+                            <div class="highlight-default notranslate">
+                                <div class="highlight">
+                                    <pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;http://localhost:8000/ts/article/1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;domain&quot;</span><span class="p">:</span> <span class="s2">&quot;localhost:8000/ts&quot;</span>
+<span class="p">}</span>
+</pre>
+                                </div>
+                            </div>
+                            <p>Response:</p>
+                            <div class="highlight-default notranslate">
+                                <div class="highlight">
+                                    <pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;payment_successful&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+    <span class="s2">&quot;access&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Matti&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;method&quot;</span><span class="p">:</span> <span class="s2">&quot;Single payments&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;expiration&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
+    <span class="s2">&quot;package_left&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="s2">&quot;tokens_left&quot;</span><span class="p">:</span> <span class="mi">23</span><span class="p">,</span>
+    <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;23 Tokens left&quot;</span>
+<span class="p">}</span>
+</pre>
+                                </div>
+                            </div>
+                            <p>Request:</p>
+                            <div class="highlight-default notranslate">
+                                <div class="highlight">
+                                    <pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;http://localhost:8000/ts/article/1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;domain&quot;</span><span class="p">:</span> <span class="s2">&quot;http://localhost:8000/ts/&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;article_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Kahvi on hyvää&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;article_desc&quot;</span><span class="p">:</span> <span class="s2">&quot;Kahvi on hyvää ja terveellistä&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;article_date&quot;</span><span class="p">:</span> <span class="s2">&quot;2019-06-21&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;article_category&quot;</span><span class="p">:</span> <span class="s2">&quot;health&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;article_price&quot;</span><span class="p">:</span> <span class="mi">2</span>
+<span class="p">}</span>
+</pre>
+                                </div>
+                            </div>
+                            <p>Response:</p>
+                            <div class="highlight-default notranslate">
+                                <div class="highlight">
+                                    <pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;payment_successful&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+    <span class="s2">&quot;access&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Matti&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;method&quot;</span><span class="p">:</span> <span class="s2">&quot;Package subscription&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;expiration&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
+    <span class="s2">&quot;package_left&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+    <span class="s2">&quot;tokens_left&quot;</span><span class="p">:</span> <span class="mi">103</span><span class="p">,</span>
+    <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;8 prepaid articles left&quot;</span>
+<span class="p">}</span>
+</pre>
+                                </div>
+                            </div>
+                            <p>article_price should be integer. Price is in tokens and if price is not included it is defaulted to 1.</p>
+                        </div>
+                        <div class="section" id="integrating-finnplus">
+                            <h2>Integrating finnplus<a class="headerlink" href="#integrating-finnplus" title="Permalink to this headline">¶</a></h2>
+                            <p>To integrate you need to have paywall solution. Simplest is to simply render some sort of paywall if access is not true. And if access is true you can show content. Paywall should have some sort of paybutton. Payment should be posted to <code class="docutils literal notranslate"><span class="pre">/api/articlepaid</span></code></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="clearer"></div>
+    </div>
+    <div class="footer">
+        &copy;2019, Henri Korhonen.
+        |
+        Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.2</a>
+        &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+        |
+        <a href="../_sources/usage/publisher.rst.txt" rel="nofollow">Page source</a>
+    </div>
+</body>
+
+</html>

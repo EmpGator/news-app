@@ -12,7 +12,7 @@ from app import db
 from app.constants import PayOptions, MONTH_PRICE, SUBS_TIME, BUNDLE_SIZE
 from app.csrf import csrf
 from app.auth.views import validate_email, validate_name, validate_and_hash_password
-from app.models import Article, Publisher
+from app.models import Article, Publisher, PaymentHistory
 
 """
 Handles user specific views
@@ -39,12 +39,14 @@ def profile():
     end = str(current_user.subscription_end) if current_user.subscription_end else None
     paid = current_user.prepaid_articles
     pic = current_user.image
+    payments = [i.get_dict() for i in PaymentHistory.query.filter_by(user=current_user)]
+    print( payments )
     if not pic:
         pic = url_for('static', filename='media/profile-placeholder.5a0ca145.png')
     latest = [{'title': i.article.name, 'link': i.article.url, 'accessed': str(i.day)} for i in current_user.read_articles]
     favs = [{'title': i.name, 'link': i.url} for i in current_user.fav_articles]
     data = {'name': name, 'email': email, 'subscription_end': end, 'favoriteArticles': favs, 'image': pic,
-            'package_end': paid, 'tokens': current_user.tokens, 'latestArticles': latest[::-1]}
+            'package_end': paid, 'tokens': current_user.tokens, 'latestArticles': latest[::-1], 'payments': payments}
     data = json.dumps({'user': data})
     return render_template('index.html', data=data)
 
@@ -150,9 +152,11 @@ def TopUp():
             current_user.subscription_end = date.today() + timedelta(days=SUBS_TIME)
         else:
             current_user.subscription_end += timedelta(days=SUBS_TIME)
+        db.session.add(PaymentHistory(user=current_user,  amount=29.99,  day=date.today(), pay_type='Monthly'))
         db.session.commit()
     elif option == PayOptions.PACKAGE:
         current_user.prepaid_articles += BUNDLE_SIZE
+        db.session.add(PaymentHistory(user=current_user,  amount=5,  day=date.today(), pay_type='Package'))
         db.session.commit()
     elif option == PayOptions.SINGLE:
         amount = request.form.get('amount')
@@ -162,6 +166,7 @@ def TopUp():
             print(e)
             amount = 0
         current_user.tokens += amount
+        db.session.add(PaymentHistory(user=current_user, amount=amount/2,  day=date.today(), pay_type='Single'))
         db.session.commit()
     else:
         flash('something went wrong processing payment')

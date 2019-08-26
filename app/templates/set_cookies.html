@@ -11,6 +11,8 @@
 </head>
 <body>
     <p>Loading... please wait</p>
-    <img id="mock" src="http://{{ domain }}/setcookie/{{ token }}" alt="">
+    {% for d in domains  %}
+        <img id="mock" src="http://{{ d }}/setcookie/{{ token }}" alt="" style="visibility: hidden;">
+    {% endfor %}
 </body>
 </html>

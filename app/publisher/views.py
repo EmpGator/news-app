@@ -67,11 +67,11 @@ def get_analytics_data():
         dict_counter(dur, durations)
         dict_counter(a.browser, browsers)
 
-    avg_dur = int(round(total_dur / len(analytics)))
-    max_dur = max(durations.keys())
-    min_dur = min(durations.keys())
-    min_traf = min(traffics, key=traffics.get)
-    max_traf = max(traffics, key=traffics.get)
+    avg_dur = int(round(total_dur / len(analytics))) if analytics else 0
+    max_dur = max(durations.keys()) if durations.keys() else 0
+    min_dur = min(durations.keys()) if durations.keys() else 0
+    min_traf = min(traffics, key=traffics.get) if traffics else 0
+    max_traf = max(traffics, key=traffics.get) if traffics else 0
 
     devices = [{'name': i, 'amount': devices[i]} for i in devices]
     os = [{'name': i, 'amount': os[i]} for i in os]

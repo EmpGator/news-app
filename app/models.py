@@ -34,6 +34,19 @@ class ReadArticleLink(db.Model):
     day = db.Column(db.Date, nullable=False)
 
 
+class PaymentHistory(db.Model):
+    __tablename__ = 'payment_history'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    user = db.relationship('User', uselist=False)
+    amount = db.Column(db.Float, nullable=False)
+    day = db.Column(db.Date, nullable=False)
+    pay_type = db.Column(db.String(20), nullable=False)
+
+    def get_dict(self):
+        return {'date': str(self.day), 'type': self.pay_type, 'value': self.amount}
+
+
 class User(UserMixin, db.Model):
     """
     User account database model
@@ -114,12 +127,15 @@ class User(UserMixin, db.Model):
             return True
         if self.check_subscription():
             if not article.new_paid_article('monthly_pay'):
+                print('monthly pay failed')
                 return False
+            print('monthly pay successsfull')
         elif self.prepaid_articles > 0:
             if not article.new_paid_article('package_pay'):
                 return False
             self.articles.append(article)
             self.prepaid_articles -= 1
+
         else:
             if not article.new_paid_article('single_pay'):
                 return False
@@ -191,12 +207,14 @@ class Article(db.Model):
 class Publisher(db.Model):
     """
     Model to store publishers data
+    TODO: add rss feed link
     """
     __tablename__ = 'publishers'
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), unique=True, nullable=False)
     url = db.Column(db.String(2000), unique=True, nullable=False)
+    rss = db.Column(db.String(2000))
     image = db.Column(db.String(2000))
     revenue = db.Column(db.Integer, nullable=False, default=0)
     monthly_pay = db.Column(db.Integer, nullable=False, default=0)
@@ -206,7 +224,7 @@ class Publisher(db.Model):
     users = db.relationship('User', back_populates="publisher")
 
     def __repr__(self):
-        return f'Publisher: {self.name}'
+        return f'Publisher: {self.name}\n {len(self.articles)} articles\n Admin accounts: {self.users}'
 
     def new_paid_article(self, method):
         try:
@@ -251,21 +269,20 @@ def init_publishers():
         ('Turun sanomat', f'{PUBLISHER_DOMAIN}/ts', path.join('static', 'media', 'Turunsanomat.2b59c2f8.svg')),
         ('Savon sanomat', f'{PUBLISHER_DOMAIN}/ss', path.join('static', 'media', 'savonsanomat.d8cb55d7.svg')),
         ('Kauppalehti', f'{PUBLISHER_DOMAIN}/kl', path.join('static', 'media', 'kauppalehti.ec98efbe.svg')),
-        ('Keskisuomalainen', f'{PUBLISHER_DOMAIN}/ks', path.join('static', 'media', 'keskisuomalainen.0b4f2b1c.svg')),
-        ('mock', f'{PUBLISHER_DOMAIN}/mock', None)]
+        ('Keskisuomalainen', f'{PUBLISHER_DOMAIN}/ks', path.join('static', 'media', 'keskisuomalainen.0b4f2b1c.svg'))]
     publishers = Publisher.query.all()
     if publishers:
         return
 
     pw_hash = pbkdf2_sha256.hash('test')
     for i, url, img in names:
-        pub = Publisher(name=i, url=url, image=img)
+        pub = Publisher(name=i, url=url, image=img, rss=f'http://{url}/rss')
         db.session.add(pub)
         # noinspection PyArgumentList
         user = User(first_name='', last_name='', email=i, password=pw_hash, role=Role.PUBLISHER,
                     publisher=pub)
         db.session.add(user)
-    pub = Publisher(name='All', url='admin')
+    pub = Publisher(name='All', url='admin', rss='admin')
     db.session.add(pub)
     # noinspection PyArgumentList
     user = User(first_name='', last_name='', email='admin', password=pw_hash, role=Role.ADMIN,

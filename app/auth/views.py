@@ -1,17 +1,20 @@
+import os
 import re
 from datetime import date, timedelta
+from pathlib import Path
 
 from flask import Blueprint, render_template, redirect, url_for, request, flash, current_app
 from flask_jwt_extended import create_access_token
 from flask_login import current_user, login_user, logout_user, login_required
 from flask_mail import Message
 from itsdangerous import URLSafeSerializer, BadSignature
+from werkzeug.utils import secure_filename
 
 from app.auth.forms import PassResetForm
 from app.mail import mail
 from app.constants import PUBLISHER_DOMAIN, BAD_CHAR_LIST, FINNPLUS_DOMAIN, PayOptions, MONTH_PRICE, SUBS_TIME, \
     BUNDLE_SIZE
-from app.models import User, Publisher
+from app.models import User, Publisher, PaymentHistory
 from app.db import db
 from passlib.hash import pbkdf2_sha256
 from app.constants import Role
@@ -76,14 +79,17 @@ def pay_handler(option, user, amount=None):
             user.subscription_end = date.today() + timedelta(days=SUBS_TIME)
         else:
             user.subscription_end += timedelta(days=SUBS_TIME)
+        db.session.add(PaymentHistory(user=current_user, amount=29.99,  day=date.today(), pay_type='Monthly'))
     elif option == PayOptions.PACKAGE:
         user.prepaid_articles += BUNDLE_SIZE
+        db.session.add(PaymentHistory(user=current_user, amount=5,  day=date.today(), pay_type='Package'))
     elif option == PayOptions.SINGLE:
         try:
             amount = int(amount)
         except Exception as e:
             print(e)
             amount = 0
+        db.session.add(PaymentHistory(user=current_user, amount=amount/2,  day=date.today(), pay_type='Single'))
         user.tokens += amount
     else:
         return
@@ -123,7 +129,8 @@ def new_entry():
             login_user(new_user)
             access_token = create_access_token(identity=new_user.id)
             pay_handler(option, new_user, amount)
-            return render_template('set_cookies.html', domain=PUBLISHER_DOMAIN, token=access_token,
+            publisher_domain_list = [i.url for i in Publisher.query.all()]
+            return render_template('set_cookies.html', domains=publisher_domain_list, token=access_token,
                                    url_to=url_for('dashboard'))
         except Exception as e:
             print(e)
@@ -150,7 +157,8 @@ def login():
             print(access_token)
 
             login_user(user)
-            return render_template('set_cookies.html', domain=PUBLISHER_DOMAIN, token=access_token,
+            publisher_domain_list = [i.url for i in Publisher.query.all()]
+            return render_template('set_cookies.html', domains=publisher_domain_list, token=access_token,
                                    url_to=url_for('dashboard'))
         else:
             print('username or pass incorrect')
@@ -167,7 +175,9 @@ def logout():
     :return: Main page, not logged in
     """
     logout_user()
-    return render_template('logout_all.html', domain=PUBLISHER_DOMAIN, url_to=url_for('index'))
+    publisher_domain_list = [i.url for i in Publisher.query.all()]
+    return render_template('logout_all.html', domains=publisher_domain_list, url_to=url_for('index'))
+
 
 @bp.route('/forgotpw', methods=['GET', 'POST'])
 def forgotpw():
@@ -182,7 +192,7 @@ def forgotpw():
             return redirect(url_for('index'))
         else:
             if not user:
-                flash(f'Email {email} doesnt exists')
+                flash(f"User with email {email} doesn't exists")
             else:
                 flash(f'You need to confirm email: {email} first')
 
@@ -201,6 +211,7 @@ def activate(token=None):
     except BadSignature:
         return 'Something went wrong'
 
+
 @bp.route('/resetpw/<token>', methods=['POST', 'GET'])
 def reset(token=None):
     serializer = URLSafeSerializer('reset_salt')
@@ -216,7 +227,39 @@ def reset(token=None):
             user.password = pbkdf2_sha256.hash(password)
             db.session.commit()
         return redirect(url_for('auth.login'))
-    form = PassResetForm()
     return render_template('index.html')
 
 
+@bp.route('/publisherRegister', methods=['GET', 'POST'])
+def publisher_registration():
+    if request.method == 'POST':
+        name = request.form.get('name')
+        domain = request.form.get('domainName')
+        email = request.form.get('email')
+        rss = request.form.get('rssUrl')
+        password = request.form.get('password')
+        password_again = request.form.get('rPassword')
+        img = request.files.get('photo-file')
+        try:
+            validate_name(name)
+            validate_email(email)
+            validate_and_hash_password(password, password_again)
+        except Exception as e:
+            return render_template('index.html')
+
+        if img:
+            ext = Path(img.filename).suffix
+            file_name = name + ext
+            path = os.path.join('app', 'static', 'media', secure_filename(file_name))
+            img.save(path)
+            image = url_for('static', filename=f'media/{file_name}')
+
+        if password == password_again:
+            password = pbkdf2_sha256.hash(password)
+        pub = Publisher(name=name, url=domain, rss=rss, image=image)
+        user = User(first_name=name, last_name='', email=email, password=password, role=Role.PUBLISHER, publisher=pub)
+        db.session.add(pub)
+        db.session.add(user)
+        db.session.commit()
+        return 'ok'
+    return render_template('index.html')

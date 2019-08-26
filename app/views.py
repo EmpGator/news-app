@@ -63,13 +63,12 @@ def fetch_articles():
 
     :return: Response: OK, 200
     """
-    url_list = [f'http://{PUBLISHER_DOMAIN}/{i}/rss' for i in ['ts', 'hs', 'ks', 'kl', 'ss']]
-    for src in url_list:
+    url_list = [(i.rss, i.url) for i in Publisher.query.filter(Publisher.name != 'All')]
+
+    #url_list = [f'http://{PUBLISHER_DOMAIN}/{i}/rss' for i in ['ts', 'hs', 'ks', 'kl', 'ss']]
+    for src, url in url_list:
+        print(f'rss: {src}, url: {url}')
         feed = feedparser.parse(src)
-        try:
-            url = feed.feed.link.replace('http://', '')
-        except:
-            return make_response(f'{feed}\n{src}')
         author = Publisher.query.filter_by(url=url).first()
         if author:
             for i, entry in enumerate(feed.entries):
@@ -158,12 +157,16 @@ def analytics():
     return make_response('ok')
 
 @app.route('/user_activities')
-def test():
+def user_activities():
     read = [get_article_data(i.article) for i in current_user.read_articles]
     favs = [get_article_data(i) for i in current_user.fav_articles]
     data = {'favoriteArticles': favs, 'latestArticles': read}
     return jsonify(data)
 
+
+@app.route('/publisher-docs')
+def pub_docs():
+    return render_template('pub_docs.html')
 
 @app.route('/<site>')
 def redirect_to_mocksites(site=''):

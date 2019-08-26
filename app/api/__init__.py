@@ -47,7 +47,7 @@ def get_article(url, domain=None, art_name='', art_date=date.today(), art_desc='
         publisher = Publisher.query.filter_by(url=domain).first()
         if not publisher:
             if domain:
-                publisher = Publisher(name=domain, url=domain)
+                publisher = Publisher(name=domain, url=domain, rss=domain+'/rss')
                 db.session.add(publisher)
                 db.session.commit()
             else:
@@ -116,7 +116,8 @@ def get_article_from_args(args):
     """
     url = args.get('url')
     article = Article.query.filter_by(url=url).first()
-    if not article and all(args.values()):
+    if article is None and all(args.values()):
+        print('Creating new article')
         domain = args.get('domain')
         name = args.get('article_name')
         desc = args.get('article_desc')
@@ -126,6 +127,8 @@ def get_article_from_args(args):
         category = Category(category)
         article = get_article(url, domain=domain, art_name=name, art_desc=desc,
                               art_category=category, art_date=day)
+        db.session.add(article)
+        db.session.commit()
     return article
 
 
@@ -276,12 +279,15 @@ class PayArticle(Resource):
 
         :return:
         """
+        print('pay article')
+        print('\n'*2)
         user = get_authenticated_user(current_user)
         if not user:
             return make_response('bad auth', 403)
         args = pay_req_parser.parse_args()
         price = args.get('article_price')
         article = get_article_from_args(args)
+        print(f'Article from args: {article}')
         if article and user.can_pay() and user.pay_article(article, price=price):
             data = get_user_info(user)
             data['access'] = True

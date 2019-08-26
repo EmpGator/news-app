@@ -8,6 +8,8 @@
 </head>
 <body>
     <p>Loading... please wait</p>
-    <img src="http://{{ domain }}/logout">
+    {% for domain in domains %}
+        <img src="http://{{ domain }}/logout" style="visibility: hidden;">
+    {% endfor %}
 </body>
 </html>
