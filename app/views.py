@@ -176,7 +176,7 @@ def user_activities():
 def pub_docs():
     return render_template('pub_docs.html')
 
-@app.route('/<site>')
+@app.route('/<site>/')
 def redirect_to_mocksites(site=''):
     """
     This function redirects user to mocksite
