@@ -27,10 +27,7 @@ def create_app():
     # create app and load config
     app = Flask(__name__, instance_relative_config=False)
     app.config.from_object('config.Config')
-    #background task
-    sched = BackgroundScheduler(daemon=True)
-    sched.add_job(func=fetcher, trigger='interval', hours=1)
-    sched.start()
+
 
     # init flask extensions
     db.init_app(app)
