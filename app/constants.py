@@ -68,6 +68,7 @@ class Category(Enum):
     TECHNOLOGY = 'technology'
     HEALTH = 'health'
     ENTERTAINMENT = 'entertainment'
+    OTHER = ''
 
     def __str__(self):
         return self.name

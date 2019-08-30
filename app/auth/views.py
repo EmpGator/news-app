@@ -10,7 +10,6 @@ from flask_mail import Message
 from itsdangerous import URLSafeSerializer, BadSignature
 from werkzeug.utils import secure_filename
 
-from app.auth.forms import PassResetForm
 from app.mail import mail
 from app.constants import PUBLISHER_DOMAIN, BAD_CHAR_LIST, FINNPLUS_DOMAIN, PayOptions, MONTH_PRICE, SUBS_TIME, \
     BUNDLE_SIZE
@@ -252,14 +251,17 @@ def publisher_registration():
             file_name = name + ext
             path = os.path.join('app', 'static', 'media', secure_filename(file_name))
             img.save(path)
-            image = url_for('static', filename=f'media/{file_name}')
+            img = url_for('static', filename=f'media/{file_name}')
+        else:
+            img = ''
 
         if password == password_again:
             password = pbkdf2_sha256.hash(password)
-        pub = Publisher(name=name, url=domain, rss=rss, image=image)
+        pub = Publisher(name=name, url=domain, rss=rss, image=img)
         user = User(first_name=name, last_name='', email=email, password=password, role=Role.PUBLISHER, publisher=pub)
         db.session.add(pub)
         db.session.add(user)
         db.session.commit()
-        return 'ok'
+        login_user(user)
+        return redirect(url_for('index'))
     return render_template('index.html')

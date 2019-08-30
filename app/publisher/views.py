@@ -4,8 +4,10 @@ from collections import Counter, defaultdict
 from pprint import PrettyPrinter
 from statistics import mean
 
-from flask import Blueprint, render_template, url_for, redirect
+from flask import Blueprint, render_template, url_for, redirect, request
 from flask_login import current_user, login_required
+
+from app import db
 from app.models import Publisher, Analytics
 from operator import attrgetter, itemgetter
 from app.constants import Role
@@ -39,12 +41,22 @@ def analytics():
     articles = get_top_articles(publisher)
     anal = get_analytics_data()
     data = {'name': publisher.name, 'percent_of_total_revenue': revenue, 'payment_percent': payment_percent,
-            'top_articles': articles, **anal}
+            'top_articles': articles, 'logo': publisher.image, **anal}
 
     pp = PrettyPrinter(indent=4)
     pp.pprint(data)
     data = json.dumps(data)
     return render_template('index.html', data=data)
+
+@bp.route('/rssEdit', methods=['GET', 'POST'])
+def edit_rss():
+    if request.method == 'POST':
+        url = request.form.get('rssUrl')
+        if url:
+            current_user.publisher.rss = url
+            db.session.commit()
+            return redirect(url_for('publisher.analytics'))
+    return render_template('index.html')
 
 
 def get_analytics_data():

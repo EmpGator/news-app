@@ -13,7 +13,6 @@ from app.constants import PayOptions, MONTH_PRICE, SUBS_TIME, BUNDLE_SIZE
 from app.csrf import csrf
 from app.auth.views import validate_email, validate_name, validate_and_hash_password
 from app.models import Article, Publisher, PaymentHistory
-
 """
 Handles user specific views
 
@@ -40,7 +39,6 @@ def profile():
     paid = current_user.prepaid_articles
     pic = current_user.image
     payments = [i.get_dict() for i in PaymentHistory.query.filter_by(user=current_user)]
-    print( payments )
     if not pic:
         pic = url_for('static', filename='media/profile-placeholder.5a0ca145.png')
     latest = [{'title': i.article.name, 'link': i.article.url, 'accessed': str(i.day)} for i in current_user.read_articles]

@@ -1,6 +1,7 @@
 from datetime import datetime, date
 from time import time
 
+import feedparser
 from flask import render_template, redirect, url_for, request, make_response, jsonify
 from flask import current_app as app
 from flask_jwt_extended import create_access_token
@@ -10,7 +11,7 @@ from werkzeug.useragents import UserAgent
 from app.constants import PUBLISHER_DOMAIN, Role, Category
 from app.models import Article, Publisher, Analytics
 from app.db import db
-import feedparser
+
 import json
 
 # for autodoc
@@ -54,18 +55,9 @@ def get_article_data(article):
     return art_data
 
 
-@app.route('/fetch_articles')
 def fetch_articles():
-    """
-    Fetches articles from rss feed
-    TODO: make this background task to be executed one in a while
-    TODO: cleanup code here
-
-    :return: Response: OK, 200
-    """
+    print('Fetching articles')
     url_list = [(i.rss, i.url) for i in Publisher.query.filter(Publisher.name != 'All')]
-
-    #url_list = [f'http://{PUBLISHER_DOMAIN}/{i}/rss' for i in ['ts', 'hs', 'ks', 'kl', 'ss']]
     for src, url in url_list:
         print(f'rss: {src}, url: {url}')
         feed = feedparser.parse(src)
@@ -77,7 +69,10 @@ def fetch_articles():
                     img = entry.media_content[0]['url']
                     if not img:
                         img = author.image
-                    category = Category(entry.category)
+                    try:
+                        category = Category(entry.category)
+                    except Exception as e:
+                        category = Category('')
                     day = date.fromisoformat(entry.published)
                     article = Article(name=entry.title, publisher=author, image=img, url=url,
                                       description=entry.description, date=day, category=category)
@@ -92,6 +87,15 @@ def fetch_articles():
             for i in publishers:
                 print(i)
             print('\n'*3)
+
+@app.route('/fetch_articles')
+def fetch_articles_view():
+    """
+    Fetches articles from rss feed
+
+    :return: Response: OK, 200
+    """
+    fetch_articles()
     return make_response('ok', 200)
 
 
@@ -131,8 +135,11 @@ def dashboard():
     read = [{'title': i.article.name, 'link': i.article.url, 'accessed': str(i.day)}
             for i in current_user.read_articles][:-6:-1]
     favs = [{'title': i.name, 'link': i.url} for i in current_user.fav_articles][:-6:-1]
+    recent = read + favs
+    from app.models import  PaymentHistory
+    payments = [i.get_dict() for i in PaymentHistory.query.filter_by(user=current_user)]
     user_data = {'name': name, 'email': email, 'bought': bought, 'subscription_end': end, 'favoriteArticles': favs,
-                'package_end': paid, 'tokens': current_user.tokens, 'latestArticles': read}
+                'package_end': paid, 'tokens': current_user.tokens, 'latestArticles': read, 'recentArticles': recent, 'payments': payments}
 
     data = {'articles': art_data, 'user': user_data}
     data = json.dumps(data)
@@ -160,7 +167,8 @@ def analytics():
 def user_activities():
     read = [get_article_data(i.article) for i in current_user.read_articles]
     favs = [get_article_data(i) for i in current_user.fav_articles]
-    data = {'favoriteArticles': favs, 'latestArticles': read}
+    recent = read + favs
+    data = {'favoriteArticles': favs, 'latestArticles': read, 'recentArticles': recent}
     return jsonify(data)
 
 

@@ -1,5 +1,9 @@
+from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
+from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Flask
 from flask_jwt_extended import JWTManager
+
+from .fetcher import fetcher
 from .mail import mail
 from .db import db
 from .csrf import csrf
@@ -23,6 +27,11 @@ def create_app():
     # create app and load config
     app = Flask(__name__, instance_relative_config=False)
     app.config.from_object('config.Config')
+    #background task
+    sched = BackgroundScheduler(daemon=True)
+    sched.add_job(func=fetcher, trigger='interval', hours=1)
+    sched.start()
+
     # init flask extensions
     db.init_app(app)
     login_manager.init_app(app)
