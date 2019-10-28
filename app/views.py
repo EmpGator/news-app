@@ -132,7 +132,7 @@ def dashboard():
     bought = current_user.prepaid_articles
     end = str(current_user.subscription_end) if current_user.subscription_end else None
     paid = current_user.prepaid_articles
-    read = [{'title': i.article.name, 'link': i.article.url, 'accessed': str(i.day)}
+    read = [{'title': i.article.name, 'link': i.article.url, 'accessed': str(i.day), 'author': i.article.publisher.name}
             for i in current_user.read_articles][:-6:-1]
     favs = [{'title': i.name, 'link': i.url} for i in current_user.fav_articles][:-6:-1]
     recent = read + favs
