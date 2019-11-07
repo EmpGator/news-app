@@ -158,23 +158,29 @@ def analytics():
     dur = request.args.get('dur')
     seconds = request.args.get('time')
     t = datetime.fromtimestamp(int(seconds) / 1e3).time()
-    db.session.add(Analytics(device=dev, os=os, browser=browser, duration=dur, traffic=t,
-                             lat=lat, lon=lon))
+    db.session.add(Analytics(device=dev, os=os, browser=browser, duration=dur,
+                             traffic=t, lat=lat, lon=lon))
     db.session.commit()
     return make_response('ok')
+
 
 @app.route('/user_activities')
 def user_activities():
     read = [get_article_data(i.article) for i in current_user.read_articles]
     favs = [get_article_data(i) for i in current_user.fav_articles]
     recent = read + favs
-    data = {'favoriteArticles': favs, 'latestArticles': read, 'recentArticles': recent}
+    data = {
+                'favoriteArticles': favs,
+                'latestArticles': read,
+                'recentArticles': recent
+            }
     return jsonify(data)
 
 
 @app.route('/publisher-docs')
 def pub_docs():
     return render_template('pub_docs.html')
+
 
 @app.route('/<site>/')
 def redirect_to_mocksites(site=''):
