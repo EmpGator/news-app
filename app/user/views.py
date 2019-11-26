@@ -95,8 +95,24 @@ def edit():
 @bp.route('/payment')
 @login_required
 def payment():
-    return render_template('index.html')
+    name = current_user.first_name + ' ' + current_user.last_name
+    email = current_user.email
+    end = str(current_user.subscription_end) if current_user.subscription_end else None
+    paid = current_user.prepaid_articles
+    pic = current_user.image
+    if not pic:
+        pic = url_for('static', filename='media/profile-placeholder.5a0ca145.png')
+    latest = [{'title': i.article.name, 'link': i.article.url, 'accessed': str(i.day)} for i in current_user.read_articles]
+    favs = [{'title': i.name, 'link': i.url} for i in current_user.fav_articles]
+    data = {'name': name, 'email': email, 'subscription_end': end, 'favoriteArticles': favs, 'image': pic,
+            'package_end': paid, 'tokens': current_user.tokens, 'latestArticles': latest[::-1]}
+    data = json.dumps({'user': data})
+    return render_template('index.html', data=data)
 
+@bp.route('/payform')
+@login_required
+def payform():
+    return render_template('index.html')
 
 @bp.route('/delete')
 @bp.route('/delete/<token>')
