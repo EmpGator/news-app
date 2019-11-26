@@ -49,7 +49,8 @@ def profile():
     return render_template('index.html', data=data)
 
 
-@bp.route('/profileedit', methods=['GET', 'POST'])
+@bp.route('/profileEdit', methods=['GET', 'POST'])
+@bp.route('/profileEdit/', methods=['GET', 'POST'])
 @login_required
 def edit():
     """
