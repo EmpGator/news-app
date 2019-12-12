@@ -118,8 +118,6 @@ def dashboard():
     """
     Main page view for logged in users
 
-    TODO: cleanup code here
-
     :return: index.html with article data
     """
     art_data = get_articles()
@@ -136,12 +134,12 @@ def dashboard():
             for i in current_user.read_articles][:-6:-1]
     favs = [{'title': i.name, 'link': i.url} for i in current_user.fav_articles][:-6:-1]
     recent = read + favs
-    from app.models import  PaymentHistory
-    payments = [i.get_dict() for i in PaymentHistory.query.filter_by(user=current_user)]
+    #from app.models import  PaymentHistory
+    #payments = [i.get_dict() for i in PaymentHistory.query.filter_by(user=current_user)]
     user_data = {'name': name, 'email': email, 'bought': bought, 'subscription_end': end, 'favoriteArticles': favs,
-                'package_end': paid, 'tokens': current_user.tokens, 'latestArticles': read, 'recentArticles': recent, 'payments': payments}
-
-    data = {'articles': art_data, 'user': user_data}
+                'package_end': paid, 'tokens': current_user.tokens, 'latestArticles': read, 'recentArticles': recent}
+    providers = [{'name': provider.name, 'icon': provider.image, 'url': provider.url} for provider in Publisher.query.filter(Publisher.name != 'All')]
+    data = {'articles': art_data, 'user': user_data, 'providers': providers}
     data = json.dumps(data)
     return render_template('index.html', data=data)
 

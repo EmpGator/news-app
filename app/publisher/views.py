@@ -1,7 +1,6 @@
 import json
 import math
 from collections import Counter, defaultdict
-from pprint import PrettyPrinter
 from statistics import mean
 
 from flask import Blueprint, render_template, url_for, redirect, request
@@ -43,8 +42,6 @@ def analytics():
     data = {'name': publisher.name, 'percent_of_total_revenue': revenue, 'payment_percent': payment_percent,
             'top_articles': articles, 'logo': publisher.image, **anal}
 
-    pp = PrettyPrinter(indent=4)
-    pp.pprint(data)
     data = json.dumps(data)
     return render_template('index.html', data=data)
 

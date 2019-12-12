@@ -164,6 +164,7 @@ class Article(db.Model):
     description = db.Column(db.String(3000))
     url = db.Column(db.String(2000), unique=True, nullable=False)
     hits = db.Column(db.Integer, nullable=False, default=0)
+    clicks = db.Column(db.Integer, nullable=False, default=0)
     monthly_pay = db.Column(db.Integer, nullable=False, default=0)
     package_pay = db.Column(db.Integer, nullable=False, default=0)
     single_pay = db.Column(db.Integer, nullable=False, default=0)
@@ -262,18 +263,20 @@ def init_publishers():
 
     :return: None
     """
-    from os import path
+    publishers = Publisher.query.all()
+    if publishers:
+        return
 
+    """
+    from os import path
+    
     names = [
         ('Helsingin sanomat', f'{PUBLISHER_DOMAIN}/hs', path.join('static', 'media', 'Helsinginsanomat.7df10021.svg')),
         ('Turun sanomat', f'{PUBLISHER_DOMAIN}/ts', path.join('static', 'media', 'Turunsanomat.2b59c2f8.svg')),
         ('Savon sanomat', f'{PUBLISHER_DOMAIN}/ss', path.join('static', 'media', 'savonsanomat.d8cb55d7.svg')),
         ('Kauppalehti', f'{PUBLISHER_DOMAIN}/kl', path.join('static', 'media', 'kauppalehti.ec98efbe.svg')),
         ('Keskisuomalainen', f'{PUBLISHER_DOMAIN}/ks', path.join('static', 'media', 'keskisuomalainen.0b4f2b1c.svg'))]
-    publishers = Publisher.query.all()
-    if publishers:
-        return
-
+    
     pw_hash = pbkdf2_sha256.hash('test')
     for i, url, img in names:
         pub = Publisher(name=i, url=url, image=img, rss=f'http://{url}/rss')
@@ -282,8 +285,10 @@ def init_publishers():
         user = User(first_name='', last_name='', email=i, password=pw_hash, role=Role.PUBLISHER,
                     publisher=pub)
         db.session.add(user)
+    """
     pub = Publisher(name='All', url='admin', rss='admin')
     db.session.add(pub)
+    pw_hash = pbkdf2_sha256.hash('test')
     # noinspection PyArgumentList
     user = User(first_name='', last_name='', email='admin', password=pw_hash, role=Role.ADMIN,
                 publisher=pub)
