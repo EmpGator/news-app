@@ -271,8 +271,8 @@ def init_publishers():
     
     names = [
         ('News',f'{PUBLISHER_DOMAIN}/news', path.join('static', 'media', 'news.a0665b1c.svg')),
-        ('The Other News',f'{PUBLISHER_DOMAIN}/news', path.join('static', 'media', 'other.14749420.svg')),
-        ('Waldo News',f'{PUBLISHER_DOMAIN}/news', path.join('static', 'media', 'waldo.ff055df6.svg')),
+        ('The Other News',f'{PUBLISHER_DOMAIN}/theothernews', path.join('static', 'media', 'other.14749420.svg')),
+        ('Waldo News',f'{PUBLISHER_DOMAIN}/waldonews', path.join('static', 'media', 'waldo.ff055df6.svg')),
     ]
     
     pw_hash = pbkdf2_sha256.hash('test')
