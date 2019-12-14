@@ -196,3 +196,15 @@ def redirect_to_mocksites(site=''):
         return make_response('not found', 404)
     url = f'http://{PUBLISHER_DOMAIN}/{site}'
     return redirect(url)
+
+@app.route('/news')
+def redirect_to_news():
+    return redirect(f'http://{PUBLISHER_DOMAIN}/news/')
+
+@app.route('/other')
+def redirect_to_other():
+    return redirect(f'http://{PUBLISHER_DOMAIN}/theothernews')
+
+@app.route('/waldo')
+def redirect_to_waldo():
+    return redirect(f'http://{PUBLISHER_DOMAIN}/waldonews')

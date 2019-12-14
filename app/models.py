@@ -266,16 +266,14 @@ def init_publishers():
     publishers = Publisher.query.all()
     if publishers:
         return
-
-    """
+    # TODO: init 3 providers
     from os import path
     
     names = [
-        ('Helsingin sanomat', f'{PUBLISHER_DOMAIN}/hs', path.join('static', 'media', 'Helsinginsanomat.7df10021.svg')),
-        ('Turun sanomat', f'{PUBLISHER_DOMAIN}/ts', path.join('static', 'media', 'Turunsanomat.2b59c2f8.svg')),
-        ('Savon sanomat', f'{PUBLISHER_DOMAIN}/ss', path.join('static', 'media', 'savonsanomat.d8cb55d7.svg')),
-        ('Kauppalehti', f'{PUBLISHER_DOMAIN}/kl', path.join('static', 'media', 'kauppalehti.ec98efbe.svg')),
-        ('Keskisuomalainen', f'{PUBLISHER_DOMAIN}/ks', path.join('static', 'media', 'keskisuomalainen.0b4f2b1c.svg'))]
+        ('News',f'{PUBLISHER_DOMAIN}/news', path.join('static', 'media', 'news.a0665b1c.svg')),
+        ('The Other News',f'{PUBLISHER_DOMAIN}/news', path.join('static', 'media', 'other.14749420.svg')),
+        ('Waldo News',f'{PUBLISHER_DOMAIN}/news', path.join('static', 'media', 'waldo.ff055df6.svg')),
+    ]
     
     pw_hash = pbkdf2_sha256.hash('test')
     for i, url, img in names:
@@ -285,7 +283,7 @@ def init_publishers():
         user = User(first_name='', last_name='', email=i, password=pw_hash, role=Role.PUBLISHER,
                     publisher=pub)
         db.session.add(user)
-    """
+
     pub = Publisher(name='All', url='admin', rss='admin')
     db.session.add(pub)
     pw_hash = pbkdf2_sha256.hash('test')
