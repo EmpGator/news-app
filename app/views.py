@@ -65,19 +65,35 @@ def fetch_articles():
         if author:
             for i, entry in enumerate(feed.entries):
                 url = entry.link
-                if not Article.query.filter_by(url=url).first():
+                existing_art = Article.query.filter_by(url=url).first()
+
+                try:
                     img = entry.media_content[0]['url']
-                    if not img:
-                        img = author.image
-                    try:
-                        category = Category(entry.category)
-                    except Exception as e:
-                        category = Category('')
+                except Exception as e:
+                    print(e)
+                    img = None
+                if not img:
+                    img = author.image
+                try:
+                    category = Category(entry.category)
+                except Exception as e:
+                    category = Category('')
+                try:
                     day = date.fromisoformat(entry.published)
+                except Exception as e:
+                    day = date.today()
+                if not existing_art:
                     article = Article(name=entry.title, publisher=author, image=img, url=url,
                                       description=entry.description, date=day, category=category)
                     db.session.add(article)
                     db.session.commit()
+                else:
+                    existing_art.image = img
+                    existing_art.category = category
+                    existing_art.date = day
+                    db.session.commit()
+
+
             print(f'fetched {author.url} articles succesfully')
         else:
             print('Couldnt find author with given url')
