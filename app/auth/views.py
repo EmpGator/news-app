@@ -160,7 +160,7 @@ def login():
             return render_template('set_cookies.html', domains=publisher_domain_list, token=access_token,
                                    url_to=url_for('dashboard'))
         else:
-            print('username or pass incorrect')
+            flash('Incorrect username or password ')
 
     return render_template('index.html')
 
@@ -193,7 +193,7 @@ def forgotpw():
             if not user:
                 flash(f"User with email {email} doesn't exists")
             else:
-                flash(f'You need to confirm email: {email} first')
+                flash(f'You need to confirm email: {email} before you can reset password')
 
     return render_template('index.html')
 

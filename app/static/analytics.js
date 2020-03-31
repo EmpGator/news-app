@@ -47,3 +47,4 @@ window.onbeforeunload = function(e) {
     let dur = TimeMe.getTimeOnCurrentPageInSeconds();
     sendAnalytics(getAnalytics(lat, lon, dur,time));
 };
+
