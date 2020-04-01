@@ -47,18 +47,18 @@ def validate_and_hash_password(pw, pw_again):
 
 def send_confirm_email(user):
     # TODO: merge with password reset email
-    sender = 'tridample@gmail.com'
+    sender = 'finnplus@gmx.com' #'tridample@gmail.com'
     msg = Message('Confirmation email',sender=sender, recipients=[user.email])
     serializer = URLSafeSerializer('verification_salt')
     token = serializer.dumps(user.id)
-    msg.body = f'Confirmation link: {FINNPLUS_DOMAIN}/activate/{token}'
+    msg.body = f'Finnplus account confirmation link: {FINNPLUS_DOMAIN}/activate/{token}'
     print(f'{FINNPLUS_DOMAIN}/activate/{token}')
     mail.send(msg)
     return 'Email sent'
 
 
 def send_password_reset_mail(user):
-    sender = 'tridample@gmail.com'
+    sender = 'finnplus@gmx.com' #'tridample@gmail.com'
     serializer = URLSafeSerializer('reset_salt')
     token = serializer.dumps(user.id)
     msg = Message('Password reset', sender=sender, recipients=[user.email])

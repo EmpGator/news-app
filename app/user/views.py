@@ -25,6 +25,15 @@ TODO: add support for account deletion
 bp = Blueprint('user', __name__)
 
 
+@bp.route('/userinfo', methods=['POST', 'GET'])
+@login_required
+def user_info():
+    end = str(current_user.subscription_end) if current_user.subscription_end else None
+    paid = current_user.prepaid_articles
+    data = {'subscription_end': end, 'package_end': paid, 'tokens': current_user.tokens}
+    return jsonify(data)
+
+
 @bp.route('/profile')
 @login_required
 def profile():
