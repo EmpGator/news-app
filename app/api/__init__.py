@@ -92,7 +92,7 @@ def get_user_info(user):
         msg = f'{user.prepaid_articles} articles left'
     else:
         method = 'Single payments'
-        msg = f'{user.tokens} tokens left'
+        msg = f'{user.tokens} articles left'
 
     data = {
         'access': False,
