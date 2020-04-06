@@ -50,8 +50,8 @@ def profile():
     payments = [i.get_dict() for i in PaymentHistory.query.filter_by(user=current_user)]
     if not pic:
         pic = url_for('static', filename='media/profile-placeholder.5a0ca145.png')
-    latest = [{'title': i.article.name, 'link': i.article.url, 'accessed': str(i.day)} for i in current_user.read_articles if i]
-    favs = [{'title': i.name, 'link': i.url} for i in current_user.fav_articles if i]
+    latest = [{'title': i.article.name, 'link': i.article.url, 'accessed': str(i.day)} for i in current_user.read_articles if i is not None]
+    favs = [{'title': i.name, 'link': i.url} for i in current_user.fav_articles if i is not None]
     data = {'name': name, 'email': email, 'subscription_end': end, 'favoriteArticles': favs, 'image': pic,
             'package_end': paid, 'tokens': current_user.tokens, 'latestArticles': latest[::-1], 'payments': payments}
     data = json.dumps({'user': data})
@@ -112,8 +112,8 @@ def payment():
     pic = current_user.image
     if not pic:
         pic = url_for('static', filename='media/profile-placeholder.5a0ca145.png')
-    latest = [{'title': i.article.name, 'link': i.article.url, 'accessed': str(i.day)} for i in current_user.read_articles if i]
-    favs = [{'title': i.name, 'link': i.url} for i in current_user.fav_articles if i]
+    latest = [{'title': i.article.name, 'link': i.article.url, 'accessed': str(i.day)} for i in current_user.read_articles if i is not None]
+    favs = [{'title': i.name, 'link': i.url} for i in current_user.fav_articles if i is not None]
     data = {'name': name, 'email': email, 'subscription_end': end, 'favoriteArticles': favs, 'image': pic,
             'package_end': paid, 'tokens': current_user.tokens, 'latestArticles': latest[::-1]}
     data = json.dumps({'user': data})

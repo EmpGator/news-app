@@ -147,8 +147,8 @@ def dashboard():
     end = str(current_user.subscription_end) if current_user.subscription_end else None
     paid = current_user.prepaid_articles
     read = [{'title': i.article.name, 'link': i.article.url, 'accessed': str(i.day), 'author': i.article.publisher.name}
-            for i in current_user.read_articles if i][:-6:-1]
-    favs = [{'title': i.name, 'link': i.url} for i in current_user.fav_articles if i][:-6:-1]
+            for i in current_user.read_articles if i is not None][:-6:-1]
+    favs = [{'title': i.name, 'link': i.url} for i in current_user.fav_articles if i is not None][:-6:-1]
     recent = read + favs
     #from app.models import  PaymentHistory
     #payments = [i.get_dict() for i in PaymentHistory.query.filter_by(user=current_user)]
@@ -180,8 +180,8 @@ def analytics():
 
 @app.route('/user_activities')
 def user_activities():
-    read = [get_article_data(i.article) for i in current_user.read_articles if i]
-    favs = [get_article_data(i) for i in current_user.fav_articles if i]
+    read = [get_article_data(i.article) for i in current_user.read_articles if i is not None]
+    favs = [get_article_data(i) for i in current_user.fav_articles if i is not None]
     recent = read + favs
     data = {
                 'favoriteArticles': favs,
