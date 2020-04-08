@@ -115,17 +115,6 @@ def fetch_articles_view():
     return make_response('ok', 200)
 
 
-@app.route('/temp')
-def rename_db_images():
-    from app.models import Article
-    articles = Article.query.all()
-    for article in articles:
-        article.image = f'static/thumbnails/thumbnail_{article.id}.jpg'
-        print(article.image)
-    db.session.commit()
-    return 'ok'
-
-
 @app.route('/')
 def index():
     """
@@ -235,3 +224,4 @@ def redirect_to_other():
 @app.route('/waldo')
 def redirect_to_waldo():
     return redirect(f'http://{PUBLISHER_DOMAIN}/waldonews')
+
