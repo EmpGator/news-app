@@ -63,7 +63,7 @@ def send_password_reset_mail(user):
     token = serializer.dumps(user.id)
     msg = Message('Password reset', sender=sender, recipients=[user.email])
     msg.body = f'Password reset link: {FINNPLUS_DOMAIN}/reset/{token}'
-    print(f'{FINNPLUS_DOMAIN}/resetpw/{token}')
+    print(f'{FINNPLUS_DOMAIN}/reset/{token}')
     mail.send(msg)
     return 'Email sent'
 
@@ -211,7 +211,7 @@ def activate(token=None):
         return 'Something went wrong'
 
 
-@bp.route('/resetpw/<token>', methods=['POST', 'GET'])
+@bp.route('/reset/<token>', methods=['POST', 'GET'])
 def reset(token=None):
     serializer = URLSafeSerializer('reset_salt')
     try:
