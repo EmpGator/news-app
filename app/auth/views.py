@@ -52,6 +52,7 @@ def send_confirm_email(user):
     serializer = URLSafeSerializer('verification_salt')
     token = serializer.dumps(user.id)
     msg.body = f'Finnplus account confirmation link: {FINNPLUS_DOMAIN}/activate/{token}'
+    msg.html = f'<h3>Finnplus account confirmation link:</h3> <a href={FINNPLUS_DOMAIN}/activate/{token}>Activate your finnplus account here</a>'
     print(f'{FINNPLUS_DOMAIN}/activate/{token}')
     mail.send(msg)
     return 'Email sent'
@@ -63,6 +64,7 @@ def send_password_reset_mail(user):
     token = serializer.dumps(user.id)
     msg = Message('Password reset', sender=sender, recipients=[user.email])
     msg.body = f'Password reset link: {FINNPLUS_DOMAIN}/reset/{token}'
+    msg.html = f'<h3>Finnplus password reset link:</h3> <a href={FINNPLUS_DOMAIN}/reset/{token}>Reset your password by clicking this link</a>'
     print(f'{FINNPLUS_DOMAIN}/reset/{token}')
     mail.send(msg)
     return 'Email sent'

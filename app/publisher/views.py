@@ -106,7 +106,7 @@ def get_top_articles(publisher):
     :return: list of article objects
 
     """
-    MAX_ARTICLES = 4
+    MAX_ARTICLES = 15
     art = {'title': None, 'link': None, 'total_reads': 0, 'monthly_percent': 0, 'package_percent': 0, 'single_percent': 0}
     articles = [i.art_analytics_data() for i in sorted(publisher.articles, reverse=True,
                                                                 key=attrgetter('hits'))[:MAX_ARTICLES] if i.hits]
