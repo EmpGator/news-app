@@ -19,6 +19,8 @@ import json
 # for autodoc
 #from flask import Blueprint
 #app = Blueprint('asd', __name__)
+from app.article_parsers import TheVergeParser, EngadgetParser, PoliticoParser, GuardianParser
+
 
 def get_articles(publishers=None, categories=None):
     """
@@ -65,8 +67,21 @@ def get_article_data(article):
     return art_data
 
 
+def generate_article_data(url):
+    parser_key_pairs = {
+        'guardian': GuardianParser,
+        'politico': PoliticoParser,
+        'theverge': TheVergeParser,
+        'engadget': EngadgetParser
+    }
+    for key, parser in  parser_key_pairs.items():
+        if key in url.lower():
+            return parser(url).get_content()
+
+
 def fetch_articles():
     print('Fetching articles')
+    # TODO: fetch article content from external_publishers
     publishers = Publisher.query.filter(Publisher.name != 'All')
     articles_url_association_dict = {}
     articles = Article.query.all()
@@ -122,7 +137,7 @@ def fetch_articles():
                     except:
                         if hasattr(entry, 'description'):
                             desc = entry.description
-                            soup = BeautifulSoup(desc)
+                            soup = BeautifulSoup(desc, 'html.parser')
                             desc = soup.text.strip()
                             for img in soup.findAll('img'):
                                 img = img.get('src')
@@ -139,6 +154,8 @@ def fetch_articles():
                             article.description = entry.description
                     if fetch_from_mocksite:
                         articles_url_association_dict[url] = article
+                        #generate article here?
+                        #gather contents in dict
                     if not existing and not fetch_from_mocksite:
                         db.session.add(article)
                 print(f'fetched {author.url} articles succesfully')
@@ -154,17 +171,33 @@ def fetch_articles():
     try:
         payload = {'urls': list(articles_url_association_dict.keys())}
         url = f'http://{PUBLISHER_DOMAIN}/check_urls'
-        res = requests.post(url, json=payload)
+        res = requests.post(url, json=payload) # ask existing article data
         data = res.json()
-        urls = [i.url for i in articles]
+        mocksite_generate_article_data = []
+        for url in data.get('not_existing'):
+            new_art_data = generate_article_data(url)
+            if new_art_data:
+                header, subheader, avc, roc = new_art_data
+                mocksite_generate_article_data.append({
+                    'url': url,
+                    'header': header,
+                    'subheader': subheader,
+                    'avc': avc,
+                    'roc': roc
+                })
 
+        mock_generate_art_url = f'http://{PUBLISHER_DOMAIN}/generate_article'
+        resp = requests.post(mock_generate_art_url, json=mocksite_generate_article_data)
+        resp = resp.json()
+        existing_urls = [i.url for i in articles]
+        existing_mock_data = data.get('existing')
+        existing_mock_data = {**existing_mock_data, **resp}
         for url, article in articles_url_association_dict.items():
-            mock_url = data.get(url, None)
-            if mock_url and mock_url not in urls:
+            mock_url = existing_mock_data.get(url, None)
+            if mock_url and mock_url not in existing_urls:
                 article.url = mock_url
                 db.session.add(article)
             else:
-                print(article.url)
                 try:
                     db.session.expunge(article)
                 except Exception as e:
