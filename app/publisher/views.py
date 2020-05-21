@@ -7,7 +7,7 @@ from flask import Blueprint, render_template, url_for, redirect, request
 from flask_login import current_user, login_required
 
 from app import db
-from app.models import Publisher, Analytics
+from app.models import Publisher, Analytics, User, PaymentHistory
 from operator import attrgetter, itemgetter
 from app.constants import Role
 
@@ -55,6 +55,20 @@ def edit_rss():
             return redirect(url_for('publisher.analytics'))
     return render_template('index.html')
 
+@bp.route('/userdata')
+@login_required
+def user_data():
+    if current_user.role != Role.PUBLISHER:
+        return redirect(url_for('dashboard'))
+    users = User.query.filter(User.role == Role.USER)
+    for user in users:
+        if not hasattr(user, 'payment_history'):
+            user.payment_history = [i.get_dict() for i in PaymentHistory.query.filter_by(user=user)]
+            user.total_amount_spent = round(sum(p.get('value', 0) for p in user.payment_history), 2)
+        if not hasattr(user, 'amount_of_read_articles'):
+            user.amount_of_read_articles = len([i for i in user.read_articles if i.article])
+
+    return render_template('user_table.html', users=users)
 
 def get_analytics_data():
     devices = {}

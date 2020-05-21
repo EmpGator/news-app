@@ -142,6 +142,8 @@ def fetch_articles():
                             for img in soup.findAll('img'):
                                 img = img.get('src')
                                 break
+                        elif hasattr(entry, 'summary'):
+                            desc = entry.summary
                     if not article:
                         article = Article(name=entry.title, publisher=author, image=img, url=url,
                                           description=desc, date=day, category=category)
@@ -175,7 +177,10 @@ def fetch_articles():
         data = res.json()
         mocksite_generate_article_data = []
         for url in data.get('not_existing'):
-            new_art_data = generate_article_data(url)
+            try:
+                new_art_data = generate_article_data(url)
+            except:
+                new_art_data = None
             if new_art_data:
                 header, subheader, avc, roc = new_art_data
                 mocksite_generate_article_data.append({

@@ -52,6 +52,14 @@ class BaseParser:
             return self.header, self.subheader, self.always_visible_content, self.rest_of_content
         return []
 
+    def create_test_file(self):
+        with open('test.html', 'w') as f:
+            print(f'<h1>{self.header}</h1>', file=f)
+            if self.subheader:
+                print(f'<h2>{self.subheader}</h2>', file=f)
+            for line in self.content:
+                print(line, file=f)
+
 
 class GuardianParser(BaseParser):
 
@@ -121,6 +129,7 @@ class TheVergeParser(BaseParser):
             if child.name in ['p', 'figure']:
                 self.content.append(str(child))
 
+
 class EngadgetParser(BaseParser):
 
     def parse_header(self):
@@ -136,6 +145,7 @@ class EngadgetParser(BaseParser):
                 if child.get('alt', '').lower() not in ['share', 'like', 'comment']:
                     self.content.append(str(child))
 
+
 class UsaTodayParser(BaseParser):
 
     def parse_header(self):
@@ -150,10 +160,84 @@ class UsaTodayParser(BaseParser):
             if child.name == 'div' and 'asset-image' in child.get('class', ''):
                 self.content.append(str(child))
 
+
+class SpiegelParser(BaseParser):
+
+    def parse_header(self):
+        for header_tag in self.soup.findAll('header'):
+            header = header_tag.find('span', class_='align-middle')
+            if not header:
+                continue
+            self.header = header.text.strip()
+            subheader = header_tag.find('div', class_='RichText')
+            if subheader:
+                self.subheader = subheader.text.strip()
+            break
+
+    def parse_content(self):
+        article = self.soup.find('article')
+        div = article.find('div', class_='relative')
+        for child in div.descendants:
+            if child.name in ['p']:
+                self.content.append(str(child))
+            if child.name in ['figure']:
+                for button in child.find_all('button'):
+                    button.extract()
+                self.content.append(str(child))
+
+
+
+class SfgateParser(BaseParser):
+
+    def parse_header(self):
+        div = self.soup.find('div', class_='article-content')
+        header = div.find('h1')
+        if header:
+            self.header = header.text.strip()
+
+
+
+    def parse_content(self):
+        div = self.soup.find('div', class_='article-body')
+        for child in div.descendants:
+            if child.name in ['p', 'figure', 'img']:
+                self.content.append(str(child))
+
+
+class DailyMailParser(BaseParser):
+
+    def parse_header(self):
+        div = self.soup.find('div', class_='article-text')
+        header = div.find('h2')
+        if header:
+            self.header = header.text.strip()
+
+    def parse_content(self):
+        div = self.soup.find('div', itemprop='articleBody')
+        for child in div.descendants:
+            if child.name in ['p', 'figure', 'img']:
+                self.content.append(str(child))
+
+
+class StuffParser(BaseParser):
+
+    def parse_header(self):
+        div = self.soup.find('div', class_='sics-component__news-page__container')
+        header = div.find('h1')
+        if header:
+            self.header = header.text.strip()
+
+    def parse_content(self):
+        div = self.soup.find('div', class_='sics-component__story')
+        for child in div.descendants:
+            if child.name in ['p']:
+                self.content.append(str(child))
+
+
 if __name__ == '__main__':
-    urls= [
-        'https://www.politico.com/news/2020/05/03/can-joe-bidens-team-make-him-go-viral-228706'
-        ]
+    urls = [
+        'https://www.stuff.co.nz/world/europe/121540706/european-leaders-are-blunt-coronavirus-vaccines-wont-come-soon-enough'
+    ]
+
     for url in urls:
-        gp = PoliticoParser(url)
-        print(f'Success: {gp.success}')
+        StuffParser(url).create_test_file()
