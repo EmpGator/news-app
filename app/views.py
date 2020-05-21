@@ -19,7 +19,8 @@ import json
 # for autodoc
 #from flask import Blueprint
 #app = Blueprint('asd', __name__)
-from app.article_parsers import TheVergeParser, EngadgetParser, PoliticoParser, GuardianParser
+from app.article_parsers import TheVergeParser, EngadgetParser, PoliticoParser, GuardianParser, StuffParser, \
+    SpiegelParser, DailyMailParser
 
 
 def get_articles(publishers=None, categories=None):
@@ -72,7 +73,10 @@ def generate_article_data(url):
         'guardian': GuardianParser,
         'politico': PoliticoParser,
         'theverge': TheVergeParser,
-        'engadget': EngadgetParser
+        'engadget': EngadgetParser,
+        'stuff': StuffParser,
+        'spiegel': SpiegelParser,
+        'dailymail': DailyMailParser,
     }
     for key, parser in  parser_key_pairs.items():
         if key in url.lower():
@@ -86,19 +90,27 @@ def fetch_articles():
     articles_url_association_dict = {}
     articles = Article.query.all()
     external_publishers = [
-        'theguardian.com',
-        'politico.com',
-        'theverge.com',
-        'engadget.com',
-        'usatoday'
+        'theguardian',
+        'politico',
+        'theverge',
+        'engadget',
+        'stuff',
+        'spiegel',
+        'sfgate',
+        'dailymail'
     ]
     for publisher in publishers:
         src = publisher.rss
         url = publisher.url
         print(f'rss: {src}, url: {url}')
-        feed = feedparser.parse(src)
+        try:
+            r = requests.get(src)
+            feed = feedparser.parse(r.text)
+        except Exception as e:
+            print(f'Exception at 103: {e}')
+            continue
         author = publisher
-        if author:
+        if author and feed:
             try:
                 for i, entry in enumerate(feed.entries):
                     fetch_from_mocksite = False
@@ -119,11 +131,13 @@ def fetch_articles():
                     try:
                         terms = [i.term.lower() for i in entry.tags]
                         # TODO: coerce wordlist entries into category
+                        category = None
                         for c in Category:
                             if c.value in terms:
                                 category = c
                                 break
-                        #category = Category(entry.category)
+                        if not category:
+                            category = Category(entry.category)
                         if 'politico' in url:
                             category = Category.HEALTH
                     except Exception as e:
@@ -162,7 +176,7 @@ def fetch_articles():
                         db.session.add(article)
                 print(f'fetched {author.url} articles succesfully')
             except Exception as e:
-                print(e)
+                print(f'Exception at 172: {e}')
         else:
             print('Couldnt find author with given url')
             print(f'URL:\n{url}')
@@ -171,15 +185,19 @@ def fetch_articles():
                 print(i)
             print('\n'*3)
     try:
+        print('Fetching association table')
         payload = {'urls': list(articles_url_association_dict.keys())}
         url = f'http://{PUBLISHER_DOMAIN}/check_urls'
+        print('Asking existing article data')
         res = requests.post(url, json=payload) # ask existing article data
         data = res.json()
         mocksite_generate_article_data = []
-        for url in data.get('not_existing'):
+        print('Fetch not existing articles data')
+        for url in data.get('not_existing', []):
             try:
                 new_art_data = generate_article_data(url)
-            except:
+            except Exception as e:
+                print(f'Exception at 193: {e}')
                 new_art_data = None
             if new_art_data:
                 header, subheader, avc, roc = new_art_data
@@ -191,24 +209,30 @@ def fetch_articles():
                     'roc': roc
                 })
 
+        print('Send article generation request')
         mock_generate_art_url = f'http://{PUBLISHER_DOMAIN}/generate_article'
         resp = requests.post(mock_generate_art_url, json=mocksite_generate_article_data)
         resp = resp.json()
+        print('associate urls with article objects')
         existing_urls = [i.url for i in articles]
-        existing_mock_data = data.get('existing')
+        existing_mock_data = data.get('existing', {})
         existing_mock_data = {**existing_mock_data, **resp}
         for url, article in articles_url_association_dict.items():
             mock_url = existing_mock_data.get(url, None)
             if mock_url and mock_url not in existing_urls:
                 article.url = mock_url
-                db.session.add(article)
+                try:
+                    db.session.add(article)
+                except Exception as e:
+                    print(f'Exception at 219: {e}')
             else:
                 try:
                     db.session.expunge(article)
                 except Exception as e:
-                    print(f'Exception: {e}')
+                    print(f'Exception at 224: {e}')
+        print('done')
     except Exception as e:
-        print(e)
+        print(f'Exception at 227 {e}')
     db.session.commit()
 
 @app.route('/fetch_articles')
