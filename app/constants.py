@@ -18,9 +18,9 @@ BUNDLE_SIZE = 15
 # spl address where tokens paid goes
 SLP_ADDR = 'simpleledger:qq0nu0xa5rxj72wx043ulhm3qs28y95davd6djawyh'
 # token prices for different payments
-MONTH_PRICE = 1000
-BUNDLE_PRICE = 500
-SINGLE_PRICE = 100
+MONTH_PRICE = 950
+BUNDLE_PRICE = 645
+SINGLE_PRICE = 50
 BAD_CHAR_LIST = list('!"@#£¤$%&/{([)]=}+?\\´`\'<>|¨^~*,.-_;:½§1234567890')
 
 

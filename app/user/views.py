@@ -165,7 +165,8 @@ def TopUp():
     Checks chosen package and if amount was given. Adds information to user object
     :return: Redirect to index page
     """
-    print(request.form)
+    monthly_price = 9.50
+    package_price = 6.45
     option = PayOptions(request.form.get('pay-method', "0"))
     if option == PayOptions.MONTHLY:
         analytics = Publisher.query.filter_by(name='All').first()
@@ -176,11 +177,11 @@ def TopUp():
             current_user.subscription_end = date.today() + timedelta(days=SUBS_TIME)
         else:
             current_user.subscription_end += timedelta(days=SUBS_TIME)
-        db.session.add(PaymentHistory(user=current_user,  amount=29.99,  day=date.today(), pay_type='Monthly'))
+        db.session.add(PaymentHistory(user=current_user,  amount=monthly_price,  day=date.today(), pay_type='Monthly'))
         db.session.commit()
     elif option == PayOptions.PACKAGE:
         current_user.prepaid_articles += BUNDLE_SIZE
-        db.session.add(PaymentHistory(user=current_user,  amount=5,  day=date.today(), pay_type='Package'))
+        db.session.add(PaymentHistory(user=current_user,  amount=package_price,  day=date.today(), pay_type='Package'))
         db.session.commit()
     elif option == PayOptions.SINGLE:
         amount = request.form.get('amount')

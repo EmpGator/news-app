@@ -130,7 +130,6 @@ def fetch_articles():
                         img = author.image
                     try:
                         terms = [i.term.lower() for i in entry.tags]
-                        # TODO: coerce wordlist entries into category
                         category = None
                         for c in Category:
                             if c.value in terms:
@@ -326,6 +325,10 @@ def user_activities():
 def pub_docs():
     return render_template('pub_docs.html')
 
+@app.route('/about/')
+def about():
+    return(render_template('index.html'))
+
 
 @app.route('/<site>/')
 def redirect_to_mocksites(site=''):
@@ -355,4 +358,3 @@ def redirect_to_other():
 @app.route('/waldo')
 def redirect_to_waldo():
     return redirect(f'http://{PUBLISHER_DOMAIN}/waldonews')
-

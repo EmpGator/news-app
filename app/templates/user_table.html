@@ -41,10 +41,10 @@
                 {% endif %}
             {% endfor %}
         </td>
-        <td>{{ user.total_amount_spent }}</td>
+        <td>{{ user.total_amount_spent }}€</td>
         <td>
             {% for ph in user.payment_history %}
-                {{ ph.date }}, {{ ph.value }}$, {{ ph.type }}<br>
+                {{ ph.date }}, {{ ph.value }}€, {{ ph.type }}<br>
             {% endfor %}
         </td>
 

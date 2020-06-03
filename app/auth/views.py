@@ -71,6 +71,8 @@ def send_password_reset_mail(user):
 
 
 def pay_handler(option, user, amount=None):
+    monthly_price = 9.50
+    package_price = 6.45
     if option == PayOptions.MONTHLY:
         analytics = Publisher.query.filter_by(name='All').first()
         analytics.revenue += (MONTH_PRICE / 100)
@@ -80,10 +82,10 @@ def pay_handler(option, user, amount=None):
             user.subscription_end = date.today() + timedelta(days=SUBS_TIME)
         else:
             user.subscription_end += timedelta(days=SUBS_TIME)
-        db.session.add(PaymentHistory(user=current_user, amount=29.99,  day=date.today(), pay_type='Monthly'))
+        db.session.add(PaymentHistory(user=current_user, amount=monthly_price,  day=date.today(), pay_type='Monthly'))
     elif option == PayOptions.PACKAGE:
         user.prepaid_articles += BUNDLE_SIZE
-        db.session.add(PaymentHistory(user=current_user, amount=5,  day=date.today(), pay_type='Package'))
+        db.session.add(PaymentHistory(user=current_user, amount=package_price,  day=date.today(), pay_type='Package'))
     elif option == PayOptions.SINGLE:
         try:
             amount = int(amount)

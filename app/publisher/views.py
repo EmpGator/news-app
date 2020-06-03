@@ -61,7 +61,7 @@ def edit_rss():
 def user_data():
     if current_user.role != Role.PUBLISHER:
         return redirect(url_for('dashboard'))
-    users = User.query.filter(User.role == Role.USER)
+    users = list(User.query.filter(User.role == Role.USER))
     for user in users:
         if not hasattr(user, 'payment_history'):
             user.payment_history = [i.get_dict() for i in PaymentHistory.query.filter_by(user=user)]
@@ -72,7 +72,7 @@ def user_data():
             user.amount_of_read_articles = len([i for i in user.read_articles if i.article])
         else:
             print('user already has amount of articles')
-
+    print(users)
     return render_template('user_table.html', users=users)
 
 def get_analytics_data():
