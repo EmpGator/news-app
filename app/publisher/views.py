@@ -56,6 +56,7 @@ def edit_rss():
     return render_template('index.html')
 
 @bp.route('/userdata')
+@bp.route('/userdata/')
 @login_required
 def user_data():
     if current_user.role != Role.PUBLISHER:
@@ -65,8 +66,12 @@ def user_data():
         if not hasattr(user, 'payment_history'):
             user.payment_history = [i.get_dict() for i in PaymentHistory.query.filter_by(user=user)]
             user.total_amount_spent = round(sum(p.get('value', 0) for p in user.payment_history), 2)
+        else:
+            print('user already has payment history')
         if not hasattr(user, 'amount_of_read_articles'):
             user.amount_of_read_articles = len([i for i in user.read_articles if i.article])
+        else:
+            print('user already has amount of articles')
 
     return render_template('user_table.html', users=users)
 
