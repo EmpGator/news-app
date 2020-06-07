@@ -85,7 +85,6 @@ def generate_article_data(url):
 
 def fetch_articles():
     print('Fetching articles')
-    # TODO: fetch article content from external_publishers
     publishers = Publisher.query.filter(Publisher.name != 'All')
     articles_url_association_dict = {}
     articles = Article.query.all()
@@ -129,16 +128,19 @@ def fetch_articles():
                     if not img:
                         img = author.image
                     try:
-                        terms = [i.term.lower() for i in entry.tags]
+                        terms = []
+                        if hasattr(entry, 'tags'):
+                            terms = [i.term.lower() for i in entry.tags]
                         category = None
                         for c in Category:
-                            if c.value in terms:
+                            cat_name = c.value.lower()
+                            if len(cat_name) > 0:
+                                cat_name = cat_name[:-1]
+                            if cat_name in terms or cat_name in src.lower() or cat_name in url.lower():
                                 category = c
                                 break
                         if not category:
                             category = Category(entry.category)
-                        if 'politico' in url:
-                            category = Category.HEALTH
                     except Exception as e:
                         category = Category('')
                     try:
