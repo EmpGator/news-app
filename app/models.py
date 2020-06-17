@@ -42,9 +42,11 @@ class PaymentHistory(db.Model):
     amount = db.Column(db.Float, nullable=False)
     day = db.Column(db.Date, nullable=False)
     pay_type = db.Column(db.String(20), nullable=False)
+    pay_with = db.Column(db.String(64), nullable=True)
 
     def get_dict(self):
-        return {'date': str(self.day), 'type': self.pay_type, 'value': self.amount}
+        pay_with = self.pay_with if self.pay_with else 'No payment method saved'
+        return {'date': str(self.day), 'type': self.pay_type, 'value': self.amount, 'pay_with': self.pay_with}
 
 
 class User(UserMixin, db.Model):
@@ -195,13 +197,14 @@ class Article(db.Model):
             print(f'Article has no attribute {method}')
 
     def art_analytics_data(self):
+
         return {
             'title': self.name,
             'link': self.url,
             'total_reads': self.hits,
-            'monthly_percent': round(self.monthly_pay/self.hits*100, 1),
-            'package_percent': round(self.package_pay/self.hits*100, 1),
-            'single_percent': round(self.single_pay/self.hits*100, 1)
+            'monthly_percent': round(self.monthly_pay/self.hits*100, 1) if self.hits else 0,
+            'package_percent': round(self.package_pay/self.hits*100, 1) if self.hits else 0,
+            'single_percent': round(self.single_pay/self.hits*100, 1) if self.hits else 0
         }
 
 

@@ -70,7 +70,7 @@ def send_password_reset_mail(user):
     return 'Email sent'
 
 
-def pay_handler(option, user, amount=None):
+def pay_handler(option, user, amount=None, pay_with='Bank Payment'):
     monthly_price = 9.50
     package_price = 6.45
     if option == PayOptions.MONTHLY:
@@ -82,17 +82,17 @@ def pay_handler(option, user, amount=None):
             user.subscription_end = date.today() + timedelta(days=SUBS_TIME)
         else:
             user.subscription_end += timedelta(days=SUBS_TIME)
-        db.session.add(PaymentHistory(user=current_user, amount=monthly_price,  day=date.today(), pay_type='Monthly'))
+        db.session.add(PaymentHistory(user=current_user, amount=monthly_price,  day=date.today(), pay_type='Monthly', pay_with=pay_with))
     elif option == PayOptions.PACKAGE:
         user.prepaid_articles += BUNDLE_SIZE
-        db.session.add(PaymentHistory(user=current_user, amount=package_price,  day=date.today(), pay_type='Package'))
+        db.session.add(PaymentHistory(user=current_user, amount=package_price,  day=date.today(), pay_type='Package',  pay_with=pay_with))
     elif option == PayOptions.SINGLE:
         try:
             amount = int(amount)
         except Exception as e:
             print(e)
             amount = 0
-        db.session.add(PaymentHistory(user=current_user, amount=amount/2,  day=date.today(), pay_type='Single'))
+        db.session.add(PaymentHistory(user=current_user, amount=amount/2,  day=date.today(), pay_type='Single',  pay_with=pay_with))
         user.tokens += amount
     else:
         return
@@ -116,6 +116,11 @@ def new_entry():
         option = request.form.get('pay-method', "")
         option = PayOptions(option)
         amount = request.form.get('amount')
+        pay_with = request.form.get('pay-with', '1')
+        if pay_with == '1':
+            pay_with = 'Credit card'
+        else:
+            pay_with = 'Bank Payment'
 
         try:
             validate_name(fn+ln)
@@ -131,7 +136,7 @@ def new_entry():
                 print(e)
             login_user(new_user)
             access_token = create_access_token(identity=new_user.id)
-            pay_handler(option, new_user, amount)
+            pay_handler(option, new_user, amount, pay_with)
             publisher_domain_list = [i.url for i in Publisher.query.all()]
             return render_template('set_cookies.html', domains=publisher_domain_list, token=access_token,
                                    url_to=url_for('dashboard'))

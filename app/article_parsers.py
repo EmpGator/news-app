@@ -195,8 +195,6 @@ class SfgateParser(BaseParser):
         if header:
             self.header = header.text.strip()
 
-
-
     def parse_content(self):
         div = self.soup.find('div', class_='article-body')
         for child in div.descendants:
@@ -234,9 +232,17 @@ class StuffParser(BaseParser):
                 self.content.append(str(child))
 
 
+class BbcParser(BaseParser):
+
+    def parse_header(self):
+        pass
+
+    def parse_content(self):
+        pass
+
 if __name__ == '__main__':
     urls = [
-        'https://www.stuff.co.nz/world/europe/121540706/european-leaders-are-blunt-coronavirus-vaccines-wont-come-soon-enough'
+        'https://www.bbc.com/sport/football/52972621'
     ]
 
     for url in urls:

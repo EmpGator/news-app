@@ -5,9 +5,10 @@ from statistics import mean
 
 from flask import Blueprint, render_template, url_for, redirect, request
 from flask_login import current_user, login_required
+from sqlalchemy import desc, func
 
 from app import db
-from app.models import Publisher, Analytics, User, PaymentHistory
+from app.models import Publisher, Analytics, User, PaymentHistory, Article
 from operator import attrgetter, itemgetter
 from app.constants import Role
 
@@ -59,7 +60,7 @@ def edit_rss():
 @bp.route('/userdata/')
 @login_required
 def user_data():
-    if current_user.role != Role.PUBLISHER:
+    if current_user.role not in (Role.PUBLISHER, Role.ADMIN):
         return redirect(url_for('dashboard'))
     users = list(User.query.filter(User.role == Role.USER))
     for user in users:
@@ -72,7 +73,7 @@ def user_data():
             user.amount_of_read_articles = len([i for i in user.read_articles if i.article])
         else:
             print('user already has amount of articles')
-    print(users)
+    users = users[::-1]
     return render_template('user_table.html', users=users)
 
 def get_analytics_data():
@@ -128,8 +129,11 @@ def get_top_articles(publisher):
     MIN_ARTICLES = 4
     MAX_ARTICLES = 15
     art = {'title': None, 'link': None, 'total_reads': 0, 'monthly_percent': 0, 'package_percent': 0, 'single_percent': 0}
-    articles = [i.art_analytics_data() for i in sorted(publisher.articles, reverse=True,
+    if publisher.name != 'All':
+        articles = [i.art_analytics_data() for i in sorted(publisher.articles, reverse=True,
                                                        key=attrgetter('hits'))[:MAX_ARTICLES] if i.hits]
+    else:
+        articles = [i.art_analytics_data() for i in Article.query.order_by(desc('hits')).limit(15).all()]
     while len(articles) < MIN_ARTICLES:
         articles.append(art)
     return articles
@@ -144,8 +148,14 @@ def get_payment_percentages(publisher):
     :return: dictionary with keys: monthly, package and single. Each contains rounded percentage
 
     """
-    payment_percent = {'monthly': publisher.monthly_pay, 'package': publisher.package_pay,
+    if publisher.name != 'All':
+        payment_percent = {'monthly': publisher.monthly_pay, 'package': publisher.package_pay,
                        'single': publisher.single_pay}
+    else:
+        monthly = db.session.query(func.sum(Publisher.monthly_pay)).first()[0]
+        package = db.session.query(func.sum(Publisher.package_pay)).first()[0]
+        single = db.session.query(func.sum(Publisher.single_pay)).first()[0]
+        payment_percent = {'monthly': monthly, 'package':  package, 'single': single}
     all_together = sum(payment_percent.values()) or 1
     return {k: round(v / all_together, 1) for k, v in payment_percent.items()}
 

@@ -32,21 +32,22 @@ def get_articles(publishers=None, categories=None):
     """
     MAX_PER_PUB = 15
     data = []
+    publishers = Publisher.query.order_by('name').all()
     for cat in Category:
-        articles = Article.query.filter(Article.category == cat).order_by(desc(Article.date))
         art_data_lst = []
-        amount_from_pub = {}
-        for i, entry in enumerate(articles):
-            try:
-                amount_from_pub[entry.publisher] += 1
-            except KeyError:
-                amount_from_pub[entry.publisher] = 1
-            if amount_from_pub[entry.publisher] <= MAX_PER_PUB:
-                art_data = get_article_data(entry)
-                art_data_lst.append(art_data)
+        if cat != Category.OTHER:
+            for pub in publishers:
+                articles = Article.query.filter(Article.publisher == pub).filter(Article.category == cat).order_by(desc(Article.date)).limit(MAX_PER_PUB)
+                for art in articles:
+                    art_data_lst.append(get_article_data(art))
+        else:
+            articles = Article.query.filter(Article.category == cat).order_by(desc(Article.date)).limit(100)
+            for art in articles:
+                art_data_lst.append(get_article_data(art))
 
         headline = cat.value
         data.append(dict(name=headline.title(), content=art_data_lst))
+        data[0], data[-1] = data[-1], data[0]
     return data
 
 def get_article_data(article):

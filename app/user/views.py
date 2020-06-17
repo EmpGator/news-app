@@ -168,6 +168,11 @@ def TopUp():
     monthly_price = 9.50
     package_price = 6.45
     option = PayOptions(request.form.get('pay-method', "0"))
+    pay_with = request.form.get('pay-with', '1')
+    if pay_with == '1':
+        pay_with = 'Credit card'
+    else:
+        pay_with = 'Bank Payment'
     if option == PayOptions.MONTHLY:
         analytics = Publisher.query.filter_by(name='All').first()
         analytics.revenue += (MONTH_PRICE / 100)
@@ -177,11 +182,11 @@ def TopUp():
             current_user.subscription_end = date.today() + timedelta(days=SUBS_TIME)
         else:
             current_user.subscription_end += timedelta(days=SUBS_TIME)
-        db.session.add(PaymentHistory(user=current_user,  amount=monthly_price,  day=date.today(), pay_type='Monthly'))
+        db.session.add(PaymentHistory(user=current_user,  amount=monthly_price,  day=date.today(), pay_type='Monthly', pay_with=pay_with))
         db.session.commit()
     elif option == PayOptions.PACKAGE:
         current_user.prepaid_articles += BUNDLE_SIZE
-        db.session.add(PaymentHistory(user=current_user,  amount=package_price,  day=date.today(), pay_type='Package'))
+        db.session.add(PaymentHistory(user=current_user,  amount=package_price,  day=date.today(), pay_type='Package', pay_with=pay_with))
         db.session.commit()
     elif option == PayOptions.SINGLE:
         amount = request.form.get('amount')
@@ -191,7 +196,7 @@ def TopUp():
             print(e)
             amount = 0
         current_user.tokens += amount
-        db.session.add(PaymentHistory(user=current_user, amount=amount/2,  day=date.today(), pay_type='Single'))
+        db.session.add(PaymentHistory(user=current_user, amount=amount/2,  day=date.today(), pay_type='Single', pay_with=pay_with))
         db.session.commit()
     else:
         flash('something went wrong processing payment')
