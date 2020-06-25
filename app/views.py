@@ -270,7 +270,7 @@ def dashboard():
     :return: index.html with article data
     """
     art_data = get_articles()
-    if current_user.role == Role.PUBLISHER:
+    if current_user.role in [Role.PUBLISHER, Role.ADMIN]:
         return redirect(url_for('publisher.analytics'))
 
 

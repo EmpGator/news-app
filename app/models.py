@@ -207,6 +207,18 @@ class Article(db.Model):
             'single_percent': round(self.single_pay/self.hits*100, 1) if self.hits else 0
         }
 
+    def art_data(self):
+        return {
+            'title': self.name,
+            'link': self.url,
+            'publisher': self.publisher.name,
+            'category': self.category,
+            'hits': self.hits,
+            'monthly': round(self.monthly_pay/self.hits*100, 1) if self.hits else 0,
+            'package': round(self.package_pay/self.hits*100, 1) if self.hits else 0,
+            'single': round(self.single_pay/self.hits*100, 1) if self.hits else 0
+        }
+
 
 class Publisher(db.Model):
     """

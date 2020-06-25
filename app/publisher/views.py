@@ -76,6 +76,29 @@ def user_data():
     users = users[::-1]
     return render_template('user_table.html', users=users)
 
+
+@bp.route('/articledata')
+@bp.route('/articledata/')
+@bp.route('/articledata/page/<int:page>')
+@login_required
+def article_data(page=1):
+    MAX_ART_PER_PAGE = 50
+    if current_user.role not in (Role.PUBLISHER, Role.ADMIN):
+        return redirect(url_for('dashboard'))
+    try:
+        if current_user.publisher and current_user.role == Role.PUBLISHER:
+            pagination = Article.query.filter_by(publisher=current_user.publisher).paginate(page, per_page=MAX_ART_PER_PAGE)
+            nextpage = pagination.has_next
+            articles = [art.art_data() for art in pagination.items]
+        else:
+            pagination = Article.query.filter(Article.hits > 0).paginate(page, per_page=MAX_ART_PER_PAGE)
+            nextpage = pagination.has_next
+            articles = [art.art_data() for art in pagination.items]
+    except:
+        return 'Could not create article table'
+    return render_template('article_data.html', articles=articles, page=page, nextpage=nextpage)
+
+
 def get_analytics_data():
     devices = {}
     os = {}
@@ -127,13 +150,13 @@ def get_top_articles(publisher):
 
     """
     MIN_ARTICLES = 4
-    MAX_ARTICLES = 15
+    MAX_ARTICLES = 4
     art = {'title': None, 'link': None, 'total_reads': 0, 'monthly_percent': 0, 'package_percent': 0, 'single_percent': 0}
     if publisher.name != 'All':
         articles = [i.art_analytics_data() for i in sorted(publisher.articles, reverse=True,
                                                        key=attrgetter('hits'))[:MAX_ARTICLES] if i.hits]
     else:
-        articles = [i.art_analytics_data() for i in Article.query.order_by(desc('hits')).limit(15).all()]
+        articles = [i.art_analytics_data() for i in Article.query.order_by(desc('hits')).limit(MAX_ARTICLES).all()]
     while len(articles) < MIN_ARTICLES:
         articles.append(art)
     return articles
@@ -172,11 +195,14 @@ def get_percent_of_total_revenue(publisher):
 
     from app import db
     from sqlalchemy.sql import func
-    qry = db.session.query(func.sum(Publisher.revenue).label('total_revenue'))
+    qry = db.session.query(func.sum(Publisher.monthly_pay).label('total_monthly')).first()
+    all_monthly_hits = 0
+    if len(qry) > 0:
+        all_monthly_hits = qry[0]
     total = Publisher.query.filter_by(name='All').first()
     total_monthly_rev = total.revenue - total.single_pay - total.package_pay
     # total monthly revenue is needed to calculate how much revenue one monthly access has generated
-    per_read_monthly_rev = total_monthly_rev / total.monthly_pay if total.monthly_pay else 0
+    per_read_monthly_rev = total_monthly_rev / all_monthly_hits if all_monthly_hits else 0
     publisher_monthly_pay_rev = per_read_monthly_rev * publisher.monthly_pay
     pub_rev = publisher.single_pay + publisher.package_pay + publisher_monthly_pay_rev
     return round(pub_rev / total.revenue, 1) if total.revenue > 0 else 0
