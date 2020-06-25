@@ -87,11 +87,11 @@ def article_data(page=1):
         return redirect(url_for('dashboard'))
     try:
         if current_user.publisher and current_user.role == Role.PUBLISHER:
-            pagination = Article.query.filter_by(publisher=current_user.publisher).paginate(page, per_page=MAX_ART_PER_PAGE)
+            pagination = Article.query.order_by(desc(Article.hits)).filter_by(publisher=current_user.publisher).paginate(page, per_page=MAX_ART_PER_PAGE)
             nextpage = pagination.has_next
             articles = [art.art_data() for art in pagination.items]
         else:
-            pagination = Article.query.filter(Article.hits > 0).paginate(page, per_page=MAX_ART_PER_PAGE)
+            pagination = Article.query.order_by(desc(Article.hits)).filter(Article.hits >= 0).paginate(page, per_page=MAX_ART_PER_PAGE)
             nextpage = pagination.has_next
             articles = [art.art_data() for art in pagination.items]
     except:

@@ -1,4 +1,5 @@
 from datetime import datetime, date
+from random import shuffle
 from time import time
 from bs4 import BeautifulSoup
 import feedparser
@@ -37,14 +38,24 @@ def get_articles(publishers=None, categories=None):
         art_data_lst = []
         if cat != Category.OTHER:
             for pub in publishers:
-                articles = Article.query.filter(Article.publisher == pub).filter(Article.category == cat).order_by(desc(Article.date)).limit(MAX_PER_PUB)
-                for art in articles:
-                    art_data_lst.append(get_article_data(art))
+                articles = Article.query.order_by(desc(Article.date)).filter(Article.publisher == pub).filter(Article.category == cat).limit(MAX_PER_PUB)
+                art_data_lst += articles
         else:
             articles = Article.query.filter(Article.category == cat).order_by(desc(Article.date)).limit(100)
-            for art in articles:
-                art_data_lst.append(get_article_data(art))
+            art_data_lst += articles
 
+        art_data_lst = sorted(art_data_lst, key=lambda x: x.date, reverse=True)
+        current_date = art_data_lst[0].date if len(art_data_lst) > 0 else None
+        previous_breakpoint = 0
+        for index, art in enumerate(art_data_lst):
+            if art.date != current_date:
+                sublist = art_data_lst[previous_breakpoint:index]
+                shuffle(sublist)
+                art_data_lst[previous_breakpoint:index] = sublist
+                previous_breakpoint = index
+                current_date = art.date
+
+        art_data_lst = list(map(get_article_data, art_data_lst))
         headline = cat.value
         data.append(dict(name=headline.title(), content=art_data_lst))
         data[0], data[-1] = data[-1], data[0]
