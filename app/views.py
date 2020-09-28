@@ -1,4 +1,4 @@
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 from random import shuffle
 from time import time
 from bs4 import BeautifulSoup
@@ -8,7 +8,7 @@ from flask import render_template, redirect, url_for, request, make_response, js
 from flask import current_app as app
 from flask_jwt_extended import create_access_token
 from flask_login import login_required, current_user
-from sqlalchemy import desc
+from sqlalchemy import desc, func
 from werkzeug.useragents import UserAgent
 
 from app.constants import PUBLISHER_DOMAIN, Role, Category
@@ -52,6 +52,8 @@ def get_articles(publishers=None, categories=None):
         current_date = art_data_lst[0].date if len(art_data_lst) > 0 else None
         previous_breakpoint = 0
         for index, art in enumerate(art_data_lst):
+            if (art.date + timedelta(days=60)) < (date.today() + timedelta(days=0)):
+                continue
             if art.date != current_date:
                 sublist = art_data_lst[previous_breakpoint:index]
                 shuffle(sublist)
