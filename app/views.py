@@ -41,9 +41,13 @@ def get_articles(publishers=None, categories=None):
                 articles = Article.query.order_by(desc(Article.date)).filter(Article.publisher == pub).filter(Article.category == cat).limit(MAX_PER_PUB)
                 art_data_lst += articles
         else:
-            articles = Article.query.filter(Article.category == cat).order_by(desc(Article.date)).limit(100)
-            art_data_lst += articles
-
+            for pub in publishers: # type: Publisher
+                if pub.name == 'News' or pub.name == 'Waldo News' or pub.name == 'The other news':
+                    continue
+                articles = Article.query.order_by(desc(Article.date)).filter(Article.publisher == pub).filter(Article.category == cat).limit(MAX_PER_PUB)
+                art_data_lst += articles
+        if len(art_data_lst) > 60:
+            art_data_lst = art_data_lst[:60]
         art_data_lst = sorted(art_data_lst, key=lambda x: x.date, reverse=True)
         current_date = art_data_lst[0].date if len(art_data_lst) > 0 else None
         previous_breakpoint = 0
